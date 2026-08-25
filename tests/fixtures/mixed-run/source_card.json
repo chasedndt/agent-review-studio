@@ -1,0 +1,8 @@
+{
+  "run_id": "mixed-format-run-001",
+  "source_id": "fixture-source-001",
+  "workflow_profile": "mixed_format_import_test",
+  "source_title": "Mixed-format import fixture",
+  "source_summary": "A local fixture that proves canonical aliases and supporting file types remain available together.",
+  "source_claims": []
+}

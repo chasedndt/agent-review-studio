@@ -1,0 +1,3 @@
+{"event":"goal_received","sequence":1,"content":"Review a mixed-format run bundle."}
+{"event":"tool_result","sequence":2,"content":"Supporting evidence loaded."}
+{"event":"decision","sequence":3,"content":"Hold for human review."}

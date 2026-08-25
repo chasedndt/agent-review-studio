@@ -9,4 +9,5 @@ dist/
 
 # Reproducible visual-QA captures stay local unless deliberately selected.
 qa/*.png
+qa/**/*.png
 qa/exports/

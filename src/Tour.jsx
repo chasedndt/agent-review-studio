@@ -1,0 +1,155 @@
+import { useEffect, useLayoutEffect, useState } from "react";
+import { ArrowLeftIcon } from "@phosphor-icons/react/ArrowLeft";
+import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
+import { CheckCircleIcon } from "@phosphor-icons/react/CheckCircle";
+import { CompassIcon } from "@phosphor-icons/react/Compass";
+import { XIcon } from "@phosphor-icons/react/X";
+
+export const TOUR_STEPS = [
+  {
+    page: "review",
+    target: null,
+    eyebrow: "Welcome to Agent Review Studio",
+    title: "Turn agent runs into trusted improvement evidence.",
+    body: "This is human evaluation and data curation—not model-weight training. You inspect what happened, score the complete run, preserve corrections, and create revisions you can compare later.",
+  },
+  {
+    page: "review",
+    target: "workspace",
+    eyebrow: "1 · Name the system",
+    title: "Each workspace belongs to one agent or harness.",
+    body: "The product stays neutral. Your workspace name and agent identity travel with reviews and exports, so Chaser Agent can be one project among many.",
+  },
+  {
+    page: "review",
+    target: "imports",
+    eyebrow: "2 · Bring the evidence in",
+    title: "Import a folder or a loose set of files.",
+    body: "Known review artifacts are mapped automatically. JSONL, Markdown, logs, tables, code, images, PDFs and unknown attachments are retained in the file manifest instead of silently discarded.",
+  },
+  {
+    page: "review",
+    target: "runs",
+    eyebrow: "3 · Keep work chronological",
+    title: "Sessions separate today’s pass from tomorrow’s.",
+    body: "Runs remain grouped by dated import session. You can revisit the same source later without overwriting the earlier review context.",
+  },
+  {
+    page: "files",
+    target: "files-workspace",
+    eyebrow: "4 · Inspect the complete bundle",
+    title: "The Files workspace shows every imported artifact.",
+    body: "Filter by section, inspect parse status, preview readable content and keep binary evidence attached to the run. The eight canonical JSON files are useful, but no longer the whole product contract.",
+  },
+  {
+    page: "review",
+    target: "review-workspace",
+    eyebrow: "5 · Compare output with evidence",
+    title: "Review claims in context, not as isolated rows.",
+    body: "The paired view keeps an agent claim beside its linked source evidence. Actions, memory proposals and uncertainty are separate checks because they fail in different ways.",
+  },
+  {
+    page: "review",
+    target: "score-panel",
+    eyebrow: "6 · Score once per run",
+    title: "Five ratings create one product-quality judgement.",
+    body: "Complete the five 0–3 ratings, choose Pass, Needs revision or Fail, and record the exact correction. Finishing creates an immutable review revision.",
+  },
+  {
+    page: "history",
+    target: "history-workspace",
+    eyebrow: "7 · Re-review without erasing history",
+    title: "Every finished judgement becomes a revision.",
+    body: "Open an older revision, export it, or start a re-review. The next judgement links back to the earlier one so changes in quality stay visible.",
+  },
+  {
+    page: "settings",
+    target: "settings-workspace",
+    eyebrow: "8 · Make it yours",
+    title: "Settings holds workspace identity and this guide.",
+    body: "Edit the project, agent and reviewer names here. You can restart this tour whenever a new operator joins the project.",
+  },
+];
+
+function positionFor(rect) {
+  const cardWidth = Math.min(390, Math.max(300, window.innerWidth - 32));
+  const cardHeight = 250;
+  if (!rect) {
+    return {
+      left: Math.max(16, (window.innerWidth - cardWidth) / 2),
+      top: Math.max(16, (window.innerHeight - cardHeight) / 2),
+      width: cardWidth,
+    };
+  }
+
+  const below = rect.bottom + 16;
+  const above = rect.top - cardHeight - 16;
+  const top = below + cardHeight < window.innerHeight ? below : Math.max(16, above);
+  const left = Math.min(Math.max(16, rect.left), window.innerWidth - cardWidth - 16);
+  return { left, top, width: cardWidth };
+}
+
+export function GuidedTour({ open, step, onStep, onClose, onNavigate }) {
+  const [targetRect, setTargetRect] = useState(null);
+  const current = TOUR_STEPS[step] || TOUR_STEPS[0];
+
+  useEffect(() => {
+    if (!open) return;
+    onNavigate(current.page);
+  }, [open, current.page, onNavigate]);
+
+  useLayoutEffect(() => {
+    if (!open) return undefined;
+    let frame = 0;
+    const measure = () => {
+      const element = current.target ? document.querySelector(`[data-tour="${current.target}"]`) : null;
+      if (element) element.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+      frame = window.requestAnimationFrame(() => setTargetRect(element ? element.getBoundingClientRect() : null));
+    };
+    const timer = window.setTimeout(measure, 80);
+    window.addEventListener("resize", measure);
+    return () => {
+      window.clearTimeout(timer);
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", measure);
+    };
+  }, [open, current.target, current.page]);
+
+  if (!open) return null;
+  const last = step === TOUR_STEPS.length - 1;
+  const cardStyle = positionFor(targetRect);
+
+  return (
+    <div className="tour-layer" role="dialog" aria-modal="true" aria-label="Guided product tour">
+      {targetRect && (
+        <div
+          className="tour-spotlight"
+          style={{ left: targetRect.left - 6, top: targetRect.top - 6, width: targetRect.width + 12, height: targetRect.height + 12 }}
+        />
+      )}
+      {!targetRect && <div className="tour-welcome-backdrop" />}
+      <section className={`tour-card ${targetRect ? "anchored" : "welcome"}`} style={cardStyle}>
+        <header>
+          <span className="tour-icon"><CompassIcon size={19} weight="fill" /></span>
+          <span>{step + 1} of {TOUR_STEPS.length}</span>
+          <button type="button" onClick={onClose} aria-label="Skip guided tour"><XIcon size={18} /></button>
+        </header>
+        <p className="eyebrow">{current.eyebrow}</p>
+        <h2>{current.title}</h2>
+        <p>{current.body}</p>
+        <div className="tour-progress" aria-label={`Tour step ${step + 1} of ${TOUR_STEPS.length}`}>
+          {TOUR_STEPS.map((item, index) => <i key={item.eyebrow} className={index <= step ? "active" : ""} />)}
+        </div>
+        <footer>
+          <button type="button" className="tour-skip" onClick={onClose}>Skip tour</button>
+          <div>
+            <button type="button" className="secondary-button" disabled={step === 0} onClick={() => onStep(step - 1)}><ArrowLeftIcon size={16} /> Back</button>
+            <button type="button" className="primary-button" onClick={() => last ? onClose() : onStep(step + 1)}>
+              {last ? <><CheckCircleIcon size={17} /> Finish</> : <>Next <ArrowRightIcon size={16} /></>}
+            </button>
+          </div>
+        </footer>
+      </section>
+    </div>
+  );
+}

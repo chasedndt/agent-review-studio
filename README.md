@@ -1,33 +1,53 @@
-# Chaser Agent — Evaluation Workspace
+# Agent Review Studio
 
-A local-first human evaluation and data-curation workspace for refining agent harnesses. It helps an operator inspect run artifacts against source evidence, record repeatable scores and corrections, preserve resumable drafts, and export review records without changing the source artifacts.
+Agent Review Studio is a local-first workspace for evaluating, curating and improving AI-agent and agent-harness runs. It gives human reviewers one place to inspect complete run bundles, compare claims with source evidence, score product quality, preserve corrections and create a revision history without changing the source artifacts.
 
-This is **not model-weight fine-tuning**. Phase 1 supports:
+Chaser Agent is the built-in demonstration workspace. It is not the product identity; any agent, harness, workflow or service can have its own named workspace.
 
-- human evaluation;
-- evidence-grounded data curation;
-- benchmark and golden-case construction;
-- regression capture;
-- prompt, workflow, retrieval, memory, and tool-policy refinement.
+## What process is this?
 
-## Repository boundary
+This is **agent evaluation, evidence curation and harness refinement**. It is not model-weight fine-tuning.
 
-This directory is its own repository. It is not a branch, package, or subdirectory of the existing public Chaser Agent repository. The product is related to Chaser Agent by name and purpose, while source history, licensing, release decisions, and any future remote repository remain independent.
+The review output can improve:
 
-**Current distribution status:** private, local prototype. All rights reserved. No open-source licence is granted.
+- prompts and system instructions;
+- workflow and orchestration logic;
+- retrieval, evidence and provenance handling;
+- tool-selection and approval policies;
+- memory admission rules;
+- golden cases, regression suites and future training datasets.
 
-## Phase 1 acceptance criteria
+Model fine-tuning may later consume carefully selected review data, but this application currently changes neither model weights nor imported source artifacts.
 
-The prototype is usable when an operator can:
+## Working capabilities
 
-1. open the three current demonstration runs or import a compatible run-artifact folder as a dated review session;
-2. move among projects, dated sessions, runs, artifacts, claims, evidence, actions, memory, and uncertainty;
-3. inspect every claim and record five run-level ratings from 0–3;
-4. select a final decision and add correction notes;
-5. save and restore a local draft after reload;
-6. export a review JSON while leaving source JSON unchanged;
-7. understand the process through beginner onboarding;
-8. complete the main workflow without console errors or broken layouts at desktop and compact widths.
+- Multiple agent-agnostic workspaces with editable project, agent and reviewer identities.
+- Dated sessions and run groups for repeat reviews over time.
+- Folder and loose-file import.
+- A complete artifact browser with filtering, role detection, parse state, table preview, image/PDF preview where the browser supports it, raw text/JSON preview and download-copy actions.
+- Canonical review mapping for human packet, claims, evidence, source, actions, memory, uncertainty and trace artifacts.
+- Retention of unfamiliar supporting files instead of silent discard.
+- Paired claim/evidence review, action review, memory review and uncertainty review.
+- Five once-per-run quality ratings on a 0–3 scale, a final decision and correction notes.
+- Resumable drafts.
+- Immutable review revisions, JSON export, linked re-review and score-change history.
+- A nine-step guided tour that navigates the real product and can be restarted from Settings.
+- IndexedDB storage for imported run bundles and binary attachments; local browser storage for identities, drafts and revision records.
+
+## File compatibility
+
+The current adapter registry supports:
+
+| Group | Formats | Behaviour |
+| --- | --- | --- |
+| Structured data | JSON, JSONL, NDJSON, YAML, YML, TOML | JSON and JSON Lines are parsed; other structured text is previewed and retained. |
+| Tables | CSV, TSV | Browser table preview plus raw retention. |
+| Documents and logs | Markdown, TXT, LOG, XML, HTML | Safe text preview; HTML is not executed. |
+| Source code | JS/TS, Python, SQL, shell, PowerShell and common language/config extensions | Read-only text preview. |
+| Visual evidence | PNG, JPG, JPEG, WebP, GIF, SVG, PDF | Safe browser preview when supported; otherwise retained for download. |
+| Other attachments | Any extension | Stored as an immutable binary attachment with metadata and download-copy access. |
+
+The detailed adapter and normalization contract is in [docs/ARTIFACT_COMPATIBILITY.md](docs/ARTIFACT_COMPATIBILITY.md).
 
 ## Run locally
 
@@ -36,19 +56,32 @@ npm install
 npm run dev -- --host 127.0.0.1 --port 4173
 ```
 
-Open the local address printed by Vite. Data and drafts remain in the browser on this computer.
-
-## Compatible inputs
-
-Use **Import run folders** and select either one run folder or a parent folder containing several runs. Each import becomes a new dated session under the selected project, so reviews from today, tomorrow, and later refinement passes remain separate. A compatible run must contain `source_card.json` or `human_review_packet.json`; the workspace reads the remaining known JSON artifacts when present and degrades safely when optional artifacts are absent.
-
-The current recognized artifact set is defined in `src/data.js`.
+Open the address printed by Vite. Data remains in the browser profile on this computer.
 
 ## Verification
 
 ```powershell
+npm test
 npm run build
-npm run test:sites
 ```
 
-Visual and interaction evidence is recorded in `design-qa.md`. QA screenshots under `qa/` are reproducible local artifacts and are intentionally ignored by Git unless deliberately selected later.
+The test suite covers adapter aliases, JSON Lines recovery, nested run grouping, review-revision lineage and Sites packaging. Browser interaction and visual evidence are recorded in [design-qa.md](design-qa.md).
+
+## Data and safety boundary
+
+- Imported artifacts are read-only evidence.
+- Finishing a review creates a new review revision and exports JSON; it never rewrites the imported bundle.
+- Re-review links a new revision to its parent instead of overwriting the earlier judgement.
+- No provider call, external tool action, memory promotion, training job or deployment is authorized by a review.
+- Phase 2 is single-browser and local-first; multi-user collaboration and server-backed sync are future work.
+
+## Open-source status
+
+This standalone repository is being prepared for open-source publication, but it has not been pushed, published or deployed. A final `LICENSE`, public repository name and contribution policy still require the operator’s explicit selection before public release. The package remains `private: true` to prevent accidental npm publication during development.
+
+## Engineering map
+
+- [Artifact compatibility](docs/ARTIFACT_COMPATIBILITY.md)
+- [Review revision model](docs/REVIEW_REVISION_MODEL.md)
+- [Phase 2 implementation record](docs/PHASE2_IMPLEMENTATION.md)
+- [Documentation index](docs/index.md)

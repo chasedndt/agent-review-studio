@@ -1,0 +1,5 @@
+schema_version: agent_eval_fixture.v1
+agent: Example Harness
+review:
+  scale: 0-3
+  immutable_sources: true

@@ -1,18 +1,30 @@
-# Prototype Instructions
+# Repository Instructions
 
-Run the local server yourself and open the preview in the browser available to this environment. Do not give the user server-start instructions when you can run it.
+Run the local server and open the preview in the in-app browser when making product changes. Do not hand off an unverified static mock.
 
-Before making substantial visual changes, use the Product Design plugin's `get-context` skill when the visual source is unclear or no longer matches the current goal. When the user gives durable prototype-specific design feedback, preferences, or decisions, record them in `AGENTS.md`.
+Keep `.openai/hosting.json`, `worker/index.js`, `scripts/prepare-sites-build.mjs`, and `tests/sites-worker.test.mjs` intact so the verified local product can later be handed to Sites without reinitialization. Do not deploy, push or publish without explicit operator authority.
 
-When implementing from a selected generated mock, treat that image as the source of truth for layout, component anatomy, density, spacing, color, typography, visible content, and hierarchy.
+## Current product decisions
 
-Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts/prepare-sites-build.mjs`, and `tests/sites-worker.test.mjs` intact so the same local prototype can be handed to Sites. Before a Sites handoff, run `npm run build` and `npm run test:sites`; the build must leave `dist/client/index.html`, `dist/server/index.js`, and `dist/.openai/hosting.json`.
+- The product name is **Agent Review Studio**.
+- The product is agent-agnostic. **Chaser Agent** is a built-in example workspace, not the global brand.
+- The selected visual direction remains the 2026-08-25 dark technical review workspace: clear stages, paired claim/evidence, quiet structural checks, five once-per-run ratings and persistent onboarding access.
+- Optimize first for a new reviewer understanding what to do, what the data means and what remains immutable.
+- The work is agent evaluation, evidence curation, benchmark engineering and harness refinement—not model-weight fine-tuning.
+- Source run artifacts are immutable. Reviews, drafts, exports and revision lineage must remain separate from source evidence.
+- Preserve every imported file. Known adapters may normalize artifacts into review panels, but unfamiliar files must stay visible in the run manifest.
+- Re-review creates a new linked revision. Never overwrite a finished human judgement.
+- Use IndexedDB for imported blobs/run bundles and browser-local storage for small settings, drafts and revision records until a governed backend is deliberately selected.
+- Open-source publication is intended, but no remote publication, deployment or license choice has been authorized yet.
+- Keep this repository separate from the public Chaser Agent core.
 
-## Chaser Agent evaluation-workspace decisions
+## Verification gate
 
-- Product name is **Chaser Agent**. Evaluation and refinement are a workspace inside the product, not a separate product named Eval Studio or Evidence Desk.
-- The selected visual target is the revised first concept generated on 2026-08-25: guided four-step review, paired claim/evidence, five once-per-run ratings, quiet automated checks, and persistent onboarding access.
-- Optimise first for a new operator understanding what to do and why. Raw JSON remains available as evidence, but it is not the primary interface.
-- Preserve source run artifacts as immutable. Phase 1 may save local drafts and export review records, but it must not mutate source JSON, promote memory, train a model, or authorize external actions.
-- The workspace is intended to remain proprietary. Keep this prototype separate from the public MIT core until repository and licensing boundaries are explicitly decided.
-- Support multiple projects, dated sessions, current run folders, and future compatible run folders without hard-coding the three initial cases.
+Before handoff, run:
+
+```powershell
+npm test
+npm run build
+```
+
+Then verify the primary flow in the in-app browser, check desktop and compact widths, check the console, compare the implementation with the selected visual source, and update `design-qa.md` to `final result: passed` only when no actionable P0/P1/P2 issue remains.
