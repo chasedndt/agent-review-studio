@@ -1,0 +1,86 @@
+{
+  "evidence_snippets": [
+    {
+      "privacy_class": "public",
+      "redaction_note": null,
+      "snippet_id": "evidence-001",
+      "source_location": "line 9",
+      "supports_claim_ids": [
+        "claim-001"
+      ],
+      "text": "Status in Chaser Agent: research intake thesis / implementation-prep only"
+    },
+    {
+      "privacy_class": "public",
+      "redaction_note": null,
+      "snippet_id": "evidence-002",
+      "source_location": "line 13",
+      "supports_claim_ids": [
+        "claim-002"
+      ],
+      "text": "Cloudflare is positioning the Monetization Gateway as a way to charge for any Cloudflare-protected resource: web pages, datasets, APIs, and MCP tools."
+    },
+    {
+      "privacy_class": "public",
+      "redaction_note": null,
+      "snippet_id": "evidence-003",
+      "source_location": "line 13",
+      "supports_claim_ids": [
+        "claim-003"
+      ],
+      "text": "The article frames the web's business model as shifting from human attention to agent/software usage, with payment units moving toward request, token, or outcome rather than seat/month subscription."
+    },
+    {
+      "privacy_class": "public",
+      "redaction_note": null,
+      "snippet_id": "evidence-004",
+      "source_location": "line 15",
+      "supports_claim_ids": [
+        "claim-004"
+      ],
+      "text": "For Chaser Agent, this is not just a payment article."
+    },
+    {
+      "privacy_class": "public",
+      "redaction_note": null,
+      "snippet_id": "evidence-005",
+      "source_location": "line 15",
+      "supports_claim_ids": [
+        "claim-005"
+      ],
+      "text": "It is evidence that agent harnesses are becoming economic actors that need:"
+    },
+    {
+      "privacy_class": "public",
+      "redaction_note": null,
+      "snippet_id": "evidence-006",
+      "source_location": "line 17",
+      "supports_claim_ids": [
+        "claim-006"
+      ],
+      "text": "machine-readable access policy;"
+    },
+    {
+      "privacy_class": "public",
+      "redaction_note": null,
+      "snippet_id": "evidence-007",
+      "source_location": "line 18",
+      "supports_claim_ids": [
+        "claim-007"
+      ],
+      "text": "bounded payment/authorization gates;"
+    },
+    {
+      "privacy_class": "public",
+      "redaction_note": null,
+      "snippet_id": "evidence-008",
+      "source_location": "line 19",
+      "supports_claim_ids": [
+        "claim-008"
+      ],
+      "text": "auditable resource consumption;"
+    }
+  ],
+  "run_id": "source-card-20260812T181106z-2026-07-09-cloudflare-monetization-gateway-thesis-e98acffcd9",
+  "source_id": "2026-07-09-cloudflare-monetization-gateway-thesis-5b9ddad7cc"
+}

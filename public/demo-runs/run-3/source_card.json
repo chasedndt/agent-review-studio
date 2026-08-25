@@ -1,0 +1,159 @@
+{
+  "action_candidates": [
+    {
+      "action_id": "action-001",
+      "action_text": "Inspect screenshots or other visual proof before recommending website-design changes.",
+      "blocked_reason": null,
+      "rationale": "Text-only evidence is insufficient for a confident visual assessment.",
+      "requires_approval": true,
+      "risk_level": "low",
+      "source_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006"
+      ],
+      "suggested_owner": "human_operator"
+    }
+  ],
+  "chaser_agent_inferences": [
+    {
+      "based_on_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006"
+      ],
+      "confidence": "medium",
+      "inference_id": "inference-001",
+      "inference_text": "A website review should check hierarchy, contrast, spacing, readability, restraint, user intent, and the available visual evidence.",
+      "uncertainty_label_ids": [
+        "uncertainty-001",
+        "uncertainty-003"
+      ]
+    }
+  ],
+  "contradiction_notes": [
+    {
+      "explanation": "No profile rule requested a reliable deterministic contradiction check.",
+      "related_claim_ids": [],
+      "status": "not_evaluated"
+    }
+  ],
+  "created_at": "2026-08-12T18:11:10Z",
+  "memory_candidates": [],
+  "privacy_class": "public_toy",
+  "promotion_status": "not_promoted",
+  "review_status": "pending_review",
+  "run_id": "source-card-20260812T181110z-toy-website-design-note-cc07795c57",
+  "source_claims": [
+    {
+      "claim_id": "claim-001",
+      "claim_text": "The hero section text is white, so dark mode and contrast may matter for readability.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-001",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 3"
+    },
+    {
+      "claim_id": "claim-002",
+      "claim_text": "Important keywords need subtle emphasis rather than loud decoration.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-002",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 4"
+    },
+    {
+      "claim_id": "claim-003",
+      "claim_text": "Overdecorated styling can hurt readability and distract from the page intent.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-003",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 5"
+    },
+    {
+      "claim_id": "claim-004",
+      "claim_text": "Current design best practice favours hierarchy, spacing, contrast, restraint, and user intent before visual effects.",
+      "claim_type": "recommendation",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-004",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 6"
+    },
+    {
+      "claim_id": "claim-005",
+      "claim_text": "This is safe toy content for deterministic Source Card Harness V0 testing.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-005",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 8"
+    },
+    {
+      "claim_id": "claim-006",
+      "claim_text": "It contains no private data, secrets, credentials, account information, or production claims.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-006",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 8"
+    }
+  ],
+  "source_id": "toy-website-design-note-2e5f93df70",
+  "source_metadata": {},
+  "source_origin": "local_file:examples/sources/toy_website_design_note.md",
+  "source_summary": "The hero section text is white, so dark mode and contrast may matter for readability. Important keywords need subtle emphasis rather than loud decoration. Overdecorated styling can hurt readability and distract from the page intent.",
+  "source_title": "Toy Website Design Note",
+  "source_type": "note",
+  "trust_state": "unreviewed",
+  "uncertainty_labels": [
+    {
+      "explanation": "Deterministic extraction does not establish that the source statements are correct; human review is required.",
+      "label": "requires_review",
+      "related_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006"
+      ],
+      "uncertainty_id": "uncertainty-001"
+    },
+    {
+      "explanation": "Review artifacts and memory candidates are not approved durable memory until an explicit governed promotion.",
+      "label": "promotion_blocked",
+      "related_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006"
+      ],
+      "uncertainty_id": "uncertainty-002"
+    },
+    {
+      "explanation": "Hierarchy, contrast, spacing, readability, restraint, and user intent require screenshots or other visual proof for confident review.",
+      "label": "visual_context_required",
+      "related_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006"
+      ],
+      "uncertainty_id": "uncertainty-003"
+    }
+  ],
+  "workflow_profile": "website_design_review",
+  "workflow_profile_version": "0.1.0"
+}

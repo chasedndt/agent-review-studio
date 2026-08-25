@@ -1,0 +1,188 @@
+{
+  "action_candidates": [
+    {
+      "action_id": "action-001",
+      "action_text": "Review the extracted claims, evidence, inferences, and uncertainties.",
+      "blocked_reason": null,
+      "rationale": "The local deterministic pass produces review candidates, not completed actions.",
+      "requires_approval": true,
+      "risk_level": "low",
+      "source_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "suggested_owner": "human_operator"
+    }
+  ],
+  "chaser_agent_inferences": [
+    {
+      "based_on_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "confidence": "medium",
+      "inference_id": "inference-001",
+      "inference_text": "The extracted claims should be checked against their source evidence before they influence a decision.",
+      "uncertainty_label_ids": [
+        "uncertainty-001"
+      ]
+    }
+  ],
+  "contradiction_notes": [
+    {
+      "explanation": "No profile rule requested a reliable deterministic contradiction check.",
+      "related_claim_ids": [],
+      "status": "not_evaluated"
+    }
+  ],
+  "created_at": "2026-08-12T18:11:06Z",
+  "memory_candidates": [
+    {
+      "candidate_text": "It is evidence that agent harnesses are becoming economic actors that need:",
+      "evidence_snippet_id": "evidence-005",
+      "memory_candidate_id": "memory-001",
+      "privacy_class": "public",
+      "promotion_status": "candidate_only",
+      "rejection_reason": null,
+      "review_required": true,
+      "scope": "source",
+      "stability": "unknown"
+    }
+  ],
+  "privacy_class": "public",
+  "promotion_status": "not_promoted",
+  "review_status": "pending_review",
+  "run_id": "source-card-20260812T181106z-2026-07-09-cloudflare-monetization-gateway-thesis-e98acffcd9",
+  "source_claims": [
+    {
+      "claim_id": "claim-001",
+      "claim_text": "Status in Chaser Agent: research intake thesis / implementation-prep only",
+      "claim_type": "constraint",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-001",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 9"
+    },
+    {
+      "claim_id": "claim-002",
+      "claim_text": "Cloudflare is positioning the Monetization Gateway as a way to charge for any Cloudflare-protected resource: web pages, datasets, APIs, and MCP tools.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-002",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 13"
+    },
+    {
+      "claim_id": "claim-003",
+      "claim_text": "The article frames the web's business model as shifting from human attention to agent/software usage, with payment units moving toward request, token, or outcome rather than seat/month subscription.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-003",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 13"
+    },
+    {
+      "claim_id": "claim-004",
+      "claim_text": "For Chaser Agent, this is not just a payment article.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-004",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 15"
+    },
+    {
+      "claim_id": "claim-005",
+      "claim_text": "It is evidence that agent harnesses are becoming economic actors that need:",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-005",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 15"
+    },
+    {
+      "claim_id": "claim-006",
+      "claim_text": "machine-readable access policy;",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-006",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 17"
+    },
+    {
+      "claim_id": "claim-007",
+      "claim_text": "bounded payment/authorization gates;",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-007",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 18"
+    },
+    {
+      "claim_id": "claim-008",
+      "claim_text": "auditable resource consumption;",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-008",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 19"
+    }
+  ],
+  "source_id": "2026-07-09-cloudflare-monetization-gateway-thesis-5b9ddad7cc",
+  "source_metadata": {
+    "authors": "Rohin Lohe, Justin Ridgely, Will Papper",
+    "published": "2026-07-01",
+    "title": "Announcing the Monetization Gateway: charge for any resource behind Cloudflare via x402",
+    "url": "https://blog.cloudflare.com/monetization-gateway/"
+  },
+  "source_origin": "local_file:docs/research/2026-07-09-cloudflare-monetization-gateway-thesis.md",
+  "source_summary": "Status in Chaser Agent: research intake thesis / implementation-prep only Cloudflare is positioning the Monetization Gateway as a way to charge for any Cloudflare-protected resource: web pages, datasets, APIs, and MCP tools. The article frames the web's business model as shifting from human attention to agent/software usage, with payment units moving toward request, token, or outcome rather than seat/month subscription.",
+  "source_title": "2026 07 09 Cloudflare Monetization Gateway Thesis",
+  "source_type": "note",
+  "trust_state": "unreviewed",
+  "uncertainty_labels": [
+    {
+      "explanation": "Deterministic extraction does not establish that the source statements are correct; human review is required.",
+      "label": "requires_review",
+      "related_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "uncertainty_id": "uncertainty-001"
+    },
+    {
+      "explanation": "Review artifacts and memory candidates are not approved durable memory until an explicit governed promotion.",
+      "label": "promotion_blocked",
+      "related_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "uncertainty_id": "uncertainty-002"
+    }
+  ],
+  "workflow_profile": "general_source_review",
+  "workflow_profile_version": "0.1.0"
+}

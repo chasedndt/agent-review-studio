@@ -1,0 +1,31 @@
+{
+  "blocked_actions": [
+    "No memory promotion was performed.",
+    "No ChaseOS canonical truth mutation was performed.",
+    "No provider/API/runtime/MCP/browser/fine-tuning action was performed."
+  ],
+  "browser_or_computer_use": "none",
+  "canonical_promotion_warning": "This artifact is review-only. It does not promote memory, modify approved durable local state, mutate ChaseOS canonical truth, update a roadmap, create tasks, activate adapters, call providers, or prove production readiness. Promotion requires an explicit governance decision.",
+  "command": "python -m chaser_agent.cli source-card --input docs/research/2026-07-09-cloudflare-monetization-gateway-thesis.md --out logs/runs --profile ai_engineering_research_review",
+  "created_at": "2026-08-12T18:11:01Z",
+  "external_api_calls": "none",
+  "fine_tuning_or_training": "none",
+  "input_source_id": "2026-07-09-cloudflare-monetization-gateway-thesis-5b9ddad7cc",
+  "mcp_activation": "none",
+  "notes": "Deterministic local Source Card Harness V0 run. Review-only artifact shape proof.",
+  "outputs": [
+    "logs/runs/source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61/source_card.json",
+    "logs/runs/source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61/claims_table.json",
+    "logs/runs/source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61/evidence_snippets.json",
+    "logs/runs/source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61/uncertainty_labels.json",
+    "logs/runs/source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61/action_candidates.json",
+    "logs/runs/source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61/memory_candidates.json",
+    "logs/runs/source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61/human_review_packet.json",
+    "logs/runs/source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61/run_log.json"
+  ],
+  "provider_calls": "none",
+  "repo_commit": "aee51b4",
+  "review_required": true,
+  "run_id": "source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61",
+  "runtime_adapters": "none"
+}

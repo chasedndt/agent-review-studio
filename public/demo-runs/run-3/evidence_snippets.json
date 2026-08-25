@@ -1,0 +1,66 @@
+{
+  "evidence_snippets": [
+    {
+      "privacy_class": "public_toy",
+      "redaction_note": null,
+      "snippet_id": "evidence-001",
+      "source_location": "line 3",
+      "supports_claim_ids": [
+        "claim-001"
+      ],
+      "text": "The hero section text is white, so dark mode and contrast may matter for readability."
+    },
+    {
+      "privacy_class": "public_toy",
+      "redaction_note": null,
+      "snippet_id": "evidence-002",
+      "source_location": "line 4",
+      "supports_claim_ids": [
+        "claim-002"
+      ],
+      "text": "Important keywords need subtle emphasis rather than loud decoration."
+    },
+    {
+      "privacy_class": "public_toy",
+      "redaction_note": null,
+      "snippet_id": "evidence-003",
+      "source_location": "line 5",
+      "supports_claim_ids": [
+        "claim-003"
+      ],
+      "text": "Overdecorated styling can hurt readability and distract from the page intent."
+    },
+    {
+      "privacy_class": "public_toy",
+      "redaction_note": null,
+      "snippet_id": "evidence-004",
+      "source_location": "line 6",
+      "supports_claim_ids": [
+        "claim-004"
+      ],
+      "text": "Current design best practice favours hierarchy, spacing, contrast, restraint, and user intent before visual effects."
+    },
+    {
+      "privacy_class": "public_toy",
+      "redaction_note": null,
+      "snippet_id": "evidence-005",
+      "source_location": "line 8",
+      "supports_claim_ids": [
+        "claim-005"
+      ],
+      "text": "This is safe toy content for deterministic Source Card Harness V0 testing."
+    },
+    {
+      "privacy_class": "public_toy",
+      "redaction_note": null,
+      "snippet_id": "evidence-006",
+      "source_location": "line 8",
+      "supports_claim_ids": [
+        "claim-006"
+      ],
+      "text": "It contains no private data, secrets, credentials, account information, or production claims."
+    }
+  ],
+  "run_id": "source-card-20260812T181110z-toy-website-design-note-cc07795c57",
+  "source_id": "toy-website-design-note-2e5f93df70"
+}

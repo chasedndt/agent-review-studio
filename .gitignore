@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vite/
+*.log
+*.local
+.env
+.env.*
+!.env.example
+
+# Reproducible visual-QA captures stay local unless deliberately selected.
+qa/*.png
+qa/exports/

@@ -1,0 +1,44 @@
+{
+  "action_candidates": [
+    {
+      "action_id": "action-001",
+      "action_text": "Review the methodology, baselines, evaluation limits, and implementation assumptions.",
+      "blocked_reason": null,
+      "rationale": "Research claims need evidence and transfer checks before implementation decisions.",
+      "requires_approval": true,
+      "risk_level": "low",
+      "source_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "suggested_owner": "human_operator"
+    },
+    {
+      "action_id": "action-002",
+      "action_text": "Consider creating a bounded evaluation or RFC candidate after human review.",
+      "blocked_reason": null,
+      "rationale": "A reviewable candidate preserves separation between research and adopted architecture.",
+      "requires_approval": true,
+      "risk_level": "low",
+      "source_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "suggested_owner": "human_operator"
+    }
+  ],
+  "run_id": "source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61",
+  "source_id": "2026-07-09-cloudflare-monetization-gateway-thesis-5b9ddad7cc"
+}

@@ -1,0 +1,25 @@
+{
+  "action_candidates": [
+    {
+      "action_id": "action-001",
+      "action_text": "Review the extracted claims, evidence, inferences, and uncertainties.",
+      "blocked_reason": null,
+      "rationale": "The local deterministic pass produces review candidates, not completed actions.",
+      "requires_approval": true,
+      "risk_level": "low",
+      "source_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "suggested_owner": "human_operator"
+    }
+  ],
+  "run_id": "source-card-20260812T181106z-2026-07-09-cloudflare-monetization-gateway-thesis-e98acffcd9",
+  "source_id": "2026-07-09-cloudflare-monetization-gateway-thesis-5b9ddad7cc"
+}

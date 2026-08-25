@@ -1,0 +1,36 @@
+{
+  "run_id": "source-card-20260812T181106z-2026-07-09-cloudflare-monetization-gateway-thesis-e98acffcd9",
+  "source_id": "2026-07-09-cloudflare-monetization-gateway-thesis-5b9ddad7cc",
+  "uncertainty_labels": [
+    {
+      "explanation": "Deterministic extraction does not establish that the source statements are correct; human review is required.",
+      "label": "requires_review",
+      "related_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "uncertainty_id": "uncertainty-001"
+    },
+    {
+      "explanation": "Review artifacts and memory candidates are not approved durable memory until an explicit governed promotion.",
+      "label": "promotion_blocked",
+      "related_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "uncertainty_id": "uncertainty-002"
+    }
+  ]
+}

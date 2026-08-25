@@ -1,0 +1,78 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "claim_text": "Status in Chaser Agent: research intake thesis / implementation-prep only",
+      "claim_type": "constraint",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-001",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 9"
+    },
+    {
+      "claim_id": "claim-002",
+      "claim_text": "Cloudflare is positioning the Monetization Gateway as a way to charge for any Cloudflare-protected resource: web pages, datasets, APIs, and MCP tools.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-002",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 13"
+    },
+    {
+      "claim_id": "claim-003",
+      "claim_text": "The article frames the web's business model as shifting from human attention to agent/software usage, with payment units moving toward request, token, or outcome rather than seat/month subscription.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-003",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 13"
+    },
+    {
+      "claim_id": "claim-004",
+      "claim_text": "For Chaser Agent, this is not just a payment article.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-004",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 15"
+    },
+    {
+      "claim_id": "claim-005",
+      "claim_text": "It is evidence that agent harnesses are becoming economic actors that need:",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-005",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 15"
+    },
+    {
+      "claim_id": "claim-006",
+      "claim_text": "machine-readable access policy;",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-006",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 17"
+    },
+    {
+      "claim_id": "claim-007",
+      "claim_text": "bounded payment/authorization gates;",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-007",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 18"
+    },
+    {
+      "claim_id": "claim-008",
+      "claim_text": "auditable resource consumption;",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-008",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 19"
+    }
+  ],
+  "run_id": "source-card-20260812T181101z-2026-07-09-cloudflare-monetization-gateway-thesis-3e1cfd2a61",
+  "source_id": "2026-07-09-cloudflare-monetization-gateway-thesis-5b9ddad7cc"
+}

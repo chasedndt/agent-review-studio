@@ -1,0 +1,23 @@
+{
+  "action_candidates": [
+    {
+      "action_id": "action-001",
+      "action_text": "Inspect screenshots or other visual proof before recommending website-design changes.",
+      "blocked_reason": null,
+      "rationale": "Text-only evidence is insufficient for a confident visual assessment.",
+      "requires_approval": true,
+      "risk_level": "low",
+      "source_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006"
+      ],
+      "suggested_owner": "human_operator"
+    }
+  ],
+  "run_id": "source-card-20260812T181110z-toy-website-design-note-cc07795c57",
+  "source_id": "toy-website-design-note-2e5f93df70"
+}

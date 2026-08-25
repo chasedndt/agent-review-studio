@@ -1,0 +1,40 @@
+{
+  "canonical_promotion_warning": "This artifact is review-only. It does not promote memory, modify approved durable local state, mutate ChaseOS canonical truth, update a roadmap, create tasks, activate adapters, call providers, or prove production readiness. Promotion requires an explicit governance decision.",
+  "checklists": {
+    "action_usefulness": [
+      "pending: action candidates require approval and execute nothing"
+    ],
+    "inference_separation": [
+      "pending: human must verify inferences remain separate from source claims"
+    ],
+    "memory_safety": [
+      "pending: memory candidates are candidate_only and review_required"
+    ],
+    "source_fidelity": [
+      "pending: human must verify summary and claims are source-grounded"
+    ],
+    "uncertainty": [
+      "pending: human must verify missing context and promotion boundaries"
+    ]
+  },
+  "operator_review_status": "pending_review",
+  "pass_fail_decision": "needs_human_review",
+  "required_review_dimensions": [
+    "source_fidelity",
+    "inference_separation",
+    "uncertainty_handling",
+    "action_usefulness",
+    "memory_safety"
+  ],
+  "reviewer_notes": "Pending human review. Deterministic harness output only.",
+  "run_id": "source-card-20260812T181106z-2026-07-09-cloudflare-monetization-gateway-thesis-e98acffcd9",
+  "scores": {
+    "action_usefulness": null,
+    "inference_separation": null,
+    "memory_safety": null,
+    "source_fidelity": null,
+    "uncertainty_handling": null
+  },
+  "source_id": "2026-07-09-cloudflare-monetization-gateway-thesis-5b9ddad7cc",
+  "workflow_profile": "general_source_review"
+}

@@ -1,0 +1,17 @@
+{
+  "memory_candidates": [
+    {
+      "candidate_text": "It is evidence that agent harnesses are becoming economic actors that need:",
+      "evidence_snippet_id": "evidence-005",
+      "memory_candidate_id": "memory-001",
+      "privacy_class": "public",
+      "promotion_status": "candidate_only",
+      "rejection_reason": null,
+      "review_required": true,
+      "scope": "source",
+      "stability": "unknown"
+    }
+  ],
+  "run_id": "source-card-20260812T181106z-2026-07-09-cloudflare-monetization-gateway-thesis-e98acffcd9",
+  "source_id": "2026-07-09-cloudflare-monetization-gateway-thesis-5b9ddad7cc"
+}

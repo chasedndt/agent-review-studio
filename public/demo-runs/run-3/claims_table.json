@@ -1,0 +1,60 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "claim_text": "The hero section text is white, so dark mode and contrast may matter for readability.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-001",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 3"
+    },
+    {
+      "claim_id": "claim-002",
+      "claim_text": "Important keywords need subtle emphasis rather than loud decoration.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-002",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 4"
+    },
+    {
+      "claim_id": "claim-003",
+      "claim_text": "Overdecorated styling can hurt readability and distract from the page intent.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-003",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 5"
+    },
+    {
+      "claim_id": "claim-004",
+      "claim_text": "Current design best practice favours hierarchy, spacing, contrast, restraint, and user intent before visual effects.",
+      "claim_type": "recommendation",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-004",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 6"
+    },
+    {
+      "claim_id": "claim-005",
+      "claim_text": "This is safe toy content for deterministic Source Card Harness V0 testing.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-005",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 8"
+    },
+    {
+      "claim_id": "claim-006",
+      "claim_text": "It contains no private data, secrets, credentials, account information, or production claims.",
+      "claim_type": "unknown",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-006",
+      "review_note": "Verbatim deterministic extraction; the confidence describes extraction, not source truth.",
+      "source_location": "line 8"
+    }
+  ],
+  "run_id": "source-card-20260812T181110z-toy-website-design-note-cc07795c57",
+  "source_id": "toy-website-design-note-2e5f93df70"
+}
