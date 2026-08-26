@@ -11,6 +11,108 @@ export const ARTIFACT_DEFINITIONS = [
 
 export const ARTIFACT_FILES = ARTIFACT_DEFINITIONS.map((item) => item.canonical);
 
+export const RATING_DEFINITIONS = [
+  {
+    key: "source_fidelity",
+    label: "Source fidelity",
+    help: "How well does the run preserve the supplied evidence?",
+    anchors: [
+      "Fabricates, contradicts or loses the source.",
+      "Contains material gaps or weak traceability.",
+      "Mostly traceable with only minor omissions.",
+      "Faithful, complete and directly traceable.",
+    ],
+  },
+  {
+    key: "inference_separation",
+    label: "Inference separation",
+    help: "Are agent conclusions visibly separate from source statements?",
+    anchors: [
+      "Presents inference as source fact.",
+      "Mixes facts and conclusions in risky places.",
+      "Separates most inference with small ambiguities.",
+      "Consistently labels and grounds every inference.",
+    ],
+  },
+  {
+    key: "uncertainty_handling",
+    label: "Uncertainty handling",
+    help: "Are important unknowns and limitations made explicit?",
+    anchors: [
+      "Hides decisive unknowns or overstates certainty.",
+      "Mentions uncertainty but misses material limits.",
+      "Captures the important unknowns adequately.",
+      "Makes limits, confidence and verification needs precise.",
+    ],
+  },
+  {
+    key: "action_usefulness",
+    label: "Action usefulness",
+    help: "Could an operator act or decide without unnecessary guesswork?",
+    anchors: [
+      "Unsafe, irrelevant or impossible to execute.",
+      "Directionally useful but vague or poorly bounded.",
+      "Actionable with minor clarification required.",
+      "Specific, bounded, prioritized and approval-aware.",
+    ],
+  },
+  {
+    key: "memory_safety",
+    label: "Memory safety",
+    help: "Are durable-memory proposals safe, complete and appropriately scoped?",
+    anchors: [
+      "Promotes unsafe, private or unverified material.",
+      "Has material scope, provenance or durability gaps.",
+      "Safe enough with minor metadata improvements.",
+      "Explicitly bounded, sourced, durable and review-gated.",
+    ],
+  },
+];
+
+export const SCORE_SCALE = [[0, "Unusable"], [1, "Weak"], [2, "Acceptable"], [3, "Strong"]];
+
+export const DEVELOPMENT_QA_NOTE = "QA draft: evidence navigation and review state verified.";
+
+export const BUILT_IN_WORKSPACE = {
+  id: "chaser-agent",
+  name: "Chaser Agent Evaluation",
+  agentName: "Chaser Agent",
+  description: "Standalone harness research, golden-case curation and product-quality review.",
+  kind: "built-in",
+};
+
+export function createWorkspaceDefinition(name, agentName, now = Date.now()) {
+  const safeName = String(name || "").trim();
+  if (!safeName) throw new Error("Workspace name is required.");
+  return {
+    id: `workspace-${now}`,
+    name: safeName,
+    agentName: String(agentName || "").trim() || safeName,
+    description: "Local agent evaluation workspace",
+    kind: "local",
+  };
+}
+
+export function loadWorkspaceDefinitions(storage = globalThis.localStorage) {
+  try {
+    const saved = JSON.parse(storage?.getItem("agent-review-studio-workspaces-v2") || "[]");
+    if (Array.isArray(saved) && saved.length) {
+      const withoutBuiltIn = saved.filter((workspace) => workspace.id !== BUILT_IN_WORKSPACE.id);
+      const storedBuiltIn = saved.find((workspace) => workspace.id === BUILT_IN_WORKSPACE.id);
+      return [{ ...BUILT_IN_WORKSPACE, ...(storedBuiltIn || {}) }, ...withoutBuiltIn];
+    }
+    const legacy = JSON.parse(storage?.getItem("chaser-agent-projects-v1") || "[]");
+    return [BUILT_IN_WORKSPACE, ...legacy.map((project) => ({ ...project, agentName: project.name, description: "Migrated Phase 1 workspace" }))];
+  } catch {
+    return [BUILT_IN_WORKSPACE];
+  }
+}
+
+export function persistWorkspaceDefinitions(workspaces, storage = globalThis.localStorage) {
+  storage?.setItem("agent-review-studio-workspaces-v2", JSON.stringify(workspaces));
+  return workspaces;
+}
+
 export const SUPPORTED_FILE_GROUPS = [
   { label: "Structured data", extensions: "JSON, JSONL, NDJSON, YAML, YML, TOML" },
   { label: "Tables", extensions: "CSV, TSV" },
@@ -68,6 +170,7 @@ function asArray(value) {
 
 function artifactList(artifact, key) {
   if (!artifact) return [];
+  if (Array.isArray(artifact)) return artifact;
   return asArray(artifact[key]);
 }
 
@@ -82,7 +185,7 @@ export function detectArtifactProfile(name, mime = "") {
   const extension = extensionOf(lowerName);
   const definition = ARTIFACT_DEFINITIONS.find((item) => item.aliases.includes(lowerName));
   const textual = TEXT_EXTENSIONS.has(extension) || String(mime).startsWith("text/");
-  const visual = IMAGE_EXTENSIONS.has(extension) || String(mime).startsWith("image/");
+  const visual = extension !== "svg" && (IMAGE_EXTENSIONS.has(extension) || String(mime).startsWith("image/"));
   const pdf = extension === "pdf" || mime === "application/pdf";
   let format = extension ? extension.toUpperCase() : "FILE";
   if (extension === "md" || extension === "markdown") format = "Markdown";
@@ -132,7 +235,36 @@ export function parseStructuredText(name, text) {
 
   if (extension === "csv" || extension === "tsv") {
     const delimiter = extension === "tsv" ? "\t" : ",";
-    const rows = text.split(/\r?\n/).filter(Boolean).slice(0, 250).map((line) => line.split(delimiter));
+    const rows = [];
+    let row = [];
+    let field = "";
+    let quoted = false;
+    for (let index = 0; index < text.length && rows.length < 250; index += 1) {
+      const character = text[index];
+      if (character === '"') {
+        if (quoted && text[index + 1] === '"') {
+          field += '"';
+          index += 1;
+        } else {
+          quoted = !quoted;
+        }
+      } else if (character === delimiter && !quoted) {
+        row.push(field);
+        field = "";
+      } else if ((character === "\n" || character === "\r") && !quoted) {
+        if (character === "\r" && text[index + 1] === "\n") index += 1;
+        row.push(field);
+        if (row.some((value) => value !== "")) rows.push(row);
+        row = [];
+        field = "";
+      } else {
+        field += character;
+      }
+    }
+    if (rows.length < 250 && (field !== "" || row.length)) {
+      row.push(field);
+      if (row.some((value) => value !== "")) rows.push(row);
+    }
     return { parsed: rows, parseStatus: "Preview ready", parseError: "" };
   }
 
@@ -332,6 +464,178 @@ export function findEvidence(run, claim) {
     || null;
 }
 
+function referencedIds(value) {
+  return asArray(value)
+    .flatMap((item) => String(item || "").split(/\s+/))
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function duplicateIds(items, key) {
+  const ids = items.map((item) => item?.[key]).filter(Boolean);
+  return Array.from(new Set(ids.filter((id, index) => ids.indexOf(id) !== index)));
+}
+
+export function validateRunBundle(run) {
+  if (!run) {
+    return {
+      status: "blocked",
+      errors: 1,
+      warnings: 0,
+      checksPassed: 0,
+      issues: [{ code: "no-run", severity: "error", title: "No run loaded", detail: "Select or import a run bundle before review." }],
+      artifactCount: 0,
+      requiredArtifactCount: ARTIFACT_FILES.length,
+      presentArtifactCount: 0,
+    };
+  }
+
+  const issues = [];
+  const addIssue = (code, severity, title, detail) => issues.push({ code, severity, title, detail });
+  const presentArtifacts = ARTIFACT_FILES.filter((name) => Boolean(run.artifacts?.[name]));
+  const missingArtifacts = ARTIFACT_FILES.filter((name) => !run.artifacts?.[name]);
+  if (missingArtifacts.length) {
+    addIssue(
+      "missing-canonical-artifacts",
+      "error",
+      `${missingArtifacts.length} canonical artifact${missingArtifacts.length === 1 ? " is" : "s are"} missing`,
+      missingArtifacts.join(", "),
+    );
+  }
+
+  const parseFailures = (run.files || []).filter((file) => file.parseError || /attention|partially/i.test(file.parseStatus || ""));
+  if (parseFailures.length) {
+    addIssue(
+      "parse-failures",
+      parseFailures.some((file) => file.canonical) ? "error" : "warning",
+      `${parseFailures.length} file${parseFailures.length === 1 ? " needs" : "s need"} parse attention`,
+      parseFailures.map((file) => file.relativePath || file.name).join(", "),
+    );
+  }
+
+  const duplicateCanonicalFiles = ARTIFACT_FILES.filter((name) => (run.files || []).filter((file) => file.canonical === name).length > 1);
+  if (duplicateCanonicalFiles.length) {
+    addIssue(
+      "duplicate-canonical-files",
+      "error",
+      "Multiple files compete for one canonical role",
+      duplicateCanonicalFiles.map((name) => `${name}: ${(run.files || []).filter((file) => file.canonical === name).map((file) => file.relativePath || file.name).join(" | ")}`).join("; "),
+    );
+  }
+
+  const claimIds = new Set(run.claims.map((item) => item?.claim_id).filter(Boolean));
+  const evidenceIds = new Set(run.evidence.map((item) => item?.snippet_id).filter(Boolean));
+  const missingClaimIds = run.claims.filter((item) => !item?.claim_id).length;
+  const duplicateClaimIds = duplicateIds(run.claims, "claim_id");
+  const missingEvidenceIds = run.evidence.filter((item) => !item?.snippet_id).length;
+  const duplicateEvidenceIds = duplicateIds(run.evidence, "snippet_id");
+
+  if (!run.claims.length) addIssue("no-claims", "error", "No claims detected", "A review-ready bundle needs a normalized claims table or source-card claims.");
+  if (missingClaimIds || duplicateClaimIds.length) addIssue("claim-identities", "error", "Claim IDs are incomplete or duplicated", `${missingClaimIds} missing; duplicates: ${duplicateClaimIds.join(", ") || "none"}.`);
+  if (!run.evidence.length) addIssue("no-evidence", "error", "No evidence snippets detected", "Claims cannot be checked against source evidence until snippets are present.");
+  if (missingEvidenceIds || duplicateEvidenceIds.length) addIssue("evidence-identities", "error", "Evidence IDs are incomplete or duplicated", `${missingEvidenceIds} missing; duplicates: ${duplicateEvidenceIds.join(", ") || "none"}.`);
+
+  const unresolvedClaimEvidence = run.claims.filter((claim) => {
+    const linked = claim?.evidence_snippet_id;
+    return !linked || !evidenceIds.has(linked);
+  });
+  if (unresolvedClaimEvidence.length) addIssue("claim-evidence-links", "error", `${unresolvedClaimEvidence.length} claim${unresolvedClaimEvidence.length === 1 ? " has" : "s have"} no resolvable evidence`, unresolvedClaimEvidence.map((item) => item.claim_id || "missing claim ID").join(", "));
+
+  const unresolvedEvidenceClaims = run.evidence.flatMap((item) => referencedIds(item?.supports_claim_ids).filter((id) => !claimIds.has(id)));
+  if (unresolvedEvidenceClaims.length) addIssue("evidence-claim-links", "warning", "Evidence points to unknown claims", Array.from(new Set(unresolvedEvidenceClaims)).join(", "));
+
+  const unresolvedActionClaims = run.actions.flatMap((item) => referencedIds(item?.source_claim_ids).filter((id) => !claimIds.has(id)));
+  if (unresolvedActionClaims.length) addIssue("action-claim-links", "warning", "Actions point to unknown claims", Array.from(new Set(unresolvedActionClaims)).join(", "));
+
+  const unresolvedUncertaintyClaims = run.uncertainties.flatMap((item) => referencedIds(item?.related_claim_ids).filter((id) => !claimIds.has(id)));
+  if (unresolvedUncertaintyClaims.length) addIssue("uncertainty-claim-links", "warning", "Uncertainty labels point to unknown claims", Array.from(new Set(unresolvedUncertaintyClaims)).join(", "));
+
+  const explicitRunIds = Object.values(run.artifacts || {}).map((artifact) => artifact?.run_id).filter(Boolean);
+  const explicitSourceIds = Object.values(run.artifacts || {}).map((artifact) => artifact?.source_id).filter(Boolean);
+  if (!explicitRunIds.length || !explicitSourceIds.length) addIssue("missing-explicit-identities", "error", "Explicit run/source identity is incomplete", "Canonical artifacts must carry stable run_id and source_id values.");
+  if (new Set(explicitRunIds).size > 1) addIssue("run-id-mismatch", "error", "Canonical artifacts disagree on run ID", Array.from(new Set(explicitRunIds)).join(", "));
+  if (new Set(explicitSourceIds).size > 1) addIssue("source-id-mismatch", "error", "Canonical artifacts disagree on source ID", Array.from(new Set(explicitSourceIds)).join(", "));
+
+  const errors = issues.filter((item) => item.severity === "error").length;
+  const warnings = issues.filter((item) => item.severity === "warning").length;
+  const totalChecks = 8;
+  const checksPassed = Math.max(0, totalChecks - errors - warnings);
+  return {
+    status: errors ? "blocked" : warnings ? "ready-with-warnings" : "ready",
+    errors,
+    warnings,
+    checksPassed,
+    totalChecks,
+    issues,
+    artifactCount: run.files?.length || 0,
+    requiredArtifactCount: ARTIFACT_FILES.length,
+    presentArtifactCount: presentArtifacts.length,
+  };
+}
+
+export function isDevelopmentQaReview(value) {
+  return value?.reviewer_name === "Local operator"
+    && value?.corrections_or_notes === DEVELOPMENT_QA_NOTE;
+}
+
+export function isDevelopmentQaDraft(value) {
+  return value?.notes === DEVELOPMENT_QA_NOTE;
+}
+
+export function hasDraftProgress(draft) {
+  if (!draft || isDevelopmentQaDraft(draft)) return false;
+  return Boolean(
+    draft.decision
+    || String(draft.notes || "").trim()
+    || draft.contractChecked
+    || draft.sourceChecked
+    || draft.actionsChecked
+    || draft.memoryChecked
+    || draft.uncertaintyChecked
+    || draft.traceChecked
+    || draft.parentRevisionId
+    || asArray(draft.inspectedClaims).length
+    || Object.values(draft.ratings || {}).some((value) => Number.isInteger(value)),
+  );
+}
+
+export function reviewStateForRun(run, history = [], draft = null) {
+  const revisions = history.filter((record) => record.review_instance_id === run.id || record.run_id === run.sourceRunId);
+  if (draft?.status === "reviewed" && revisions.length) return "reviewed";
+  if (hasDraftProgress(draft)) return draft?.parentRevisionId ? "re-review" : "draft";
+  if (revisions.length) return "reviewed";
+  return "unreviewed";
+}
+
+export function reviewCompletionState(run, draft) {
+  const inspected = new Set(draft?.inspectedClaims || []);
+  const ratingsComplete = RATING_DEFINITIONS.every(({ key }) => Number.isInteger(draft?.ratings?.[key]));
+  const claimsComplete = Boolean(run) && run.claims.every((item) => inspected.has(item.claim_id));
+  const decisionComplete = Boolean(draft?.decision);
+  const notesComplete = draft?.decision === "pass" || Boolean(String(draft?.notes || "").trim());
+  const contractComplete = Boolean(draft?.contractChecked);
+  const sourceComplete = Boolean(draft?.sourceChecked);
+  const actionsComplete = Boolean(draft?.actionsChecked);
+  const memoryComplete = Boolean(draft?.memoryChecked);
+  const uncertaintyComplete = Boolean(draft?.uncertaintyChecked);
+  const traceComplete = Boolean(draft?.traceChecked);
+  const artifactsComplete = Boolean(contractComplete && claimsComplete && sourceComplete && actionsComplete && memoryComplete && uncertaintyComplete && traceComplete);
+  return {
+    contractComplete,
+    claimsComplete,
+    sourceComplete,
+    ratingsComplete,
+    actionsComplete,
+    memoryComplete,
+    uncertaintyComplete,
+    traceComplete,
+    artifactsComplete,
+    decisionComplete,
+    notesComplete,
+    complete: Boolean(run && artifactsComplete && ratingsComplete && decisionComplete && notesComplete),
+  };
+}
+
 export function emptyDraft(seed = {}) {
   return {
     ratings: {
@@ -345,9 +649,13 @@ export function emptyDraft(seed = {}) {
     decision: seed.decision || "",
     notes: seed.notes || seed.corrections_or_notes || "",
     inspectedClaims: seed.inspectedClaims || seed.reviewed_claim_ids || [],
+    contractChecked: Boolean(seed.contractChecked ?? seed.review_contract_checked),
+    sourceChecked: Boolean(seed.sourceChecked ?? seed.source_card_checked),
     actionsChecked: Boolean(seed.actionsChecked ?? seed.actions_checked),
     memoryChecked: Boolean(seed.memoryChecked ?? seed.memory_checked),
-    status: seed.status || "draft",
+    uncertaintyChecked: Boolean(seed.uncertaintyChecked ?? seed.uncertainty_checked),
+    traceChecked: Boolean(seed.traceChecked ?? seed.run_log_checked),
+    status: seed.status || "unreviewed",
     updatedAt: seed.updatedAt || null,
     parentRevisionId: seed.parentRevisionId || null,
   };
@@ -369,7 +677,8 @@ function readJsonStorage(key, fallback) {
 export function loadDraft(runId) {
   const current = readJsonStorage(DRAFT_KEY, {});
   const legacy = readJsonStorage(LEGACY_DRAFT_KEY, {});
-  return emptyDraft(current[runId] || legacy[runId] || {});
+  const saved = current[runId] || legacy[runId] || {};
+  return emptyDraft(isDevelopmentQaDraft(saved) ? {} : saved);
 }
 
 export function loadLegacyImportedRuns() {
@@ -421,7 +730,7 @@ export function persistDraft(runId, draft) {
 export function createReviewRevision({ projectId, workspaceName, agentName, reviewerName, run, draft, scoreTotal }) {
   const reviewedAt = new Date().toISOString();
   return {
-    schema_version: "agent_review_studio.review.v2",
+    schema_version: "agent_review_studio.review.v3",
     revision_id: `review-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     parent_revision_id: draft.parentRevisionId || null,
     project_id: projectId,
@@ -440,8 +749,12 @@ export function createReviewRevision({ projectId, workspaceName, agentName, revi
     decision: draft.decision,
     corrections_or_notes: draft.notes,
     reviewed_claim_ids: draft.inspectedClaims,
+    review_contract_checked: draft.contractChecked,
+    source_card_checked: draft.sourceChecked,
     actions_checked: draft.actionsChecked,
     memory_checked: draft.memoryChecked,
+    uncertainty_checked: draft.uncertaintyChecked,
+    run_log_checked: draft.traceChecked,
     reviewed_at: reviewedAt,
     source_artifacts_mutated: false,
   };
@@ -451,14 +764,75 @@ export function loadReviewHistory(projectId = null) {
   const records = readJsonStorage(HISTORY_KEY, []);
   const list = Array.isArray(records) ? records : [];
   return (projectId ? list.filter((record) => record.project_id === projectId) : list)
+    .filter((record) => !isDevelopmentQaReview(record))
     .sort((left, right) => String(right.reviewed_at).localeCompare(String(left.reviewed_at)));
 }
 
 export function appendReviewRevision(record) {
-  const records = loadReviewHistory();
+  const saved = readJsonStorage(HISTORY_KEY, []);
+  const records = Array.isArray(saved) ? saved : [];
   const next = [record, ...records.filter((item) => item.revision_id !== record.revision_id)];
   localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
   return record;
+}
+
+export function createSessionEvaluationPack({ projectId, workspaceName, agentName, reviewerName, session, runs, history, drafts = {} }) {
+  const operatorHistory = history.filter((record) => !isDevelopmentQaReview(record));
+  const runRecords = runs.map((run) => {
+    const revisions = operatorHistory
+      .filter((record) => record.review_instance_id === run.id || record.run_id === run.sourceRunId)
+      .sort((left, right) => String(right.reviewed_at).localeCompare(String(left.reviewed_at)));
+    const latest = revisions[0] || null;
+    const draft = drafts[run.id] || emptyDraft();
+    const diagnostics = validateRunBundle(run);
+    return {
+      review_instance_id: run.id,
+      run_id: run.sourceRunId,
+      run_label: run.label,
+      workflow_profile: run.workflowProfile,
+      source_id: run.sourceId,
+      source_title: run.sourceTitle,
+      review_state: reviewStateForRun(run, operatorHistory, draft),
+      diagnostics: {
+        status: diagnostics.status,
+        errors: diagnostics.errors,
+        warnings: diagnostics.warnings,
+        present_canonical_artifacts: diagnostics.presentArtifactCount,
+        required_canonical_artifacts: diagnostics.requiredArtifactCount,
+        issues: diagnostics.issues,
+      },
+      latest_review_revision: latest,
+      revision_count: revisions.length,
+      draft_present: hasDraftProgress(draft),
+    };
+  });
+  const reviewed = runRecords.filter((record) => Boolean(record.latest_review_revision)).length;
+  const draftsCount = runRecords.filter((record) => record.draft_present).length;
+  const notStarted = runRecords.filter((record) => record.review_state === "unreviewed").length;
+  const diagnosticsBlocked = runRecords.filter((record) => record.diagnostics.status === "blocked").length;
+
+  return {
+    schema_version: "agent_review_studio.session_evaluation.v1",
+    generated_at: new Date().toISOString(),
+    project_id: projectId,
+    workspace_name: workspaceName,
+    agent_name: agentName,
+    reviewer_name: reviewerName || "Local operator",
+    session_id: session.id,
+    session_label: session.label,
+    summary: {
+      total_runs: runRecords.length,
+      reviewed_runs: reviewed,
+      runs_with_drafts: draftsCount,
+      not_started_runs: notStarted,
+      runs_without_finished_review: runRecords.length - reviewed,
+      diagnostics_blocked_runs: diagnosticsBlocked,
+      operator_complete: reviewed === runRecords.length && draftsCount === 0 && diagnosticsBlocked === 0,
+    },
+    runs: runRecords,
+    source_artifacts_mutated: false,
+    boundary: "This pack records local human evaluation only. It does not train a model, promote memory, execute actions or modify source artifacts.",
+  };
 }
 
 export function formatBytes(bytes) {

@@ -4,6 +4,8 @@ Agent Review Studio is a local-first workspace for evaluating, curating and impr
 
 Chaser Agent is the built-in demonstration workspace. It is not the product identity; any agent, harness, workflow or service can have its own named workspace.
 
+![Agent Review Studio evidence workspace](docs/media/agent-review-studio-light.png)
+
 ## What process is this?
 
 This is **agent evaluation, evidence curation and harness refinement**. It is not model-weight fine-tuning.
@@ -21,17 +23,25 @@ Model fine-tuning may later consume carefully selected review data, but this app
 
 ## Working capabilities
 
+- An operator overview with session progress, a deterministic run queue and a clear next-review action.
+- Bundle diagnostics for canonical artifact presence, parse failures, identity consistency, unique IDs and resolvable claim/evidence/action/uncertainty links.
 - Multiple agent-agnostic workspaces with editable project, agent and reviewer identities.
 - Dated sessions and run groups for repeat reviews over time.
 - Folder and loose-file import.
 - A complete artifact browser with filtering, role detection, parse state, table preview, image/PDF preview where the browser supports it, raw text/JSON preview and download-copy actions.
+- A canonical operator-review order for human packet, claims, evidence, source card, actions, memory, uncertainty and run log, with unknown files retained afterwards.
 - Canonical review mapping for human packet, claims, evidence, source, actions, memory, uncertainty and trace artifacts.
 - Retention of unfamiliar supporting files instead of silent discard.
 - Paired claim/evidence review, action review, memory review and uncertainty review.
+- Explicit operator confirmation for the review contract, source card, every claim/evidence pair, actions, memory, uncertainty and run log before completion.
 - Five once-per-run quality ratings on a 0–3 scale, a final decision and correction notes.
+- A complete rating rubric with dimension-specific 0–3 anchors; correction notes are required for Needs revision and Fail.
 - Resumable drafts.
 - Immutable review revisions, JSON export, linked re-review and score-change history.
+- Session-level evaluation-pack export with diagnostics, latest operator revisions and an explicit completion summary.
+- Exact isolation of development-QA seed records from genuine operator progress.
 - A nine-step guided tour that navigates the real product and can be restarted from Settings.
+- Persistent light and dark themes for extended evidence reading and focused operator sessions.
 - IndexedDB storage for imported run bundles and binary attachments; local browser storage for identities, drafts and revision records.
 
 ## File compatibility
@@ -65,7 +75,7 @@ npm test
 npm run build
 ```
 
-The test suite covers adapter aliases, JSON Lines recovery, nested run grouping, review-revision lineage and Sites packaging. Browser interaction and visual evidence are recorded in [design-qa.md](design-qa.md).
+The test suite covers adapter aliases, JSON Lines recovery, nested run grouping, deterministic diagnostics, operator/QA state separation, decision-note rules, session export, review-revision lineage and Sites packaging. Browser interaction, responsive checks, real Chaser Agent import proof and source/implementation comparisons are recorded in [design-qa.md](design-qa.md).
 
 ## Data and safety boundary
 
@@ -73,15 +83,17 @@ The test suite covers adapter aliases, JSON Lines recovery, nested run grouping,
 - Finishing a review creates a new review revision and exports JSON; it never rewrites the imported bundle.
 - Re-review links a new revision to its parent instead of overwriting the earlier judgement.
 - No provider call, external tool action, memory promotion, training job or deployment is authorized by a review.
-- Phase 2 is single-browser and local-first; multi-user collaboration and server-backed sync are future work.
+- Version 1.0 remains single-browser and local-first; multi-user collaboration and the governed HTTP/server layer are the next engineering boundary.
 
-## Open-source status
+## Open-source release
 
-This standalone repository is being prepared for open-source publication, but it has not been pushed, published or deployed. A final `LICENSE`, public repository name and contribution policy still require the operator’s explicit selection before public release. The package remains `private: true` to prevent accidental npm publication during development.
+Version 1.0 is licensed under Apache-2.0 and includes contribution and security policies. The package remains `private: true` to prevent accidental npm registry publication; that flag does not limit source-code use under the repository license.
 
 ## Engineering map
 
 - [Artifact compatibility](docs/ARTIFACT_COMPATIBILITY.md)
 - [Review revision model](docs/REVIEW_REVISION_MODEL.md)
 - [Phase 2 implementation record](docs/PHASE2_IMPLEMENTATION.md)
+- [Operator completion implementation record](docs/PHASE3_OPERATOR_COMPLETION.md)
+- [Version 1.0 release record](docs/PHASE4_RELEASE.md)
 - [Documentation index](docs/index.md)

@@ -39,6 +39,19 @@ When a selected directory contains `source_card.json` or `human_review_packet.js
 
 Each import receives a new dated session and each normalized run gets a separate review-instance identifier. A repeated import does not overwrite the prior review context.
 
+## Deterministic readiness diagnostics
+
+The operator overview evaluates a run bundle before human scoring. A review-ready canonical bundle has:
+
+- all eight canonical artifacts;
+- parseable canonical structured files;
+- stable and consistent `run_id` and `source_id` values;
+- present, unique claim and evidence IDs;
+- every claim linked to an existing evidence snippet;
+- evidence, action and uncertainty references that point to existing claims.
+
+Diagnostics are deterministic structure checks. They can block a malformed bundle, but they never supply any of the five human quality ratings and never convert an unreviewed run into a reviewed one.
+
 ## Adding an adapter
 
 1. Add a canonical definition or alias in `src/data.js`.

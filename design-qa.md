@@ -97,3 +97,128 @@ No actionable P0, P1 or P2 findings remain.
 - [x] Clean final browser console.
 
 final result: passed
+
+---
+
+# Agent Review Studio — Version 0.3 operator-completion QA
+
+## Evidence and normalization
+
+- Source visual truth: `C:\Users\chaseos\.codex\generated_images\019fe238-742c-7703-8eef-c446e011457a\exec-d5efea5a-3c10-4938-8ec2-966816f11520.png` (1487 × 1058).
+- Phase 2 selected implementation: `E:\ChaseOSBuilds\chaser-agent-evaluation-workspace-2026-08-25\qa\phase2-desktop-review-final.png` (1430 × 1017 at a 1440 × 1024 CSS viewport).
+- Version 0.3 implementation screenshot: unavailable.
+- Intended desktop viewport: 1440 × 1024 CSS pixels at device scale factor 1.
+- Intended compact viewport: 390 × 844 CSS pixels at device scale factor 1.
+- Intended state: Chaser Agent session Overview with three unreviewed runs, 8/8 diagnostics and the run queue visible.
+
+## Findings
+
+- [P0] Browser-rendered verification is blocked
+  - Location: local Version 0.3 preview at `http://127.0.0.1:4173/`.
+  - Evidence: the Vite service responds HTTP 200 and the production build succeeds, but the selected in-app browser rejected local-page navigation under its URL security policy. No safe browser-control fallback is permitted after that rejection.
+  - Impact: the new Overview, rubric modal and compact layout cannot yet receive the required screenshot comparison, primary-interaction verification, overflow check or console inspection.
+  - Fix: the operator must refresh/open the existing local preview in the in-app browser, then the next QA pass can claim that already-loaded tab without agent-driven local navigation.
+
+## Required fidelity surfaces
+
+- Fonts and typography: carried forward from the passed Phase 2 token system; Version 0.3 visual verification blocked.
+- Spacing and layout rhythm: new responsive rules are implemented; Version 0.3 visual verification blocked.
+- Colors and visual tokens: existing ink/teal/green/amber/coral tokens are reused; Version 0.3 visual verification blocked.
+- Image quality and asset fidelity: no new raster assets or substitute artwork were added; Version 0.3 visual verification blocked.
+- Copy and content: operator queue, diagnostics, rubric and boundary copy are implemented and build-tested; browser rendering remains unverified.
+
+## Automated evidence
+
+- `npm test`: 20/20 passing.
+- `npm run build`: passing, 104 modules transformed.
+- `git diff --check`: passing.
+- Chaser Agent source-to-demo byte comparison: 24/24 canonical files match.
+- Local service: HTTP 200 at the intended preview URL.
+
+## Implementation checklist
+
+- [x] Operator overview and session queue implemented.
+- [x] Deterministic diagnostics implemented and regression-tested.
+- [x] Development-QA records isolated from operator progress.
+- [x] Complete 0–3 rubric and decision-note rules implemented.
+- [x] Deliberate confirmation required for all eight canonical artifact groups.
+- [x] Folder import, mixed-file retention, project creation, CSV quoting and safe SVG handling regression-tested.
+- [x] Session evaluation-pack export implemented and tested.
+- [ ] Desktop browser capture and primary-flow interaction pass.
+- [ ] Compact browser capture and overflow pass.
+- [ ] Fresh browser console check.
+- [ ] Side-by-side source/implementation comparison.
+
+final result: blocked
+
+---
+
+# Agent Review Studio — Version 1.0 release QA
+
+## Evidence and normalization
+
+- Selected dark visual source: `C:\Users\chaseos\.codex\generated_images\019fe238-742c-7703-8eef-c446e011457a\exec-7443692d-702f-402a-8118-62da0f2054de.png` (1487 × 1058).
+- Selected light visual source: `C:\Users\chaseos\.codex\generated_images\019fe238-742c-7703-8eef-c446e011457a\exec-6a1061cb-f6f3-41b1-a4a0-c1d059ad40de.png` (1487 × 1058).
+- Final light implementation: `E:\ChaseOSBuilds\chaser-agent-evaluation-workspace-2026-08-25\qa\phase4\14-review-light-source-viewport.png` (1430 × 953 from a 1440 × 960 CSS viewport).
+- Final dark implementation: `E:\ChaseOSBuilds\chaser-agent-evaluation-workspace-2026-08-25\qa\phase4\15-review-dark-source-viewport.png` (1430 × 953 from a 1440 × 960 CSS viewport).
+- Light side-by-side comparison: `E:\ChaseOSBuilds\chaser-agent-evaluation-workspace-2026-08-25\qa\phase4\comparison-light-final.png`.
+- Dark side-by-side comparison: `E:\ChaseOSBuilds\chaser-agent-evaluation-workspace-2026-08-25\qa\phase4\comparison-dark-final.png`.
+- Additional states: `07-files-light.png`, `08-settings-light.png`, `09-onboarding-light.png`, `10-mobile-settings.png`, `11-mobile-drawer.png`, `12-mobile-review.png` and `13-tablet-review.png` under `qa\phase4`.
+- Device scale factor: effectively 1; implementation pixels track the requested CSS viewport after the browser surface excludes its scrollbar/chrome edge.
+- Compared state: imported Chaser Agent Run 1, Inspect stage, claim/evidence pair, linked actions, provenance, run-level scoring and finish controls.
+
+## Findings
+
+No actionable P0, P1 or P2 findings remain.
+
+### Required fidelity surfaces
+
+- **Typography and hierarchy:** the compact technical hierarchy, quiet metadata and high-emphasis evidence statements remain legible in both themes. The neutral Agent Review Studio lockup and workspace-specific Chaser Agent identity are visibly separate.
+- **Layout and rhythm:** the fixed context bar, deep navigation rail, explanation strip, four-stage workflow, paired evidence region and persistent score panel preserve the selected Evidence Operations Console composition. The implementation adds linked actions and provenance without crowding the primary evidence judgement.
+- **Color and themes:** dark mode uses the selected ink/navy operating environment with teal focus; light mode uses a warm reading canvas while deliberately retaining the dark workspace rail. Semantic ready, warning and completion states remain consistent.
+- **Asset fidelity:** all interface icons come from the Phosphor icon library. No placeholder artwork, emoji, handcrafted SVG or CSS-art substitute is present.
+- **Content truth:** the imported session contains the real current three-run Chaser Agent public-safe evaluation bundle. The interface explicitly separates evaluation and data curation from model-weight training and preserves immutable source boundaries.
+- **Responsive access:** at 390 × 844 CSS pixels the workspace rail becomes an operable drawer, workflow steps stack, review content remains within the document width and no controls are lost. At 834 × 1194 the two-column evidence experience remains usable. Measured document widths were 380/380 and 824/824 respectively.
+
+## Primary interactions tested
+
+- created a fresh workspace and named the evaluated harness;
+- imported the real 24-file Chaser Agent demo-runs folder through the folder chooser as three dated run bundles;
+- verified all three runs contain eight parsed artifacts in canonical review order;
+- reloaded and confirmed workspace, session, runs and theme persisted;
+- searched files, cleared the search and filtered by artifact section;
+- opened and inspected every Files, History and Settings surface;
+- walked all 10 onboarding dialog states and finished the tour;
+- toggled dark and light mode from the global control and Settings;
+- confirmed the review contract, all eight claim/evidence pairs, source card, actions, memory, uncertainty and run log;
+- exercised all five rating groups, Pass decision, correction field, draft save and enabled finish control using an isolated development-QA record that is excluded from operator progress;
+- verified the mobile workspace drawer and compact review navigation;
+- verified zero horizontal overflow at 390 px and 834 px widths;
+- verified zero browser console warnings and zero browser console errors.
+
+## Comparison history
+
+### Version 0.3 — blocked
+
+- Browser navigation policy prevented the required visual and interaction pass even though automated tests and the production build passed.
+
+### Version 1.0 iteration 1 — fixed
+
+- **P1 visual quality:** the earlier application read as a collection of generic cards. Rebuilt it around the selected Evidence Operations Console with a persistent operational rail, compact context header, staged evidence flow and a calmer metrics band.
+- **P1 theme completeness:** added a persistent first-class light mode rather than a partial color inversion, including dedicated reading-surface, navigation, control and accessibility tokens.
+- **P2 evidence context:** added linked action candidates and source provenance directly beside the active claim/evidence pair.
+- **P2 review order:** imposed the canonical eight-artifact operator order before any unfamiliar retained files.
+- **P2 onboarding continuity:** verified every real target and both restart/finish paths in the 10-state guided product tour.
+
+### Version 1.0 iteration 2 — passed
+
+- Recaptured both themes at the source-matched desktop state, assembled side-by-side comparison inputs and inspected the full composition.
+- Recaptured Files, Settings, onboarding, mobile drawer, mobile review and tablet review after the final implementation changes.
+- No broken layout, clipping, collision, inconsistent radius, low-quality asset, missing core interaction or accessibility-blocking defect remains at P0–P2.
+
+## Follow-up polish
+
+- **P3:** YAML and TOML use safe text previews; semantic tree adapters can be added without changing raw retention.
+- **P3:** multi-user review locks, server-side storage and the governed HTTP layer remain separate post-1.0 engineering work.
+
+final result: passed

@@ -8,14 +8,16 @@ Keep `.openai/hosting.json`, `worker/index.js`, `scripts/prepare-sites-build.mjs
 
 - The product name is **Agent Review Studio**.
 - The product is agent-agnostic. **Chaser Agent** is a built-in example workspace, not the global brand.
-- The selected visual direction remains the 2026-08-25 dark technical review workspace: clear stages, paired claim/evidence, quiet structural checks, five once-per-run ratings and persistent onboarding access.
+- The selected visual direction is the Evidence Operations Console: clear stages, paired claim/evidence, visible provenance and linked actions, quiet structural checks, five once-per-run ratings and persistent onboarding access. Dark and light modes are equal product surfaces.
 - Optimize first for a new reviewer understanding what to do, what the data means and what remains immutable.
+- Open on the operator session overview. Treat deterministic generation and development QA as wiring evidence, never as a completed human review.
+- Bundle diagnostics may validate structure and references but must never auto-score a human quality dimension.
 - The work is agent evaluation, evidence curation, benchmark engineering and harness refinement—not model-weight fine-tuning.
 - Source run artifacts are immutable. Reviews, drafts, exports and revision lineage must remain separate from source evidence.
 - Preserve every imported file. Known adapters may normalize artifacts into review panels, but unfamiliar files must stay visible in the run manifest.
 - Re-review creates a new linked revision. Never overwrite a finished human judgement.
 - Use IndexedDB for imported blobs/run bundles and browser-local storage for small settings, drafts and revision records until a governed backend is deliberately selected.
-- Open-source publication is intended, but no remote publication, deployment or license choice has been authorized yet.
+- The operator authorized a public standalone repository, live deployment, Apache-2.0 license and ChaseInTech project feature on 2026-08-26. Publishing authority applies to this repository and the isolated site worktree only; source evidence, Chaser Agent core and unrelated dirty work remain protected.
 - Keep this repository separate from the public Chaser Agent core.
 
 ## Verification gate

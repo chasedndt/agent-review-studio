@@ -30,7 +30,7 @@ A draft is keyed by review-instance ID and contains:
 - final decision;
 - correction notes;
 - inspected claim IDs;
-- action and memory review completion;
+- explicit completion flags for the review contract, source card, actions, memory, uncertainty and run log;
 - status and update timestamp;
 - optional parent revision ID when created through Re-review.
 
@@ -38,7 +38,7 @@ Drafts may be overwritten because they are unfinished working state.
 
 ## Finished review revision
 
-Finishing creates `agent_review_studio.review.v2` with:
+Finishing creates `agent_review_studio.review.v3` with:
 
 - a unique `revision_id`;
 - optional `parent_revision_id`;
@@ -46,7 +46,7 @@ Finishing creates `agent_review_studio.review.v2` with:
 - dated session and review-instance identity;
 - source run, source and workflow identities;
 - rating vector, total, decision and correction notes;
-- inspected claims and completed action/memory checks;
+- inspected claims and explicit completion flags for every canonical artifact group;
 - `source_artifacts_mutated: false`.
 
 The exact same record is saved to local revision history and exported as JSON.

@@ -4,9 +4,11 @@ import { CheckCircleIcon } from "@phosphor-icons/react/CheckCircle";
 import { FileTextIcon } from "@phosphor-icons/react/FileText";
 import { HardDrivesIcon } from "@phosphor-icons/react/HardDrives";
 import { IdentificationCardIcon } from "@phosphor-icons/react/IdentificationCard";
+import { MoonIcon } from "@phosphor-icons/react/Moon";
+import { SunIcon } from "@phosphor-icons/react/Sun";
 import { SUPPORTED_FILE_GROUPS } from "./data.js";
 
-export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, onSaveReviewer, onRestartTour, runCount, reviewCount }) {
+export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, onSaveReviewer, onRestartTour, runCount, reviewCount, theme, onThemeChange }) {
   const [form, setForm] = useState(workspace);
   const [reviewer, setReviewer] = useState(reviewerName);
   const [saved, setSaved] = useState(false);
@@ -60,6 +62,14 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
           <header><ArrowCounterClockwiseIcon size={22} /><div><h2>Guided onboarding</h2><p>Walk a new operator through the real product controls.</p></div></header>
           <p>The tour moves through projects, imports, run sessions, the complete file bundle, paired evidence review, scoring, history and settings.</p>
           <button type="button" className="secondary-button" onClick={onRestartTour}><ArrowCounterClockwiseIcon size={17} /> Restart guided tour</button>
+        </section>
+
+        <section className="settings-card appearance-card">
+          <header>{theme === "dark" ? <MoonIcon size={22} /> : <SunIcon size={22} />}<div><h2>Appearance</h2><p>Choose the same complete workspace in dark or light mode.</p></div></header>
+          <div className="theme-choice" role="group" aria-label="Appearance theme">
+            <button type="button" className={theme === "dark" ? "active" : ""} aria-pressed={theme === "dark"} onClick={() => onThemeChange("dark")}><MoonIcon size={18} /><span><strong>Dark</strong><small>Focused operator sessions</small></span></button>
+            <button type="button" className={theme === "light" ? "active" : ""} aria-pressed={theme === "light"} onClick={() => onThemeChange("light")}><SunIcon size={18} /><span><strong>Light</strong><small>Extended evidence reading</small></span></button>
+          </div>
         </section>
       </div>
     </section>

@@ -7,7 +7,9 @@ import { FolderOpenIcon } from "@phosphor-icons/react/FolderOpen";
 import { LockIcon } from "@phosphor-icons/react/Lock";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/MagnifyingGlass";
 import { WarningCircleIcon } from "@phosphor-icons/react/WarningCircle";
-import { formatBytes } from "./data.js";
+import { ARTIFACT_DEFINITIONS, formatBytes } from "./data.js";
+
+const REVIEW_ORDER = new Map(ARTIFACT_DEFINITIONS.map((artifact, index) => [artifact.canonical, index]));
 
 function useBlobUrl(file) {
   const [url, setUrl] = useState("");
@@ -29,8 +31,10 @@ function downloadFile(file) {
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = file.name;
+  document.body.append(anchor);
   anchor.click();
-  URL.revokeObjectURL(url);
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function ArtifactPreview({ file }) {
@@ -90,8 +94,12 @@ export function FilesWorkspace({ run, onImport, folderInputRef, fileInputRef }) 
     const matchesSection = section === "all" || file.section === section;
     const haystack = `${file.name} ${file.relativePath} ${file.roleLabel} ${file.format}`.toLowerCase();
     return matchesSection && haystack.includes(query.trim().toLowerCase());
+  }).sort((left, right) => {
+    const leftOrder = REVIEW_ORDER.get(left.canonical) ?? Number.MAX_SAFE_INTEGER;
+    const rightOrder = REVIEW_ORDER.get(right.canonical) ?? Number.MAX_SAFE_INTEGER;
+    return leftOrder - rightOrder || left.relativePath.localeCompare(right.relativePath, undefined, { numeric: true });
   }), [files, query, section]);
-  const selectedFile = files.find((file) => file.id === selectedId) || visibleFiles[0] || null;
+  const selectedFile = visibleFiles.find((file) => file.id === selectedId) || visibleFiles[0] || null;
   const totalSize = files.reduce((sum, file) => sum + (file.size || 0), 0);
 
   if (!run) {

@@ -26,8 +26,10 @@ function exportRevision(record) {
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = `${record.run_label || record.run_id}-review-${record.revision_id}.json`.toLowerCase().replaceAll(" ", "-");
+  document.body.append(anchor);
   anchor.click();
-  URL.revokeObjectURL(url);
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 export function HistoryWorkspace({ history, onReReview }) {
@@ -40,7 +42,7 @@ export function HistoryWorkspace({ history, onReReview }) {
 
   const runOptions = useMemo(() => Array.from(new Map(history.map((record) => [record.run_id, record.run_label || record.run_id])).entries()), [history]);
   const visible = runFilter === "all" ? history : history.filter((record) => record.run_id === runFilter);
-  const selected = history.find((record) => record.revision_id === selectedId) || visible[0] || null;
+  const selected = visible.find((record) => record.revision_id === selectedId) || visible[0] || null;
   const previous = selected?.parent_revision_id ? history.find((record) => record.revision_id === selected.parent_revision_id) : null;
 
   return (
