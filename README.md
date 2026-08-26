@@ -4,6 +4,8 @@ Agent Review Studio is a local-first workspace for evaluating, curating and impr
 
 Chaser Agent is the built-in demonstration workspace. It is not the product identity; any agent, harness, workflow or service can have its own named workspace.
 
+**Live application:** [agent-review-studio.chaseintech.chatgpt.site](https://agent-review-studio.chaseintech.chatgpt.site)
+
 ![Agent Review Studio evidence workspace](docs/media/agent-review-studio-light.png)
 
 ## What process is this?
@@ -87,7 +89,7 @@ The test suite covers adapter aliases, JSON Lines recovery, nested run grouping,
 
 ## Open-source release
 
-Version 1.0 is licensed under Apache-2.0 and includes contribution and security policies. The package remains `private: true` to prevent accidental npm registry publication; that flag does not limit source-code use under the repository license.
+Version 1.0 is licensed under Apache-2.0 and includes contribution and security policies. The source is public at [github.com/chasedndt/agent-review-studio](https://github.com/chasedndt/agent-review-studio), and the working application is deployed through OpenAI Sites. The package remains `private: true` to prevent accidental npm registry publication; that flag does not limit source-code use under the repository license.
 
 ## Engineering map
 

@@ -43,7 +43,19 @@ Reload acceptance confirmed that workspace identity, session identity, all three
 - browser console: zero warnings and zero errors;
 - source/implementation visual comparisons: no actionable P0, P1 or P2 findings.
 
-Final command results, public repository, deployment and ChaseInTech integration are recorded in the release handover after publication.
+## Publication proof
+
+- public source: `https://github.com/chasedndt/agent-review-studio`;
+- public application: `https://agent-review-studio.chaseintech.chatgpt.site`;
+- ChaseInTech case study: `https://chaseintech.com/projects/agent-review-studio/`;
+- final automated suite: 20/20 passing;
+- final production build: 110 modules transformed successfully;
+- final Sites packaging: passed;
+- deployed browser readback: application loaded with the correct title and zero warning/error console entries;
+- ChaseInTech production merge: pull request `#36`, commit `53c1cfd`;
+- ChaseInTech main-branch quality and Cloudflare deployment workflows: passed.
+
+The public application remains a single-browser, local-first deployment: data imported into one browser profile is not synchronized to another device or user.
 
 ## Untouched boundaries
 
