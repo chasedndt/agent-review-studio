@@ -49,8 +49,8 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
 
         <section className="settings-card storage-card">
           <header><HardDrivesIcon size={22} /><div><h2>Local data</h2><p>No server or account is required in this phase.</p></div></header>
-          <div className="storage-stats"><div><strong>{runCount}</strong><span>Runs</span></div><div><strong>{reviewCount}</strong><span>Review revisions</span></div><div><strong>0</strong><span>Source mutations</span></div></div>
-          <ul><li>Imported run bundles and binary attachments use this browser’s IndexedDB.</li><li>Drafts, workspace identity and review revisions use local browser storage.</li><li>Exported JSON is the portable handoff format.</li></ul>
+          <div className="storage-stats"><div><strong>{runCount}</strong><span>Runs</span></div><div><strong>{reviewCount}</strong><span>Reviewed examples</span></div><div><strong>0</strong><span>Source mutations</span></div></div>
+          <ul><li>Imported run bundles and binary attachments use this browser’s IndexedDB.</li><li>Drafts, workspace identity and reviewed examples use local browser storage.</li><li>Exported JSON tells engineers how the review can support harness improvement, golden evaluations or governed training-data selection.</li></ul>
         </section>
 
         <section className="settings-card formats-card">

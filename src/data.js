@@ -730,7 +730,7 @@ export function persistDraft(runId, draft) {
 export function createReviewRevision({ projectId, workspaceName, agentName, reviewerName, run, draft, scoreTotal }) {
   const reviewedAt = new Date().toISOString();
   return {
-    schema_version: "agent_review_studio.review.v3",
+    schema_version: "agent_review_studio.review.v4",
     revision_id: `review-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     parent_revision_id: draft.parentRevisionId || null,
     project_id: projectId,
@@ -757,6 +757,14 @@ export function createReviewRevision({ projectId, workspaceName, agentName, revi
     run_log_checked: draft.traceChecked,
     reviewed_at: reviewedAt,
     source_artifacts_mutated: false,
+    learning_handoff: {
+      artifact_type: "human_reviewed_agent_run",
+      purpose: "Use this reviewed run to improve and re-test the agent or harness.",
+      intended_uses: ["agent_harness_refinement", "golden_evaluation_case", "training_data_selection_candidate"],
+      improvement_targets: ["prompts", "retrieval", "tool_selection", "workflow_orchestration", "approval_policy", "memory_rules"],
+      training_status: "candidate_only_requires_dataset_governance",
+      automatic_training_authorized: false,
+    },
   };
 }
 
@@ -812,7 +820,7 @@ export function createSessionEvaluationPack({ projectId, workspaceName, agentNam
   const diagnosticsBlocked = runRecords.filter((record) => record.diagnostics.status === "blocked").length;
 
   return {
-    schema_version: "agent_review_studio.session_evaluation.v1",
+    schema_version: "agent_review_studio.session_evaluation.v2",
     generated_at: new Date().toISOString(),
     project_id: projectId,
     workspace_name: workspaceName,
@@ -831,7 +839,14 @@ export function createSessionEvaluationPack({ projectId, workspaceName, agentNam
     },
     runs: runRecords,
     source_artifacts_mutated: false,
-    boundary: "This pack records local human evaluation only. It does not train a model, promote memory, execute actions or modify source artifacts.",
+    learning_handoff: {
+      artifact_type: "human_reviewed_agent_session",
+      purpose: "Use finished reviews to improve the agent or harness, then run the evaluation again and compare results.",
+      intended_uses: ["agent_harness_refinement", "golden_evaluation_suite", "training_data_selection_candidate"],
+      training_status: "candidate_only_requires_dataset_governance",
+      automatic_training_authorized: false,
+    },
+    boundary: "This pack records local human evaluation. It can inform harness improvements and governed training-data selection, but it does not train a model, promote memory, execute actions or modify source artifacts.",
   };
 }
 

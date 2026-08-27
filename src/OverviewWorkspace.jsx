@@ -6,7 +6,10 @@ import { DownloadSimpleIcon } from "@phosphor-icons/react/DownloadSimple";
 import { FileArrowUpIcon } from "@phosphor-icons/react/FileArrowUp";
 import { FilesIcon } from "@phosphor-icons/react/Files";
 import { NotePencilIcon } from "@phosphor-icons/react/NotePencil";
+import { RepeatIcon } from "@phosphor-icons/react/Repeat";
 import { ShieldCheckIcon } from "@phosphor-icons/react/ShieldCheck";
+import { TagIcon } from "@phosphor-icons/react/Tag";
+import { WrenchIcon } from "@phosphor-icons/react/Wrench";
 import { WarningCircleIcon } from "@phosphor-icons/react/WarningCircle";
 import { loadDraft, reviewStateForRun, validateRunBundle } from "./data.js";
 
@@ -78,9 +81,9 @@ export function OverviewWorkspace({ workspace, runs, history, onOpenRun, onImpor
     <section className="overview-workspace" data-tour="overview-workspace">
       <header className="overview-hero">
         <div>
-          <p className="eyebrow">Operator floor walk</p>
+          <p className="eyebrow">Review · label · improve</p>
           <h1>{workspace.name}</h1>
-          <p>Review every run once, record exact corrections, and export the completed session as improvement evidence for {workspace.agentName}.</p>
+          <p>Turn real runs from {workspace.agentName} into trusted examples that show what worked, what failed and what the agent should do better next time.</p>
         </div>
         <div className="page-actions">
           <button type="button" className="secondary-button" onClick={onImport}><FileArrowUpIcon size={17} /> Import session</button>
@@ -90,6 +93,14 @@ export function OverviewWorkspace({ workspace, runs, history, onOpenRun, onImpor
       </header>
 
       <div className="overview-body">
+        <section className="improvement-loop" aria-label="How reviewed runs improve an agent">
+          <article><span>1</span><div><strong>Review</strong><p>Compare the complete run with its source evidence.</p></div></article>
+          <article><span><TagIcon size={17} /></span><div><strong>Label</strong><p>Score quality and record the exact correction.</p></div></article>
+          <article><span><WrenchIcon size={17} /></span><div><strong>Improve</strong><p>Update prompts, tools, retrieval, rules or workflow logic.</p></div></article>
+          <article><span><RepeatIcon size={17} /></span><div><strong>Re-test</strong><p>Run the task again and compare the new result.</p></div></article>
+        </section>
+        <p className="improvement-boundary">The Studio creates reviewed improvement data. It does not automatically change or train the agent.</p>
+
         <div className="session-control">
           <label>Evaluation session<select value={session?.id || ""} onChange={(event) => setSessionId(event.target.value)}>{sessions.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
           <div className="session-progress-copy"><span>{reviewedCount} of {rows.length} operator reviews finished</span><strong>{completionPercent}%</strong></div>
@@ -126,7 +137,7 @@ export function OverviewWorkspace({ workspace, runs, history, onOpenRun, onImpor
           </div>
         </section>
 
-        <aside className="operator-boundary"><ShieldCheckIcon size={22} /><div><strong>What this session produces</strong><p>Human-reviewed benchmark evidence for prompt, retrieval, orchestration, policy and memory-rule refinement. It does not change model weights, promote memory, execute actions or mutate the source run.</p></div></aside>
+        <aside className="operator-boundary"><ShieldCheckIcon size={22} /><div><strong>What this session produces</strong><p>A portable set of reviewed examples for improving and re-testing an agent. Engineers can use it for golden evaluations, harness refinement or governed training-data selection; the Studio itself never changes model weights, promotes memory or executes actions.</p></div></aside>
       </div>
     </section>
   );

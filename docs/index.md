@@ -5,4 +5,5 @@
 - [Phase 2 implementation record](PHASE2_IMPLEMENTATION.md) — product delta, verified flows, boundaries and remaining work.
 - [Operator completion implementation record](PHASE3_OPERATOR_COMPLETION.md) — session queue, diagnostics, rubric, QA-state isolation and evaluation-pack export.
 - [Version 1.0 release record](PHASE4_RELEASE.md) — selected redesign, themes, real-run import proof, browser acceptance and publication boundary.
+- [Review, label, improve upgrade](PHASE5_REVIEW_LABEL_IMPROVE.md) — plain-language product promise and self-describing improvement-data handoff.
 - [Design QA](../design-qa.md) — visual source, browser evidence, responsive checks and final result.
