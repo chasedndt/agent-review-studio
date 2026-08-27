@@ -1,6 +1,6 @@
 # Agent Review Studio
 
-Agent Review Studio is a local-first workspace for evaluating, curating and improving AI-agent and agent-harness runs. It gives human reviewers one place to inspect complete run bundles, compare claims with source evidence, score product quality, preserve corrections and create a revision history without changing the source artifacts.
+Agent Review Studio helps you review an agent’s work, label what was good or wrong, save the correction, and use that trusted example to improve and re-test the agent. It is a local-first workspace for AI agents and agent harnesses: reviewers inspect complete run bundles, compare claims with source evidence, score quality and preserve a revision history without changing the original artifacts.
 
 Chaser Agent is the built-in demonstration workspace. It is not the product identity; any agent, harness, workflow or service can have its own named workspace.
 
@@ -10,7 +10,7 @@ Chaser Agent is the built-in demonstration workspace. It is not the product iden
 
 ## What process is this?
 
-This is **agent evaluation, evidence curation and harness refinement**. It is not model-weight fine-tuning.
+This is **agent evaluation, human labelling, evidence curation and harness refinement**. It prepares trusted improvement data; it is not automatic model-weight fine-tuning.
 
 The review output can improve:
 
@@ -42,7 +42,7 @@ Model fine-tuning may later consume carefully selected review data, but this app
 - Immutable review revisions, JSON export, linked re-review and score-change history.
 - Session-level evaluation-pack export with diagnostics, latest operator revisions and an explicit completion summary.
 - Exact isolation of development-QA seed records from genuine operator progress.
-- A nine-step guided tour that navigates the real product and can be restarted from Settings.
+- A ten-step guided tour that navigates the real product and can be restarted from Settings.
 - Persistent light and dark themes for extended evidence reading and focused operator sessions.
 - IndexedDB storage for imported run bundles and binary attachments; local browser storage for identities, drafts and revision records.
 
@@ -85,7 +85,7 @@ The test suite covers adapter aliases, JSON Lines recovery, nested run grouping,
 - Finishing a review creates a new review revision and exports JSON; it never rewrites the imported bundle.
 - Re-review links a new revision to its parent instead of overwriting the earlier judgement.
 - No provider call, external tool action, memory promotion, training job or deployment is authorized by a review.
-- Version 1.0 remains single-browser and local-first; multi-user collaboration and the governed HTTP/server layer are the next engineering boundary.
+- Version 1.0.1 remains single-browser and local-first; multi-user collaboration and the governed HTTP/server layer are the next engineering boundary.
 
 ## Open-source release
 

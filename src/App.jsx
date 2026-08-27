@@ -289,7 +289,7 @@ export function App() {
     if (!run) return;
     const saved = persistDraft(run.id, { ...draft, status });
     setDraft(saved);
-    setSaveMessage(status === "reviewed" ? "Review revision saved locally and exported." : "Draft saved locally.");
+    setSaveMessage(status === "reviewed" ? "Reviewed example saved locally and exported for improvement work." : "Draft saved locally.");
   }
 
   function finishReview() {
@@ -299,7 +299,7 @@ export function App() {
     appendReviewRevision(revision);
     setDraft(completedDraft);
     setReviewHistory(loadReviewHistory());
-    setSaveMessage("Review revision saved locally and exported.");
+    setSaveMessage("Reviewed example saved locally and exported for improvement work.");
     downloadJson(revision, `${run.label.toLowerCase().replaceAll(" ", "-")}-review-${revision.revision_id}.json`);
   }
 
@@ -410,7 +410,7 @@ export function App() {
       <input ref={fileInputRef} type="file" multiple hidden onChange={importFiles} />
 
       <header className="topbar">
-        <div className="brand"><span className="brand-mark"><StackIcon size={25} weight="duotone" /></span><strong><span>AGENT REVIEW STUDIO</span><small>EVIDENCE OPERATIONS</small></strong></div>
+        <div className="brand"><span className="brand-mark"><StackIcon size={25} weight="duotone" /></span><strong><span>AGENT REVIEW STUDIO</span><small>REVIEW · LABEL · IMPROVE</small></strong></div>
         <div className="top-context">
           <div data-tour="workspace"><span>Workspace</span><strong>{workspace.name}</strong></div>
           <div><span>Agent / harness</span><strong>{workspace.agentName}</strong></div>
@@ -456,16 +456,16 @@ export function App() {
           <>
             <section className="explain-strip">
               <span className="explain-icon"><TargetIcon size={30} weight="duotone" /></span>
-              <div><strong>What am I doing?</strong><p>Check whether this run preserved its source, separated its reasoning, handled uncertainty, proposed useful actions and avoided unsafe memory.</p></div>
-              <div><strong>Why this matters</strong><p>Your corrections become regression evidence and reviewed benchmark data. This is evaluation and data curation—not model-weight training.</p></div>
+              <div><strong>What am I doing?</strong><p>Compare the agent’s work with its evidence, then label what was correct, weak, missing or unsafe.</p></div>
+              <div><strong>What does this create?</strong><p>A trusted example you can use to improve prompts, tools, retrieval, memory rules and workflows—or select as a candidate for a governed training dataset.</p></div>
             </section>
 
             <nav className="workflow-steps" aria-label="Review progress">
               {[
-                ["understand", 1, "Understand the run", "Review purpose and provenance", true],
-                ["inspect", 2, "Check outputs against evidence", "Confirm all eight artifacts", artifactsComplete],
-                ["decide", 3, "Score overall quality", "Rate once per run", ratingsComplete && Boolean(draft.decision)],
-                ["save", 4, "Preserve judgement", "Finish to create a revision", draft.status === "reviewed"],
+                ["understand", 1, "Understand the task", "Know the goal and boundaries", true],
+                ["inspect", 2, "Verify the agent’s work", "Check outputs against evidence", artifactsComplete],
+                ["decide", 3, "Label and score the run", "Five ratings + a final decision", ratingsComplete && Boolean(draft.decision)],
+                ["save", 4, "Save an improvement example", "Export a reusable review record", draft.status === "reviewed"],
               ].map(([id, number, title, helper, complete]) => <button type="button" key={id} className={`${(id === "save" ? section === "decide" && reviewComplete : section === id) || (id === "save" && draft.status === "reviewed") ? "active" : ""} ${complete ? "complete" : ""}`} onClick={() => setSection(id === "save" ? "decide" : id)}><span>{complete ? <CheckIcon size={15} /> : number}</span><div><strong>{title}</strong><small>{helper}</small></div></button>)}
             </nav>
 
@@ -510,18 +510,18 @@ export function App() {
 
               <aside className="score-panel" data-tour="score-panel">
                 <header>
-                  <div><p className="eyebrow">Decide</p><h2>Score this run overall</h2><span>Five ratings, once per run—not per claim.</span><button type="button" className="rubric-link" onClick={() => setShowRubricModal(true)}>View the complete 0–3 rubric</button></div>
+                  <div><p className="eyebrow">Label & decide</p><h2>Label this run’s overall quality</h2><span>Five ratings, once per run—not per claim.</span><button type="button" className="rubric-link" onClick={() => setShowRubricModal(true)}>View the complete 0–3 rubric</button></div>
                   <output>{scoreTotal}<small>/15</small></output>
                 </header>
                 <div className="rating-list">{RATING_DEFINITIONS.map(({ key, label, help }) => <div className="rating-row" key={key}><div><strong>{label}</strong><span>{help}</span></div><RatingControl name={label} value={draft.ratings[key]} disabled={draft.status === "reviewed"} onChange={(value) => updateRating(key, value)} /></div>)}</div>
                 <div className="scale-legend">{SCORE_SCALE.map(([score, label]) => <span key={score}><b>{score}</b> {label}</span>)}</div>
                 <fieldset className="decision-field"><legend>Decision</legend>{[["pass", "Pass"], ["needs_revision", "Needs revision"], ["fail", "Fail"]].map(([value, label]) => <label key={value}><input type="radio" name="decision" value={value} disabled={draft.status === "reviewed"} checked={draft.decision === value} onChange={(event) => updateDraft({ decision: event.target.value })} /><span>{label}</span></label>)}</fieldset>
-                <label className="notes-field">Corrections and notes {draft.decision && draft.decision !== "pass" && <em>Required</em>}<textarea value={draft.notes} disabled={draft.status === "reviewed"} aria-required={draft.decision !== "" && draft.decision !== "pass"} onChange={(event) => updateDraft({ notes: event.target.value })} placeholder="Record the exact defect, missing evidence, or correction this harness should learn…" /></label>
+                <label className="notes-field">Corrections and notes {draft.decision && draft.decision !== "pass" && <em>Required</em>}<textarea value={draft.notes} disabled={draft.status === "reviewed"} aria-required={draft.decision !== "" && draft.decision !== "pass"} onChange={(event) => updateDraft({ notes: event.target.value })} placeholder="Describe what should stay the same, what should change, and what a better result would do." /></label>
                 <div className={`system-check ${diagnostics.status === "ready" ? "pass" : "needs-check"}`}><ShieldCheckIcon size={21} /><div><strong>Deterministic bundle diagnostics</strong><span>{diagnostics.presentArtifactCount}/{diagnostics.requiredArtifactCount} canonical files · {diagnostics.errors} errors · {diagnostics.warnings} warnings. This does not replace your judgement.</span></div><b>{diagnostics.status === "ready" ? "READY" : "CHECK"}</b></div>
                 {saveMessage && <p className="save-message">{saveMessage}</p>}
-                <div className="score-actions"><button type="button" className="secondary-button" disabled={draft.status === "reviewed"} onClick={() => saveDraft()}><FloppyDiskIcon size={18} /> {draft.status === "reviewed" ? "Draft saved" : "Save draft"}</button><button type="button" className="primary-button" disabled={!reviewComplete || draft.status === "reviewed"} onClick={finishReview}><CheckCircleIcon size={18} /> {draft.status === "reviewed" ? "Review saved" : "Finish review"}</button></div>
+                <div className="score-actions"><button type="button" className="secondary-button" disabled={draft.status === "reviewed"} onClick={() => saveDraft()}><FloppyDiskIcon size={18} /> {draft.status === "reviewed" ? "Draft saved" : "Save draft"}</button><button type="button" className="primary-button" disabled={!reviewComplete || draft.status === "reviewed"} onClick={finishReview}><CheckCircleIcon size={18} /> {draft.status === "reviewed" ? "Example saved" : "Save reviewed example"}</button></div>
                 {!reviewComplete && <p className="completion-hint">Complete the artifact checklist, five ratings and decision. Add notes when revision or failure is selected.</p>}
-                {draft.status === "reviewed" && <><p className="completion-hint reviewed-hint">Use History → Re-review to create a linked revision.</p><button type="button" className="overview-return" onClick={() => setActivePage("overview")}>Return to session overview <ArrowRightIcon size={15} /></button></>}
+                {draft.status === "reviewed" && <><p className="completion-hint reviewed-hint">This is now a reusable improvement example. Refine the agent, run the task again, then use History → Re-review to compare the result.</p><button type="button" className="overview-return" onClick={() => setActivePage("overview")}>Return to session overview <ArrowRightIcon size={15} /></button></>}
               </aside>
             </div>
           </>

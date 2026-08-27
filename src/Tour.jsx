@@ -10,8 +10,8 @@ export const TOUR_STEPS = [
     page: "overview",
     target: null,
     eyebrow: "Welcome to Agent Review Studio",
-    title: "Turn agent runs into trusted improvement evidence.",
-    body: "This is human evaluation and data curation—not model-weight training. You inspect what happened, score the complete run, preserve corrections, and create revisions you can compare later.",
+    title: "Review, label and improve an agent—one run at a time.",
+    body: "Inspect what the agent did, compare it with the evidence, label the quality, and save a trusted example. Use that example to improve the agent and test it again. The Studio prepares reviewed data; it does not automatically train a model.",
   },
   {
     page: "overview",
@@ -58,16 +58,16 @@ export const TOUR_STEPS = [
   {
     page: "review",
     target: "score-panel",
-    eyebrow: "7 · Score once per run",
-    title: "Five ratings create one product-quality judgement.",
-    body: "Complete the five 0–3 ratings, choose Pass, Needs revision or Fail, and record the exact correction. Finishing creates an immutable review revision.",
+    eyebrow: "7 · Label the complete run",
+    title: "Five ratings and one decision describe the result.",
+    body: "Score five quality areas from 0–3, choose Pass, Needs revision or Fail, and describe exactly what should change. Saving creates a reusable improvement example.",
   },
   {
     page: "history",
     target: "history-workspace",
     eyebrow: "8 · Re-review without erasing history",
-    title: "Every finished judgement becomes a revision.",
-    body: "Open an older revision, export it, or start a re-review. The next judgement links back to the earlier one so changes in quality stay visible.",
+    title: "Improve the agent, run it again, and compare.",
+    body: "Open or export an older reviewed example, then start a re-review after the agent changes. The new result links to the earlier one so improvement—or regression—stays visible.",
   },
   {
     page: "settings",

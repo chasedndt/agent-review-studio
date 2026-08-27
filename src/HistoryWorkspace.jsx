@@ -49,15 +49,15 @@ export function HistoryWorkspace({ history, onReReview }) {
     <section className="history-workspace" data-tour="history-workspace">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Immutable human judgements</p>
+          <p className="eyebrow">Reusable improvement examples</p>
           <h1>Review history</h1>
-          <p>Finished reviews become revisions. Re-reviewing creates a linked successor instead of replacing the earlier score.</p>
+          <p>Each finished review records what the agent did, how you labelled it, and what should improve. Re-reviewing compares a new result without erasing the earlier one.</p>
         </div>
         <label className="history-filter">Run<select value={runFilter} onChange={(event) => setRunFilter(event.target.value)}><option value="all">All runs</option>{runOptions.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
       </header>
 
       {!history.length ? (
-        <div className="page-empty compact"><ClockCounterClockwiseIcon size={42} /><h2>No finished reviews yet</h2><p>Complete the review checklist and press Finish review. The first immutable revision will appear here.</p></div>
+        <div className="page-empty compact"><ClockCounterClockwiseIcon size={42} /><h2>No reviewed examples yet</h2><p>Complete the checklist, label the run and save the reviewed example. It will appear here for improvement work and comparison.</p></div>
       ) : (
         <div className="history-layout">
           <aside className="revision-list">

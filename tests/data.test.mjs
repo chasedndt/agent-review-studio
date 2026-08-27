@@ -155,8 +155,11 @@ test("review revisions preserve lineage and immutable-source declaration", () =>
   });
   assert.equal(record.parent_revision_id, "review-parent");
   assert.equal(record.source_artifacts_mutated, false);
-  assert.equal(record.schema_version, "agent_review_studio.review.v3");
+  assert.equal(record.schema_version, "agent_review_studio.review.v4");
   assert.equal(record.run_log_checked, true);
+  assert.equal(record.learning_handoff.artifact_type, "human_reviewed_agent_run");
+  assert.equal(record.learning_handoff.automatic_training_authorized, false);
+  assert.ok(record.learning_handoff.intended_uses.includes("golden_evaluation_case"));
 });
 
 test("canonical Chaser demonstration bundle passes deterministic diagnostics", async () => {
@@ -248,9 +251,12 @@ test("session export includes diagnostics, review state and immutable boundary",
     history: [],
     drafts: {},
   });
-  assert.equal(pack.schema_version, "agent_review_studio.session_evaluation.v1");
+  assert.equal(pack.schema_version, "agent_review_studio.session_evaluation.v2");
   assert.equal(pack.summary.not_started_runs, 1);
   assert.equal(pack.summary.runs_without_finished_review, 1);
   assert.equal(pack.runs[0].diagnostics.status, "ready");
   assert.equal(pack.source_artifacts_mutated, false);
+  assert.equal(pack.learning_handoff.artifact_type, "human_reviewed_agent_session");
+  assert.equal(pack.learning_handoff.automatic_training_authorized, false);
+  assert.match(pack.boundary, /governed training-data selection/);
 });
