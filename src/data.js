@@ -75,9 +75,9 @@ export const DEVELOPMENT_QA_NOTE = "QA draft: evidence navigation and review sta
 
 export const BUILT_IN_WORKSPACE = {
   id: "chaser-agent",
-  name: "Chaser Agent Evaluation",
+  name: "Chaser Agent — Personal Evaluation",
   agentName: "Chaser Agent",
-  description: "Standalone harness research, golden-case curation and product-quality review.",
+  description: "Personal workspace for Chaser Agent golden evaluations, harness refinement and reviewed improvement examples.",
   kind: "built-in",
 };
 
