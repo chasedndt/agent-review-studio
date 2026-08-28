@@ -1,39 +1,42 @@
-# Agent Review Studio design QA — review, label, improve
+# Design QA — version 1.0.2
 
-## Evidence
+Date: 28 August 2026
 
-- Source visual truth: `docs/media/agent-review-studio-light.png`
-- Browser-rendered implementation: `qa/phase5/review-light-final-1430x953.png`
-- Normalized side-by-side comparison: `qa/phase5/review-normalized-comparison.png`
-- Additional states: `qa/phase5/review-dark-1430x953.png`, `qa/phase5/review-light-390x844.png`, `qa/phase5/mobile-nav-open-390x844.png`
-- Requested CSS viewport: 1430 × 953 at device pixel ratio 1
-- Captured browser content: 1420 × 946; source 1430 × 953 was bicubic-normalized to 1420 × 946 before comparison
-- State: Chaser Agent Evaluation, Run 1, Inspect / claim 1, zero ratings, light theme
+## Visual target
 
-## Findings
+The selected source is logo Option 2, the Judgement Lens: an open teal hexagonal aperture, central teal point and separate off-white upper-right facet. The implemented header comparison is stored in `docs/media/logo-reference-vs-implementation.png`.
 
-No actionable P0, P1 or P2 differences remain.
+## Responsive audit
 
-- Typography: existing font family, weights, hierarchy, line height and compact operator density are preserved. The new plain-language labels fit their controls without truncating the primary workflow.
-- Spacing and layout: top context, sidebar, explanation strip, four-step navigator, evidence pair and score panel retain the source grid and rhythm. The longer fourth-step label wraps intentionally within its existing cell without overlap.
-- Colors and tokens: light and dark themes retain the established teal accent, semantic greens, panel contrast and border system.
-- Image and asset quality: the interface uses the existing application mark and Phosphor icon set; no source imagery was replaced or approximated.
-- Copy and content: the new language makes the full Review → Label → Improve → Re-test loop explicit and accurately distinguishes reviewed data from automatic model training.
+The current public version was captured before implementation at 1440×1024, 834×1194 and 390×844. The audit found:
 
-## Responsive and interaction evidence
+- the generic stack mark did not match the selected identity;
+- the dashboard hero and context content were visually clipped at narrower widths;
+- mobile controls and long labels did not communicate a complete app frame;
+- the Chaser workspace did not visibly prove that the full session was loaded.
 
-- Desktop light and dark review states rendered without clipped primary controls.
-- Mobile 390 × 844 stacks the explanation and workflow steps cleanly; the workspace drawer opened and closed successfully.
-- Overview navigation, Run 1 start, theme switch and guided-tour close were exercised through the rendered interface.
-- Browser console check returned zero warnings and zero errors.
-- Focused region comparison was not required: the normalized full-height review capture keeps the workflow labels, evidence panes, score controls and correction field legible in one comparison.
+## Implementation checks
 
-## Comparison history
+The revised local build was checked in the in-app browser at the same viewport widths and in both themes.
 
-- Initial visual check found no layout regression from the scoped copy and workflow changes. The Overview-only comparison was rejected because it did not match the source Review state.
-- The implementation was recaptured in the matching Run 1 / Inspect / light state at the requested viewport, normalized to the browser content dimensions and compared again.
-- Post-fix evidence: `qa/phase5/review-normalized-comparison.png`.
+- Document width matched viewport width at 1440, 834 and 390 CSS pixels.
+- At 390 px, the top bar, overview, review layout, score panel and Understand panel all reported contained client and scroll widths.
+- Mobile workspace drawer opened and closed through its visible controls.
+- Overview displayed `3 runs loaded · 24/24 canonical artifacts available`.
+- Files displayed all eight Run 1 artifacts in canonical review order.
+- Run 1 opened at the real review workflow and the first operator step was reachable.
+- Light and dark theme controls switched successfully; the readiness panel retained readable contrast.
+- Browser console inspection returned zero warnings and zero errors.
+- The visual comparison confirmed that the selected mark's aperture, centre point and off-white facet remain legible at header scale.
 
-## Final result
+## Automated evidence
 
-passed
+- `npm run build` — passed.
+- `npm test` — 21 passed, 0 failed.
+- `git diff --check` — passed.
+
+## Remaining product boundary
+
+No human judgement has been fabricated. The first Chaser Agent run remains unscored so the operator can perform the golden evaluation. Server-backed collaboration, governed remote persistence and the future Chaser Agent HTTP runtime are outside this release.
+
+Final result: passed

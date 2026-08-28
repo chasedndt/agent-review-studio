@@ -63,6 +63,8 @@ export function OverviewWorkspace({ workspace, runs, history, onOpenRun, onImpor
     || rows.find((row) => row.state === "unreviewed")
     || rows[0];
   const completionPercent = rows.length ? Math.round((reviewedCount / rows.length) * 100) : 0;
+  const canonicalArtifactCount = rows.reduce((total, row) => total + row.diagnostics.presentArtifactCount, 0);
+  const canonicalArtifactTarget = rows.reduce((total, row) => total + row.diagnostics.requiredArtifactCount, 0);
 
   if (!runs.length) {
     return (
@@ -84,6 +86,7 @@ export function OverviewWorkspace({ workspace, runs, history, onOpenRun, onImpor
           <p className="eyebrow">Review · label · improve</p>
           <h1>{workspace.name}</h1>
           <p>Turn real runs from {workspace.agentName} into trusted examples that show what worked, what failed and what the agent should do better next time.</p>
+          {workspace.id === "chaser-agent" && <div className="instance-status"><ShieldCheckIcon size={17} weight="fill" /><span><strong>Personal Chaser Agent instance ready</strong><small>{rows.length} runs loaded · {canonicalArtifactCount}/{canonicalArtifactTarget} canonical artifacts available</small></span></div>}
         </div>
         <div className="page-actions">
           <button type="button" className="secondary-button" onClick={onImport}><FileArrowUpIcon size={17} /> Import session</button>

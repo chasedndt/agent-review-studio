@@ -20,7 +20,6 @@ import { MoonIcon } from "@phosphor-icons/react/Moon";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { ShieldCheckIcon } from "@phosphor-icons/react/ShieldCheck";
 import { SquaresFourIcon } from "@phosphor-icons/react/SquaresFour";
-import { StackIcon } from "@phosphor-icons/react/Stack";
 import { SunIcon } from "@phosphor-icons/react/Sun";
 import { TargetIcon } from "@phosphor-icons/react/Target";
 import { XIcon } from "@phosphor-icons/react/X";
@@ -410,7 +409,7 @@ export function App() {
       <input ref={fileInputRef} type="file" multiple hidden onChange={importFiles} />
 
       <header className="topbar">
-        <div className="brand"><span className="brand-mark"><StackIcon size={25} weight="duotone" /></span><strong><span>AGENT REVIEW STUDIO</span><small>REVIEW · LABEL · IMPROVE</small></strong></div>
+        <div className="brand"><span className="brand-mark"><img src="/assets/agent-review-studio-mark.png" alt="" /></span><strong><span>AGENT REVIEW STUDIO</span><small>REVIEW · LABEL · IMPROVE</small></strong></div>
         <div className="top-context">
           <div data-tour="workspace"><span>Workspace</span><strong>{workspace.name}</strong></div>
           <div><span>Agent / harness</span><strong>{workspace.agentName}</strong></div>

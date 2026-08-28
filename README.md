@@ -8,6 +8,8 @@ Chaser Agent is the built-in demonstration workspace. It is not the product iden
 
 ![Agent Review Studio evidence workspace](docs/media/agent-review-studio-light.png)
 
+Version 1.0.2 adds the selected Judgement Lens identity, a responsive dashboard and a ready-to-use personal Chaser Agent evaluation instance. The built-in session contains three real review runs and all 24 required canonical artifacts.
+
 ## What process is this?
 
 This is **agent evaluation, human labelling, evidence curation and harness refinement**. It prepares trusted improvement data; it is not automatic model-weight fine-tuning.
@@ -44,6 +46,7 @@ Model fine-tuning may later consume carefully selected review data, but this app
 - Exact isolation of development-QA seed records from genuine operator progress.
 - A ten-step guided tour that navigates the real product and can be restarted from Settings.
 - Persistent light and dark themes for extended evidence reading and focused operator sessions.
+- A responsive desktop, tablet and phone layout with contained headers, stacked mobile controls and drawer navigation.
 - IndexedDB storage for imported run bundles and binary attachments; local browser storage for identities, drafts and revision records.
 
 ## File compatibility
@@ -85,7 +88,7 @@ The test suite covers adapter aliases, JSON Lines recovery, nested run grouping,
 - Finishing a review creates a new review revision and exports JSON; it never rewrites the imported bundle.
 - Re-review links a new revision to its parent instead of overwriting the earlier judgement.
 - No provider call, external tool action, memory promotion, training job or deployment is authorized by a review.
-- Version 1.0.1 remains single-browser and local-first; multi-user collaboration and the governed HTTP/server layer are the next engineering boundary.
+- Version 1.0.2 remains single-browser and local-first; multi-user collaboration and the governed HTTP/server layer are the next engineering boundary.
 
 ## Open-source release
 
@@ -98,4 +101,5 @@ Version 1.0 is licensed under Apache-2.0 and includes contribution and security 
 - [Phase 2 implementation record](docs/PHASE2_IMPLEMENTATION.md)
 - [Operator completion implementation record](docs/PHASE3_OPERATOR_COMPLETION.md)
 - [Version 1.0 release record](docs/PHASE4_RELEASE.md)
+- [Version 1.0.2 identity, responsive and Chaser-instance record](docs/PHASE6_BRAND_RESPONSIVE_CHASER_INSTANCE.md)
 - [Documentation index](docs/index.md)

@@ -123,6 +123,15 @@ test("new agent workspaces persist independently from the built-in Chaser exampl
   assert.throws(() => createWorkspaceDefinition("", "Agent", 1), /required/);
 });
 
+test("personal Chaser Agent instance ships three complete canonical review runs", async () => {
+  const runs = await Promise.all(["run-1", "run-2", "run-3"].map((name) => loadDemoFixture(name)));
+  const diagnostics = runs.map(validateRunBundle);
+  assert.equal(runs.length, 3);
+  assert.deepEqual(diagnostics.map((item) => item.status), ["ready", "ready", "ready"]);
+  assert.equal(diagnostics.reduce((total, item) => total + item.presentArtifactCount, 0), 24);
+  assert.equal(diagnostics.reduce((total, item) => total + item.requiredArtifactCount, 0), 24);
+});
+
 test("review revisions preserve lineage and immutable-source declaration", () => {
   const record = createReviewRevision({
     projectId: "project-1",
