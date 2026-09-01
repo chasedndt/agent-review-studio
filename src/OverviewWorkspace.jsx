@@ -102,7 +102,20 @@ export function OverviewWorkspace({ workspace, runs, history, onOpenRun, onImpor
           <article><span><WrenchIcon size={17} /></span><div><strong>Improve</strong><p>Update prompts, tools, retrieval, rules or workflow logic.</p></div></article>
           <article><span><RepeatIcon size={17} /></span><div><strong>Re-test</strong><p>Run the task again and compare the new result.</p></div></article>
         </section>
-        <p className="improvement-boundary">The Studio creates reviewed improvement data. It does not automatically change or train the agent.</p>
+        <p className="improvement-boundary">The Studio creates reviewed improvement data. It never changes a source run, deploys an agent, or updates model weights by itself.</p>
+
+        <section className="capability-map" aria-label="How Agent Review Studio improves an agent">
+          <article>
+            <span>Works directly in this Studio</span>
+            <h2>Improve an agent harness</h2>
+            <p>Use reviewed failures and corrections to update prompts, retrieval, tools, approval rules, memory policy and workflow orchestration. Run the same test again and compare it with the baseline.</p>
+          </article>
+          <article>
+            <span>Requires a separate training system</span>
+            <h2>Prepare data for model training</h2>
+            <p>Export reviewed examples as governed training-data candidates. A separate trainer still needs an approved dataset, target outputs, model configuration, compute and a new evaluation pass.</p>
+          </article>
+        </section>
 
         <div className="session-control">
           <label>Evaluation session<select value={session?.id || ""} onChange={(event) => setSessionId(event.target.value)}>{sessions.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
@@ -140,7 +153,7 @@ export function OverviewWorkspace({ workspace, runs, history, onOpenRun, onImpor
           </div>
         </section>
 
-        <aside className="operator-boundary"><ShieldCheckIcon size={22} /><div><strong>What this session produces</strong><p>A portable set of reviewed examples for improving and re-testing an agent. Engineers can use it for golden evaluations, harness refinement or governed training-data selection; the Studio itself never changes model weights, promotes memory or executes actions.</p></div></aside>
+        <aside className="operator-boundary"><ShieldCheckIcon size={22} /><div><strong>What this session produces</strong><p>A portable evaluation pack containing evidence, labels, corrections, scores and revision lineage. It is ready for harness improvement and golden regression testing; model training remains a separate governed pipeline.</p></div></aside>
       </div>
     </section>
   );

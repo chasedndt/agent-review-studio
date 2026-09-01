@@ -1,0 +1,38 @@
+{
+  "run_id": "run-1788264000000-case-cloudflare-monetization-gateway-v1",
+  "source_id": "source-case-cloudflare-monetization-gateway-v1",
+  "source_title": "Cloudflare Monetization Gateway thesis",
+  "source_summary": "Cloudflare is positioning the Monetization Gateway as a way to charge for any Cloudflare-protected resource: web pages, datasets, APIs, and MCP tools. Chaser Agent should treat monetized web/API/MCP resources as governed research and execution surfaces, not as ambient URLs to fetch or tools to call. Therefore, Cloudflare Monetization Gateway should influence Chaser Agent as a **research-source and governance contract**, not as immediate payment integration.",
+  "source_origin": "primary_url:https://blog.cloudflare.com/monetization-gateway/",
+  "source_metadata": {
+    "url": "https://blog.cloudflare.com/monetization-gateway/",
+    "title": "Announcing the Monetization Gateway: charge for any resource behind Cloudflare via x402",
+    "published": "2026-07-01",
+    "authors": "Rohin Lohe, Justin Ridgely, Will Papper"
+  },
+  "source_artifact": "original_source.md",
+  "privacy_class": "public",
+  "workflow_profile": "ai_engineering_research_review",
+  "workflow_profile_version": "candidate-relevance-v1",
+  "trust_state": "unreviewed",
+  "review_status": "pending_review",
+  "promotion_status": "not_promoted",
+  "created_at": "2026-09-01T12:00:00.000Z",
+  "chaser_agent_inferences": [
+    {
+      "inference_id": "inference-001",
+      "inference_text": "The extracted statements require human relevance and truth review before they can become a golden case.",
+      "based_on_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ],
+      "confidence": "medium"
+    }
+  ]
+}

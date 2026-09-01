@@ -831,6 +831,57 @@ dd { margin: 0; color: #bdcbd0; font-size: 11px; overflow-wrap: anywhere; }
 :root[data-theme="light"] .raw-json { color: #d3e0e4; background: #0b1720; }
 :root[data-theme="light"] .parse-warning { color: #744800; background: #fff5dc; border-color: #dbba72; }
 
+/* Release-readiness pass: readable operator controls and explicit training boundaries. */
+.review-layout { grid-template-columns: minmax(0, 1fr) 412px; }
+.improvement-loop article { background: var(--surface); }
+.capability-map { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 12px 0 18px; }
+.capability-map article { min-height: 154px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.capability-map article:first-child { border-color: var(--teal); box-shadow: inset 3px 0 0 var(--teal); }
+.capability-map article:last-child { border-color: var(--indigo); box-shadow: inset 3px 0 0 var(--indigo); }
+.capability-map span { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.capability-map h2 { margin: 9px 0 7px; font-size: 17px; }
+.capability-map p { margin: 0; color: var(--text-soft); font-size: 12px; line-height: 1.6; }
+.claim-jump { display: inline-flex; align-items: center; justify-content: center; width: calc(100% - 40px); min-height: 40px; margin: 0 20px 14px; color: var(--teal); background: var(--teal-soft); border: 1px solid var(--teal); border-radius: 7px; font-size: 12px; font-weight: 650; text-decoration: none; }
+.claim-jump:hover { color: var(--text); background: var(--surface-raised); }
+.claim-jump:focus-visible, .claim-judgment:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+.training-boundary-card ol { display: grid; gap: 9px; margin: 12px 0 0; padding-left: 21px; color: var(--text-soft); font-size: 12px; line-height: 1.55; }
+.training-boundary-card li::marker { color: var(--teal); font-weight: 700; }
+.training-boundary-card li strong { color: var(--text); }
+
+.sidebar-heading button { min-width: 36px; min-height: 36px; }
+.workspace-switcher select { min-height: 38px; font-size: 12px; }
+.inspect-tabs button, .raw-link, .claim-nav button, .source-actions a, .source-actions button, .rubric-link { min-height: 38px; font-size: 12px; }
+.claim-dots button { width: 36px; height: 36px; font-size: 11px; }
+.source-context { font-size: 11px; line-height: 1.6; }
+.source-context span { font-size: 9px; }
+.source-actions a, .source-actions button { display: inline-flex; align-items: center; justify-content: center; padding: 8px 11px; }
+.claim-judgment header span, .claim-judgment header b, .claim-judgment label, .classification-state { font-size: 11px; }
+.claim-label-grid button { min-height: 38px; padding: 8px 12px; font-size: 12px; }
+.claim-judgment textarea { min-height: 92px; font-size: 12px; line-height: 1.5; }
+.claim-judgment > p { font-size: 10px; }
+.rating-row strong { font-size: 12px; }
+.rating-row span, .decision-field label, .scale-legend { font-size: 10px; }
+.rating-control { grid-template-columns: repeat(4, 36px); }
+.rating-control button { height: 36px; font-size: 12px; }
+.notes-field { font-size: 12px; }
+.notes-field textarea { min-height: 90px; font-size: 12px; }
+.primary-button, .secondary-button { min-height: 40px; font-size: 12px; }
+.pairwise-card button { min-height: 38px; font-size: 11px; }
+.evaluator-row strong { font-size: 11px; }
+.evaluator-row small { font-size: 10px; }
+.workbench-status { min-height: 26px; font-size: 9px; }
+.gate-controls label { font-size: 10.5px; }
+.gate-controls input[type="number"] { min-height: 38px; font-size: 12px; }
+.systems-layout > aside button { min-height: 50px; }
+.systems-layout aside strong { font-size: 11.5px; }
+.systems-layout aside small { font-size: 10px; }
+.systems-layout aside i { font-size: 9px; }
+.boundary-callout, .confidence-explainer, .trace-tree p, .trace-tree small { font-size: 10.5px; }
+.trace-tree strong { font-size: 11.5px; }
+.tour-card > header { font-size: 10px; }
+.tour-card > header button { width: 38px; height: 38px; }
+.tour-card > p:not(.eyebrow), .tour-skip { font-size: 12px; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
@@ -853,6 +904,10 @@ dd { margin: 0; color: #bdcbd0; font-size: 11px; overflow-wrap: anywhere; }
   .run-ledger { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .run-ledger > header { grid-column: 1 / -1; }
   .insight-metrics { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 860px) {
+  .capability-map { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 860px) {

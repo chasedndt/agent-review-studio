@@ -64,7 +64,7 @@ The current bridge is not the future Chaser Agent HTTP server. Authentication, q
 
 ## Verification evidence
 
-- `npm test`: 28 passed, 0 failed on 1 September 2026.
+- `npm test`: 31 passed, 0 failed on 1 September 2026 after the Version 1.2 release-readiness regression was added.
 - Production build: passed and Sites packaging was generated.
 - Browser-local Chaser run: created eight ranked claim candidates from the full source with surrounding context and source metadata.
 - Local runner bridge: health endpoint returned ready; a new immutable run recorded the localhost command and five trace steps.
@@ -78,4 +78,3 @@ The current bridge is not the future Chaser Agent HTTP server. Authentication, q
 - No model weight, memory store, provider, external action or deployment was changed.
 - The user’s Chaser Agent repository and its unrelated dirty work were not modified.
 - Nothing in this phase was pushed or deployed.
-

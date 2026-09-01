@@ -6,9 +6,11 @@ Chaser Agent is the built-in demonstration workspace. It is not the product iden
 
 **Live application:** [agent-review-studio.chaseintech.chatgpt.site](https://agent-review-studio.chaseintech.chatgpt.site)
 
+Version 1.2 in this branch is a verified local release candidate. Publication to the live application and merge to the public main branch remain separate approval-gated actions.
+
 ![Agent Review Studio evidence workspace](docs/media/agent-review-studio-light.png)
 
-Version 1.1 adds the execution and evaluation layer that was missing from the first review-only release. The built-in Chaser Agent workspace now includes real source provenance, a repeatable Cloudflare calibration case, a bounded local runner, categorical claim judgments, version tracking, pairwise comparison, automated evaluators, reviewer calibration and configurable CI gates.
+Version 1.2 makes that evaluation loop review-ready for first-time operators. The built-in Chaser Agent workspace now opens on a relevance-fixed candidate while preserving the flawed legacy run as regression evidence, and the product explains exactly what it can improve directly versus what requires a separate training system.
 
 ## What process is this?
 
@@ -24,6 +26,32 @@ The review output can improve:
 - golden cases, regression suites and future training datasets.
 
 Model fine-tuning may later consume carefully selected review data, but this application currently changes neither model weights nor imported source artifacts.
+
+## Can this train an agent?
+
+It can fully run the **evaluation and improvement-data workflow** for an agent or agent harness:
+
+1. define a repeatable test case and preserve its source;
+2. run or import a versioned harness result;
+3. inspect claims, evidence, actions and the execution trace;
+4. combine deterministic evaluator results with human labels and scores;
+5. preserve corrections as immutable reviewed examples;
+6. compare a candidate with a baseline and apply regression gates;
+7. export the approved evidence for prompt, tool, retrieval, workflow or training-data work.
+
+Agent Review Studio does not itself update model weights. Weight fine-tuning still needs a separate training system, an approved dataset with target outputs, model configuration, compute and a fresh evaluation pass. This distinction prevents a completed review from being mistaken for a completed training job.
+
+## First review: seven steps
+
+1. Open **Overview** and choose the workspace, evaluation session and next run.
+2. Use **Understand the task** to read the goal, retained source, provenance and run boundary.
+3. Use **Verify the agent's work** to inspect each claim candidate beside its exact evidence and surrounding context.
+4. Assign categorical labels to every claim. Add a correction whenever a failure label requires one.
+5. Confirm actions, memory, uncertainty and the execution trace, then score the five run-level quality dimensions once.
+6. Finish the review to create an immutable revision; re-review creates another linked revision rather than overwriting it.
+7. Use **Compare** and **Insights** to decide whether the candidate improves on the baseline and whether it passes the configured gate.
+
+The complete beginner walkthrough is in [docs/OPERATOR_GUIDE.md](docs/OPERATOR_GUIDE.md). The in-product **Guided tour** visits these same controls and can be restarted from Settings.
 
 ## Working capabilities
 
@@ -60,6 +88,7 @@ Model fine-tuning may later consume carefully selected review data, but this app
 - Persistent light and dark themes for extended evidence reading and focused operator sessions.
 - A responsive desktop, tablet and phone layout with contained headers, stacked mobile controls and drawer navigation.
 - IndexedDB storage for imported run bundles and binary attachments; local browser storage for identities, drafts and revision records.
+- A relevance-fixed built-in candidate that excludes document metadata from claims, preserves surrounding context and links each suggested action to one specific claim. The original flawed Run 1 remains immutable regression evidence.
 
 ## File compatibility
 
@@ -100,7 +129,7 @@ npm test
 npm run build
 ```
 
-The test suite covers adapter aliases, JSON Lines recovery, nested run grouping, deterministic diagnostics, claim-label contracts, ranked extraction, immutable run creation, automated evaluators, baseline comparison, reviewer agreement, CI gates, revision lineage and Sites packaging. Browser interaction and real Chaser Agent runner proof are recorded in [design-qa.md](design-qa.md).
+The test suite covers adapter aliases, JSON Lines recovery, nested run grouping, deterministic diagnostics, claim-label contracts, ranked extraction, immutable run creation, the corrected built-in candidate, automated evaluators, baseline comparison, reviewer agreement, CI gates, revision lineage and Sites packaging. Browser interaction and real Chaser Agent runner proof are recorded in [design-qa.md](design-qa.md).
 
 ## Data and safety boundary
 
@@ -108,7 +137,7 @@ The test suite covers adapter aliases, JSON Lines recovery, nested run grouping,
 - Finishing a review creates a new review revision and exports JSON; it never rewrites the imported bundle.
 - Re-review links a new revision to its parent instead of overwriting the earlier judgement.
 - No provider call, external tool action, memory promotion, training job or deployment is authorized by a review.
-- Version 1.1 remains local-first. The localhost bridge is a bounded single-operator adapter, not a hosted multi-user execution service. Authentication, queues, rate limiting and network context transport remain a later governed HTTP/server phase.
+- Version 1.2 remains local-first. The localhost bridge is a bounded single-operator adapter, not a hosted multi-user execution service. Authentication, queues, rate limiting and network context transport remain a later governed HTTP/server phase.
 
 ## Open-source release
 
@@ -123,5 +152,7 @@ Version 1.0 is licensed under Apache-2.0 and includes contribution and security 
 - [Version 1.0 release record](docs/PHASE4_RELEASE.md)
 - [Version 1.0.2 identity, responsive and Chaser-instance record](docs/PHASE6_BRAND_RESPONSIVE_CHASER_INSTANCE.md)
 - [Version 1.1 industry workbench implementation](docs/PHASE7_INDUSTRY_WORKBENCH.md)
+- [Operator guide](docs/OPERATOR_GUIDE.md)
+- [Version 1.2 release-readiness audit](docs/RELEASE_READINESS_AUDIT.md)
 - [Chaser Agent case-study and redaction contract](docs/CHASER_CASE_STUDY_REDACTION.md)
 - [Documentation index](docs/index.md)

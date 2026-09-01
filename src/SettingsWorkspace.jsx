@@ -61,8 +61,18 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
 
         <section className="settings-card tour-settings-card">
           <header><ArrowCounterClockwiseIcon size={22} /><div><h2>Guided onboarding</h2><p>Walk a new operator through the real product controls.</p></div></header>
-          <p>The tour moves through projects, imports, run sessions, the complete file bundle, paired evidence review, scoring, history and settings.</p>
+          <p>The 15-step tour moves through workspaces, datasets, versioned runs, paired evidence review, categorical labels, scoring, comparison, failure analysis, files, history and lifecycle controls.</p>
           <button type="button" className="secondary-button" onClick={onRestartTour}><ArrowCounterClockwiseIcon size={17} /> Restart guided tour</button>
+        </section>
+
+        <section className="settings-card training-boundary-card">
+          <header><FileTextIcon size={22} /><div><h2>Improvement and training boundary</h2><p>Know exactly what the exported evidence can do.</p></div></header>
+          <ol>
+            <li><strong>Harness refinement:</strong> use labels and corrections to change prompts, tools, retrieval, memory rules or orchestration.</li>
+            <li><strong>Regression testing:</strong> rerun the same versioned case and compare candidate against baseline.</li>
+            <li><strong>Model training:</strong> select approved reviewed examples, add target outputs, and send them to a separate governed trainer.</li>
+          </ol>
+          <p className="boundary-callout">Agent Review Studio prepares and governs evaluation evidence. It is not a GPU trainer and does not update model weights.</p>
         </section>
 
         <section className="settings-card lifecycle-card" data-tour="workspace-lifecycle">

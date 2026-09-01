@@ -1,0 +1,86 @@
+{
+  "run_id": "run-1788264000000-case-cloudflare-monetization-gateway-v1",
+  "source_id": "source-case-cloudflare-monetization-gateway-v1",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "claim_text": "Cloudflare is positioning the Monetization Gateway as a way to charge for any Cloudflare-protected resource: web pages, datasets, APIs, and MCP tools.",
+      "claim_type": "source_statement",
+      "extraction_confidence": "high",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-001",
+      "source_location": "line 13",
+      "review_note": "Ranked deterministic candidate; extraction confidence is not source-truth confidence."
+    },
+    {
+      "claim_id": "claim-002",
+      "claim_text": "Chaser Agent should treat monetized web/API/MCP resources as governed research and execution surfaces, not as ambient URLs to fetch or tools to call.",
+      "claim_type": "requirement",
+      "extraction_confidence": "high",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-002",
+      "source_location": "line 26",
+      "review_note": "Ranked deterministic candidate; extraction confidence is not source-truth confidence."
+    },
+    {
+      "claim_id": "claim-003",
+      "claim_text": "Therefore, Cloudflare Monetization Gateway should influence Chaser Agent as a **research-source and governance contract**, not as immediate payment integration.",
+      "claim_type": "requirement",
+      "extraction_confidence": "high",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-003",
+      "source_location": "line 46",
+      "review_note": "Ranked deterministic candidate; extraction confidence is not source-truth confidence."
+    },
+    {
+      "claim_id": "claim-004",
+      "claim_text": "A separate Chaser Agent weekly research intake dry-run is running as a script-backed, no-agent task.",
+      "claim_type": "source_statement",
+      "extraction_confidence": "high",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-004",
+      "source_location": "line 53",
+      "review_note": "Ranked deterministic candidate; extraction confidence is not source-truth confidence."
+    },
+    {
+      "claim_id": "claim-005",
+      "claim_text": "There is no headless Chromium/profile-backed source watcher in the Chaser Agent repository for industry web research.",
+      "claim_type": "source_statement",
+      "extraction_confidence": "high",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-005",
+      "source_location": "line 55",
+      "review_note": "Ranked deterministic candidate; extraction confidence is not source-truth confidence."
+    },
+    {
+      "claim_id": "claim-006",
+      "claim_text": "This is the right middle ground: capture the latest practice without pretending Chaser Agent already has payment or browser-execution authority.",
+      "claim_type": "constraint",
+      "extraction_confidence": "high",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-006",
+      "source_location": "line 70",
+      "review_note": "Ranked deterministic candidate; extraction confidence is not source-truth confidence."
+    },
+    {
+      "claim_id": "claim-007",
+      "claim_text": "Because Cloudflare explicitly names MCP tools, Chaser Agent should assume future MCP servers may be monetized resources.",
+      "claim_type": "requirement",
+      "extraction_confidence": "high",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-007",
+      "source_location": "line 114",
+      "review_note": "Ranked deterministic candidate; extraction confidence is not source-truth confidence."
+    },
+    {
+      "claim_id": "claim-008",
+      "claim_text": "Cloudflare's Monetization Gateway is a warning shot: agent harnesses will not just browse the open web; they will encounter priced resources, priced APIs, and priced MCP tools.",
+      "claim_type": "source_statement",
+      "extraction_confidence": "high",
+      "confidence": "high",
+      "evidence_snippet_id": "evidence-008",
+      "source_location": "line 159",
+      "review_note": "Ranked deterministic candidate; extraction confidence is not source-truth confidence."
+    }
+  ]
+}

@@ -142,6 +142,15 @@ export const SUPPORTED_FILE_GROUPS = [
 
 const DEMO_META = [
   {
+    id: "run-4",
+    kind: "built-in",
+    sessionId: "relevance-regression-2026-09-01",
+    sessionLabel: "Relevance Regression Candidate — 1 Sep 2026",
+    label: "Candidate 1",
+    shortLabel: "Relevance-fixed source review",
+    description: "Current deterministic candidate with metadata filtering, context and specific action links",
+  },
+  {
     id: "run-1",
     kind: "built-in",
     sessionId: "source-review-calibration-2026-08-25",
@@ -171,6 +180,7 @@ const DEMO_META = [
 ];
 
 const DEMO_SOURCE_FILES = {
+  "run-4": "/demo-sources/cloudflare-monetization-gateway-thesis.md",
   "run-1": "/demo-sources/cloudflare-monetization-gateway-thesis.md",
   "run-2": "/demo-sources/cloudflare-monetization-gateway-thesis.md",
 };

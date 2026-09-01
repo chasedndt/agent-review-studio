@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 — 2026-09-01
+
+- Added a relevance-fixed Chaser Agent candidate while preserving the flawed legacy run as immutable regression evidence.
+- Added explicit in-product boundaries between harness refinement, training-data preparation and separate model-weight training.
+- Added a beginner operator guide that reconciles the panel order, claim provenance, categorical labels and once-per-run scores.
+- Improved review discoverability, control sizing and mobile readability across the core operator journey.
+- Re-verified all 15 onboarding steps, desktop/mobile layouts, light/dark themes and the integrated Run Console.
+- Added fixture regression coverage for metadata leakage, evidence context, action specificity and trace lineage.
+
 ## 1.1.0 — 2026-09-01
 
 - Added the integrated dataset → harness version → run → review → compare evaluation loop.

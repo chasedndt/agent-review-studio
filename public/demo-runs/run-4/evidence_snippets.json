@@ -1,0 +1,110 @@
+{
+  "run_id": "run-1788264000000-case-cloudflare-monetization-gateway-v1",
+  "source_id": "source-case-cloudflare-monetization-gateway-v1",
+  "evidence_snippets": [
+    {
+      "snippet_id": "evidence-001",
+      "text": "Cloudflare is positioning the Monetization Gateway as a way to charge for any Cloudflare-protected resource: web pages, datasets, APIs, and MCP tools.",
+      "source_location": "line 13",
+      "source_line": 13,
+      "context_before": "- Status in Chaser Agent: research intake thesis / implementation-prep only",
+      "context_after": "For Chaser Agent, this is not just a payment article. It is evidence that agent harnesses are becoming economic actors that need:",
+      "supports_claim_ids": [
+        "claim-001"
+      ],
+      "privacy_class": "public",
+      "redaction_note": null
+    },
+    {
+      "snippet_id": "evidence-002",
+      "text": "Chaser Agent should treat monetized web/API/MCP resources as governed research and execution surfaces, not as ambient URLs to fetch or tools to call.",
+      "source_location": "line 26",
+      "source_line": 26,
+      "context_before": "6. clear human approval before spend or monetization changes.",
+      "context_after": "A future Chaser Agent runtime should be able to ask:",
+      "supports_claim_ids": [
+        "claim-002"
+      ],
+      "privacy_class": "public",
+      "redaction_note": null
+    },
+    {
+      "snippet_id": "evidence-003",
+      "text": "Therefore, Cloudflare Monetization Gateway should influence Chaser Agent as a **research-source and governance contract**, not as immediate payment integration.",
+      "source_location": "line 46",
+      "source_line": 46,
+      "context_before": "- no provider, credential, browser automation, payment, production deployment, autonomous merge, or canonical promotion authority exists in this lane.",
+      "context_after": "The research loop is partially alive, but not yet mature enough:",
+      "supports_claim_ids": [
+        "claim-003"
+      ],
+      "privacy_class": "public",
+      "redaction_note": null
+    },
+    {
+      "snippet_id": "evidence-004",
+      "text": "A separate Chaser Agent weekly research intake dry-run is running as a script-backed, no-agent task.",
+      "source_location": "line 53",
+      "source_line": 53,
+      "context_before": "1. A Chaser Agent research paper scout is running on a schedule to an internal research channel.",
+      "context_after": "3. The repository's research intake configuration was still mostly paper-first and did not explicitly include industry-practice blogs like Cloudflare.",
+      "supports_claim_ids": [
+        "claim-004"
+      ],
+      "privacy_class": "public",
+      "redaction_note": null
+    },
+    {
+      "snippet_id": "evidence-005",
+      "text": "There is no headless Chromium/profile-backed source watcher in the Chaser Agent repository for industry web research.",
+      "source_location": "line 55",
+      "source_line": 55,
+      "context_before": "3. The repository's research intake configuration was still mostly paper-first and did not explicitly include industry-practice blogs like Cloudflare.",
+      "context_after": "5. Useful build-channel links need a governed intake path instead of relying on ad hoc chat memory.",
+      "supports_claim_ids": [
+        "claim-005"
+      ],
+      "privacy_class": "public",
+      "redaction_note": null
+    },
+    {
+      "snippet_id": "evidence-006",
+      "text": "This is the right middle ground: capture the latest practice without pretending Chaser Agent already has payment or browser-execution authority.",
+      "source_location": "line 70",
+      "source_line": 70,
+      "context_before": "- payment/monetization changes: human review required",
+      "context_after": "Chaser Agent needs a source taxonomy beyond papers:",
+      "supports_claim_ids": [
+        "claim-006"
+      ],
+      "privacy_class": "public",
+      "redaction_note": null
+    },
+    {
+      "snippet_id": "evidence-007",
+      "text": "Because Cloudflare explicitly names MCP tools, Chaser Agent should assume future MCP servers may be monetized resources.",
+      "source_location": "line 114",
+      "source_line": 114,
+      "context_before": "- no auto-subscribe, auto-pay, wallet, or stablecoin settlement without explicit future authority.",
+      "context_after": "- source identity;",
+      "supports_claim_ids": [
+        "claim-007"
+      ],
+      "privacy_class": "public",
+      "redaction_note": null
+    },
+    {
+      "snippet_id": "evidence-008",
+      "text": "Cloudflare's Monetization Gateway is a warning shot: agent harnesses will not just browse the open web; they will encounter priced resources, priced APIs, and priced MCP tools.",
+      "source_location": "line 159",
+      "source_line": 159,
+      "context_before": "- how receipts would be stored if ever authorised.",
+      "context_after": "The correct ChaseOS stance is:",
+      "supports_claim_ids": [
+        "claim-008"
+      ],
+      "privacy_class": "public",
+      "redaction_note": null
+    }
+  ]
+}

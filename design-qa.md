@@ -1,6 +1,21 @@
-# Design QA — version 1.1 workbench
+# Design QA — version 1.2 release candidate
 
 Date: 1 September 2026
+
+## Version 1.2 release-readiness acceptance
+
+- The default Chaser Agent session is `Relevance Regression Candidate — 1 Sep 2026`; the first candidate is a substantive statement at source line 13 rather than document-status metadata.
+- The original Run 1 remains available and immutable as regression evidence.
+- The Overview distinguishes direct harness improvement from a separate model-training handoff.
+- The Review surface exposes surrounding context, primary-source provenance, exact local source navigation, categorical labels and a direct jump to claim judgment.
+- All 15 guided-tour steps were advanced through their actual product panels and the tour completed successfully.
+- The integrated Run Console exposed local deterministic, localhost bridge and external-import boundaries, with four retained run bundles in the ledger.
+- A control-size audit found no undersized interactive review controls except native radio inputs whose associated labels provide the click target.
+- Desktop at 1440 × 1000 and mobile at 390 × 844 had zero document-level horizontal overflow; paired evidence collapsed to one column on mobile.
+- Light and dark themes rendered successfully.
+- Browser console inspection returned zero application warnings or errors.
+
+Current evidence is stored in `E:\Visual QA\Agent Review Studio Visual QA\Current Reviews\2026-09-01-release-readiness-audit`.
 
 ## Current workbench acceptance
 
@@ -26,7 +41,7 @@ Compact viewport re-capture was not completed in this pass because the in-app br
 
 ## Automated evidence
 
-- `npm test` — 28 passed, 0 failed.
+- `npm test` — 31 passed, 0 failed.
 - `npm run build` — passed; Sites bundle prepared.
 - Local runner `/health` — ready.
 

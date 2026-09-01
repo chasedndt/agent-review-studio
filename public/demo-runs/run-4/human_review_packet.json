@@ -1,0 +1,13 @@
+{
+  "run_id": "run-1788264000000-case-cloudflare-monetization-gateway-v1",
+  "source_id": "source-case-cloudflare-monetization-gateway-v1",
+  "workflow_profile": "ai_engineering_research_review",
+  "operator_review_status": "pending_review",
+  "required_review_dimensions": [
+    "source_fidelity",
+    "inference_separation",
+    "uncertainty_handling",
+    "action_usefulness",
+    "memory_safety"
+  ]
+}

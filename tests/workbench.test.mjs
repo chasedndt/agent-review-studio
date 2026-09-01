@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import {
   calculateReviewerAgreement,
   CLAIM_LABELS,
@@ -53,6 +54,22 @@ test("the browser runner creates a new immutable review-ready bundle with source
   assert.ok(run.files.some((file) => file.name === "original_source.md"));
   assert.ok(run.evidence.every((item) => Object.hasOwn(item, "context_before")));
   assert.ok(run.runLog.trace_steps.length >= 5);
+});
+
+test("the built-in candidate rejects metadata leakage and preserves review lineage", async () => {
+  const fixture = async (name) => JSON.parse(await readFile(new URL(`../public/demo-runs/run-4/${name}`, import.meta.url), "utf8"));
+  const [claims, evidence, actions, runLog] = await Promise.all([
+    fixture("claims_table.json"),
+    fixture("evidence_snippets.json"),
+    fixture("action_candidates.json"),
+    fixture("run_log.json"),
+  ]);
+
+  assert.ok(claims.claims.length > 0);
+  assert.doesNotMatch(claims.claims[0].claim_text, /status|research intake|implementation-prep/i);
+  assert.ok(evidence.evidence_snippets.every((item) => item.context_before || item.context_after));
+  assert.ok(actions.action_candidates.every((item) => item.source_claim_ids.length === 1));
+  assert.ok(runLog.trace_steps.length >= 5);
 });
 
 test("automated evaluators stay separate from human scores", () => {

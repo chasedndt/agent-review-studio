@@ -1,0 +1,21 @@
+{
+  "run_id": "run-1788264000000-case-cloudflare-monetization-gateway-v1",
+  "source_id": "source-case-cloudflare-monetization-gateway-v1",
+  "uncertainty_labels": [
+    {
+      "uncertainty_id": "uncertainty-001",
+      "label": "external_truth_not_verified",
+      "explanation": "The run verifies extraction and linkage, not the truth of the primary source.",
+      "related_claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003",
+        "claim-004",
+        "claim-005",
+        "claim-006",
+        "claim-007",
+        "claim-008"
+      ]
+    }
+  ]
+}
