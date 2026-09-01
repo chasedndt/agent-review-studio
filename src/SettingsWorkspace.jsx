@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/ArrowCounterClockwise";
+import { ArchiveIcon } from "@phosphor-icons/react/Archive";
 import { CheckCircleIcon } from "@phosphor-icons/react/CheckCircle";
 import { FileTextIcon } from "@phosphor-icons/react/FileText";
 import { HardDrivesIcon } from "@phosphor-icons/react/HardDrives";
@@ -8,7 +9,7 @@ import { MoonIcon } from "@phosphor-icons/react/Moon";
 import { SunIcon } from "@phosphor-icons/react/Sun";
 import { SUPPORTED_FILE_GROUPS } from "./data.js";
 
-export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, onSaveReviewer, onRestartTour, runCount, reviewCount, theme, onThemeChange }) {
+export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, onSaveReviewer, onRestartTour, onArchiveWorkspace, runCount, reviewCount, theme, onThemeChange }) {
   const [form, setForm] = useState(workspace);
   const [reviewer, setReviewer] = useState(reviewerName);
   const [saved, setSaved] = useState(false);
@@ -62,6 +63,12 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
           <header><ArrowCounterClockwiseIcon size={22} /><div><h2>Guided onboarding</h2><p>Walk a new operator through the real product controls.</p></div></header>
           <p>The tour moves through projects, imports, run sessions, the complete file bundle, paired evidence review, scoring, history and settings.</p>
           <button type="button" className="secondary-button" onClick={onRestartTour}><ArrowCounterClockwiseIcon size={17} /> Restart guided tour</button>
+        </section>
+
+        <section className="settings-card lifecycle-card" data-tour="workspace-lifecycle">
+          <header><ArchiveIcon size={22} /><div><h2>Workspace lifecycle</h2><p>Take inactive work out of the main switcher without losing evidence.</p></div></header>
+          {workspace.kind === "built-in" ? <p>The built-in Chaser Agent calibration workspace is permanent so every new operator has a working example.</p> : <><p>Archive hides this workspace from the active list. Runs, source files and review revisions stay intact and can be restored from the sidebar.</p><button type="button" className="secondary-button" onClick={onArchiveWorkspace}><ArchiveIcon size={17} /> Archive workspace</button></>}
+          <small>Removal is intentionally stricter: only an empty archived workspace can be removed.</small>
         </section>
 
         <section className="settings-card appearance-card">

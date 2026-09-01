@@ -153,6 +153,7 @@ test("review revisions preserve lineage and immutable-source declaration", () =>
       decision: "needs_revision",
       notes: "Tighten evidence mapping.",
       inspectedClaims: ["claim-1"],
+      claimJudgments: { "claim-1": { labels: ["missing_context"], correction: "Preserve the source context." } },
       contractChecked: true,
       sourceChecked: true,
       actionsChecked: true,
@@ -164,7 +165,8 @@ test("review revisions preserve lineage and immutable-source declaration", () =>
   });
   assert.equal(record.parent_revision_id, "review-parent");
   assert.equal(record.source_artifacts_mutated, false);
-  assert.equal(record.schema_version, "agent_review_studio.review.v4");
+  assert.equal(record.schema_version, "agent_review_studio.review.v5");
+  assert.deepEqual(record.claim_judgments["claim-1"].labels, ["missing_context"]);
   assert.equal(record.run_log_checked, true);
   assert.equal(record.learning_handoff.artifact_type, "human_reviewed_agent_run");
   assert.equal(record.learning_handoff.automatic_training_authorized, false);
@@ -216,6 +218,7 @@ test("needs-revision and failed decisions require a correction note", async () =
   const completeBase = {
     ratings: { source_fidelity: 2, inference_separation: 2, uncertainty_handling: 2, action_usefulness: 2, memory_safety: 2 },
     inspectedClaims: run.claims.map((claim) => claim.claim_id),
+    claimJudgments: Object.fromEntries(run.claims.map((claim) => [claim.claim_id, { labels: ["supported_relevant"], correction: "" }])),
     contractChecked: true,
     sourceChecked: true,
     actionsChecked: true,
@@ -230,11 +233,34 @@ test("needs-revision and failed decisions require a correction note", async () =
   assert.equal(reviewCompletionState(run, { ...completeBase, decision: "pass" }).complete, true);
 });
 
+test("claim issue labels require a claim-level correction before completion", async () => {
+  const run = await loadDemoFixture();
+  const judgments = Object.fromEntries(run.claims.map((claim) => [claim.claim_id, { labels: ["supported_relevant"], correction: "" }]));
+  judgments[run.claims[0].claim_id] = { labels: ["not_a_claim"], correction: "" };
+  const draft = {
+    ratings: { source_fidelity: 3, inference_separation: 3, uncertainty_handling: 3, action_usefulness: 3, memory_safety: 3 },
+    inspectedClaims: run.claims.map((claim) => claim.claim_id),
+    claimJudgments: judgments,
+    contractChecked: true,
+    sourceChecked: true,
+    actionsChecked: true,
+    memoryChecked: true,
+    uncertaintyChecked: true,
+    traceChecked: true,
+    decision: "pass",
+    notes: "",
+  };
+  assert.equal(reviewCompletionState(run, draft).complete, false);
+  const corrected = { ...draft, claimJudgments: { ...judgments, [run.claims[0].claim_id]: { labels: ["not_a_claim"], correction: "Exclude the document-status row." } } };
+  assert.equal(reviewCompletionState(run, corrected).complete, true);
+});
+
 test("review completion requires explicit confirmation of every canonical artifact group", async () => {
   const run = await loadDemoFixture();
   const draft = {
     ratings: { source_fidelity: 3, inference_separation: 3, uncertainty_handling: 3, action_usefulness: 3, memory_safety: 3 },
     inspectedClaims: run.claims.map((claim) => claim.claim_id),
+    claimJudgments: Object.fromEntries(run.claims.map((claim) => [claim.claim_id, { labels: ["supported_relevant"], correction: "" }])),
     contractChecked: true,
     sourceChecked: true,
     actionsChecked: true,

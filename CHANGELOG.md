@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 — 2026-09-01
+
+- Added the integrated dataset → harness version → run → review → compare evaluation loop.
+- Added browser-local and localhost deterministic runners with immutable nine-file bundles and full trace steps.
+- Added per-claim categorical issue labels, required corrections, source context, primary-source links and local source-line navigation.
+- Added dataset and harness-version registries, automated evaluators, pairwise comparison, aggregate failure metrics, reviewer calibration and configurable CI gates.
+- Added a prominent workspace switcher plus create, archive, restore and constrained empty-workspace removal.
+- Expanded onboarding to 15 real product steps and added a computer-science System inspector.
+- Added Chaser Agent case-study redaction and marketing-proof boundaries.
+
 ## 1.0.2 — 2026-08-28
 
 - Applied the operator-selected Judgement Lens logo to the app header and favicon.

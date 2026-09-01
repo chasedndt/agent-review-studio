@@ -79,6 +79,8 @@ export const BUILT_IN_WORKSPACE = {
   agentName: "Chaser Agent",
   description: "Personal workspace for Chaser Agent golden evaluations, harness refinement and reviewed improvement examples.",
   kind: "built-in",
+  archivedAt: null,
+  harnessId: "chaser-agent",
 };
 
 export function createWorkspaceDefinition(name, agentName, now = Date.now()) {
@@ -90,7 +92,23 @@ export function createWorkspaceDefinition(name, agentName, now = Date.now()) {
     agentName: String(agentName || "").trim() || safeName,
     description: "Local agent evaluation workspace",
     kind: "local",
+    archivedAt: null,
+    harnessId: `harness-${now}`,
   };
+}
+
+export function archiveWorkspaceDefinition(workspace, now = Date.now()) {
+  if (!workspace || workspace.kind === "built-in") throw new Error("The built-in example workspace cannot be archived.");
+  return { ...workspace, archivedAt: new Date(now).toISOString() };
+}
+
+export function restoreWorkspaceDefinition(workspace) {
+  if (!workspace) throw new Error("Workspace is required.");
+  return { ...workspace, archivedAt: null };
+}
+
+export function canDeleteWorkspace(workspace, runCount = 0, reviewCount = 0) {
+  return Boolean(workspace && workspace.kind !== "built-in" && workspace.archivedAt && runCount === 0 && reviewCount === 0);
 }
 
 export function loadWorkspaceDefinitions(storage = globalThis.localStorage) {
@@ -151,6 +169,11 @@ const DEMO_META = [
     description: "Design profile on a public-safe toy note",
   },
 ];
+
+const DEMO_SOURCE_FILES = {
+  "run-1": "/demo-sources/cloudflare-monetization-gateway-thesis.md",
+  "run-2": "/demo-sources/cloudflare-monetization-gateway-thesis.md",
+};
 
 const TEXT_EXTENSIONS = new Set([
   "json", "jsonl", "ndjson", "yaml", "yml", "toml", "md", "markdown", "txt", "log",
@@ -415,6 +438,30 @@ async function loadDemoRun(meta) {
       ...profile,
     });
   }
+  const sourcePath = DEMO_SOURCE_FILES[meta.id];
+  if (sourcePath) {
+    const response = await fetch(sourcePath);
+    if (response.ok) {
+      const content = await response.text();
+      const name = "original_source.md";
+      files.push({
+        id: `${meta.id}::${name}`,
+        name,
+        relativePath: `${meta.id}/${name}`,
+        directory: meta.id,
+        mime: "text/markdown",
+        size: new Blob([content]).size,
+        lastModified: null,
+        content,
+        parsed: null,
+        parseStatus: "Preview ready",
+        parseError: "",
+        truncated: false,
+        blob: null,
+        ...detectArtifactProfile(name, "text/markdown"),
+      });
+    }
+  }
   return assembleRun(meta, artifacts, files);
 }
 
@@ -594,6 +641,7 @@ export function hasDraftProgress(draft) {
     || draft.uncertaintyChecked
     || draft.traceChecked
     || draft.parentRevisionId
+    || Object.keys(draft.claimJudgments || {}).length
     || asArray(draft.inspectedClaims).length
     || Object.values(draft.ratings || {}).some((value) => Number.isInteger(value)),
   );
@@ -609,8 +657,15 @@ export function reviewStateForRun(run, history = [], draft = null) {
 
 export function reviewCompletionState(run, draft) {
   const inspected = new Set(draft?.inspectedClaims || []);
+  const claimJudgments = draft?.claimJudgments || {};
+  const correctionRequired = new Set(["not_a_claim", "irrelevant", "missing_context", "unsupported", "misclassified", "duplicate", "action_unrelated"]);
   const ratingsComplete = RATING_DEFINITIONS.every(({ key }) => Number.isInteger(draft?.ratings?.[key]));
-  const claimsComplete = Boolean(run) && run.claims.every((item) => inspected.has(item.claim_id));
+  const claimsComplete = Boolean(run) && run.claims.every((item) => {
+    const judgment = claimJudgments[item.claim_id];
+    const labels = Array.isArray(judgment?.labels) ? judgment.labels : [];
+    const needsCorrection = labels.some((label) => correctionRequired.has(label));
+    return inspected.has(item.claim_id) && labels.length > 0 && (!needsCorrection || Boolean(String(judgment?.correction || "").trim()));
+  });
   const decisionComplete = Boolean(draft?.decision);
   const notesComplete = draft?.decision === "pass" || Boolean(String(draft?.notes || "").trim());
   const contractComplete = Boolean(draft?.contractChecked);
@@ -649,6 +704,7 @@ export function emptyDraft(seed = {}) {
     decision: seed.decision || "",
     notes: seed.notes || seed.corrections_or_notes || "",
     inspectedClaims: seed.inspectedClaims || seed.reviewed_claim_ids || [],
+    claimJudgments: seed.claimJudgments || seed.claim_judgments || {},
     contractChecked: Boolean(seed.contractChecked ?? seed.review_contract_checked),
     sourceChecked: Boolean(seed.sourceChecked ?? seed.source_card_checked),
     actionsChecked: Boolean(seed.actionsChecked ?? seed.actions_checked),
@@ -730,7 +786,7 @@ export function persistDraft(runId, draft) {
 export function createReviewRevision({ projectId, workspaceName, agentName, reviewerName, run, draft, scoreTotal }) {
   const reviewedAt = new Date().toISOString();
   return {
-    schema_version: "agent_review_studio.review.v4",
+    schema_version: "agent_review_studio.review.v5",
     revision_id: `review-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     parent_revision_id: draft.parentRevisionId || null,
     project_id: projectId,
@@ -749,6 +805,7 @@ export function createReviewRevision({ projectId, workspaceName, agentName, revi
     decision: draft.decision,
     corrections_or_notes: draft.notes,
     reviewed_claim_ids: draft.inspectedClaims,
+    claim_judgments: draft.claimJudgments || {},
     review_contract_checked: draft.contractChecked,
     source_card_checked: draft.sourceChecked,
     actions_checked: draft.actionsChecked,

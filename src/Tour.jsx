@@ -5,7 +5,7 @@ import { CheckCircleIcon } from "@phosphor-icons/react/CheckCircle";
 import { CompassIcon } from "@phosphor-icons/react/Compass";
 import { XIcon } from "@phosphor-icons/react/X";
 
-export const TOUR_STEPS = [
+const LEGACY_TOUR_STEPS = [
   {
     page: "overview",
     target: null,
@@ -76,6 +76,24 @@ export const TOUR_STEPS = [
     title: "Settings holds workspace identity and this guide.",
     body: "Edit the project, agent and reviewer names here. You can restart this tour whenever a new operator joins the project.",
   },
+];
+
+export const TOUR_STEPS = [
+  { page: "overview", target: null, eyebrow: "Welcome to Agent Review Studio", title: "Run, review and improve an agent—without losing the evidence.", body: "The Studio turns repeatable tasks into immutable evaluation runs. Automated checks find structural problems; human reviewers decide what is correct, relevant and safe. Reviewed cases support harness regression testing and may later be selected for governed model training—the Studio itself does not update model weights." },
+  { page: "overview", target: "workspace-switcher", eyebrow: "1 · Switch systems", title: "One prominent switcher separates every agent and harness.", body: "Use a workspace for one product or evaluation programme. Chaser Agent is the loaded case study, not the identity of this independent Studio. The selected workspace controls its runs, datasets, versions and review history." },
+  { page: "overview", target: "new-workspace", eyebrow: "2 · Create and manage", title: "Create another workspace in one step.", body: "Name the workspace and the agent or harness under test. Settings lets you archive it later; archived evidence stays intact and empty archived workspaces can be removed." },
+  { page: "datasets", target: "datasets-workspace", eyebrow: "3 · Define the test data", title: "Datasets make evaluations repeatable.", body: "A dataset contains versioned test cases: input text, a primary-source URL, expected behaviour, privacy class and tags. Adding a case creates a new dataset version instead of changing earlier evidence." },
+  { page: "run", target: "run-console", eyebrow: "4 · Execute a run", title: "The run console creates the agent output you will judge.", body: "Choose a test case, harness version and runner. Run evaluation creates a fresh artifact bundle and trace. The Review page displays runs; it does not secretly generate or regenerate them." },
+  { page: "overview", target: "overview-queue", eyebrow: "5 · Work the queue", title: "Runs stay chronological and immutable.", body: "Not started, draft, re-review and finished states are separate. Diagnostics expose missing files, parse failures and broken references before you trust a bundle." },
+  { page: "review", target: "review-workspace", eyebrow: "6 · Understand before scoring", title: "Review the task boundary, then verify the run.", body: "The candidate text was extracted from the source by the selected runner. It is not automatically true or useful. The paired view keeps each candidate beside its source excerpt, surrounding context, provenance and linked actions." },
+  { page: "review", target: "claim-labels", eyebrow: "7 · Classify every claim candidate", title: "Categorical labels create reusable ground truth.", body: "Choose labels such as Supported and relevant, Not a claim, Missing context or Linked action is unrelated. Problem labels require a correction. These per-claim judgments are separate from the five whole-run scores." },
+  { page: "review", target: "score-panel", eyebrow: "8 · Score the complete run", title: "Five ratings and one decision describe the result.", body: "After every artifact and claim is checked, score five quality areas from 0–3, choose Pass, Needs revision or Fail, and record the overall correction. Automated evaluator results never fill these human fields." },
+  { page: "compare", target: "compare-workspace", eyebrow: "9 · Compare experiments", title: "Baseline and candidate stay side by side.", body: "Compare automated and human signals without rewriting either run. A separate pairwise judgment records whether the baseline, candidate or neither is better for this evaluation goal." },
+  { page: "insights", target: "insights-workspace", eyebrow: "10 · Find regressions", title: "Metrics show patterns, not automatic truth.", body: "Use evaluator matrices, failure counts, reviewer agreement and the CI gate to find weak harness versions. Human-reviewed examples remain the product-quality authority." },
+  { page: "files", target: "files-workspace", eyebrow: "11 · Inspect every source file", title: "The Files workspace retains the complete bundle.", body: "Filter artifacts, preview readable content and keep binary evidence attached. Generated runs include the original source alongside canonical JSON; imported unknown files are retained instead of silently discarded." },
+  { page: "history", target: "history-workspace", eyebrow: "12 · Preserve review lineage", title: "Re-review without erasing history.", body: "A finished review becomes an immutable judgment revision. Re-review creates a linked child revision, so changed opinions and reviewer disagreement stay measurable." },
+  { page: "systems", target: "systems-workspace", eyebrow: "13 · Inspect the computer science", title: "See the algorithms, data structures and ML boundary.", body: "The System inspector explains ranking, provenance graphs, immutable lineage, reviewer statistics and regression gates with complexity and Year Two topic links. Backpropagation is clearly marked as future—not implied to be running." },
+  { page: "settings", target: "workspace-lifecycle", eyebrow: "14 · Govern the workspace", title: "Archive inactive work without deleting evidence.", body: "Settings holds workspace identity, reviewer identity, appearance and lifecycle controls. Restart this tour whenever a new operator joins. Export before any governed data leaves this browser." },
 ];
 
 function positionFor(rect) {

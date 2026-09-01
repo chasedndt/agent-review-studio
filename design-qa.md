@@ -1,6 +1,36 @@
-# Design QA — version 1.0.2
+# Design QA — version 1.1 workbench
 
-Date: 28 August 2026
+Date: 1 September 2026
+
+## Current workbench acceptance
+
+The version 1.1 implementation was exercised in the in-app browser against the real built-in Chaser Agent workspace.
+
+- The prominent workspace switcher selected the Chaser Agent instance.
+- A browser-local run created a fresh nine-file immutable bundle from the full Cloudflare source.
+- Metadata status was excluded from claim candidates; the first substantive candidate started at source line 13.
+- The paired review showed extraction confidence, surrounding context, primary URL, publication metadata and an exact local source-line action.
+- Claim issue labels required a correction and updated classification progress without changing the source run.
+- The Files view opened `original_source.md` with line numbers at the linked source location.
+- The run log displayed five trace steps and explicit provider, external-action, memory and training boundaries.
+- The localhost runner returned ready on `127.0.0.1:4318`; a bridge-created run recorded the localhost command in its trace.
+- Baseline/candidate comparison, pairwise controls, dataset and harness-version registries, aggregate evaluators, configurable CI gate and System inspector all rendered and responded.
+- A temporary QA workspace was created, archived, restored, archived again and safely removed while empty.
+- The 15-step first-run guide opened and advanced to the prominent workspace switcher.
+- Light and dark themes both rendered with document width contained at the 1280 CSS-pixel in-app viewport.
+- Browser console inspection contained Vite/React development information and no application warning or error.
+
+Current screenshots are stored outside the repository in `E:\Visual QA\Agent Review Studio Visual QA\Current Reviews\2026-09-01-industry-workbench`.
+
+Compact viewport re-capture was not completed in this pass because the in-app browser’s URL security policy rejected the isolated responsive-frame QA surface. Existing 1.0.2 compact evidence remains below; the new workbench breakpoints were code-reviewed, but a new 390 px browser image remains an explicit verification item.
+
+## Automated evidence
+
+- `npm test` — 28 passed, 0 failed.
+- `npm run build` — passed; Sites bundle prepared.
+- Local runner `/health` — ready.
+
+## Previous 1.0.2 visual target and responsive evidence
 
 ## Visual target
 

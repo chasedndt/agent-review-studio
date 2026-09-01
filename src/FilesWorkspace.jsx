@@ -37,7 +37,7 @@ function downloadFile(file) {
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
-function ArtifactPreview({ file }) {
+function ArtifactPreview({ file, focusLine = null }) {
   const blobUrl = useBlobUrl(file);
   if (!file) return <div className="file-preview-empty"><FileTextIcon size={34} /><p>Select a file to inspect it.</p></div>;
 
@@ -66,7 +66,10 @@ function ArtifactPreview({ file }) {
     return <pre className="artifact-code">{JSON.stringify(file.parsed, null, 2)}</pre>;
   }
 
-  if (file.content) return <pre className="artifact-code text-preview">{file.content}</pre>;
+  if (file.content) {
+    const lines = String(file.content).split(/\r?\n/);
+    return <pre className="artifact-code text-preview line-preview">{lines.map((line, index) => <span id={`source-line-${index + 1}`} key={index} className={focusLine === index + 1 ? "focused" : ""}><i>{index + 1}</i><b>{line || " "}</b></span>)}</pre>;
+  }
 
   return (
     <div className="file-preview-empty">
@@ -77,17 +80,27 @@ function ArtifactPreview({ file }) {
   );
 }
 
-export function FilesWorkspace({ run, onImport, folderInputRef, fileInputRef }) {
+export function FilesWorkspace({ run, onImport, folderInputRef, fileInputRef, focusFileName = "", focusLine = null, onFocusConsumed = null }) {
   const files = run?.files || [];
   const [selectedId, setSelectedId] = useState(files[0]?.id || "");
   const [query, setQuery] = useState("");
   const [section, setSection] = useState("all");
 
   useEffect(() => {
-    setSelectedId(run?.files?.[0]?.id || "");
+    const focused = run?.files?.find((file) => file.name === focusFileName);
+    setSelectedId(focused?.id || run?.files?.[0]?.id || "");
     setQuery("");
     setSection("all");
-  }, [run?.id]);
+  }, [run?.id, focusFileName]);
+
+  useEffect(() => {
+    if (!focusLine || !selectedId) return;
+    const timer = window.setTimeout(() => {
+      document.getElementById(`source-line-${focusLine}`)?.scrollIntoView({ block: "center" });
+      onFocusConsumed?.();
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [focusLine, selectedId, onFocusConsumed]);
 
   const sections = useMemo(() => Array.from(new Set(files.map((file) => file.section))).sort(), [files]);
   const visibleFiles = useMemo(() => files.filter((file) => {
@@ -164,7 +177,7 @@ export function FilesWorkspace({ run, onImport, folderInputRef, fileInputRef }) 
             </dl>
           )}
           {selectedFile?.parseError && <p className="parse-warning"><WarningCircleIcon size={17} /> {selectedFile.parseError}</p>}
-          <ArtifactPreview file={selectedFile} />
+          <ArtifactPreview file={selectedFile} focusLine={selectedFile?.name === focusFileName ? focusLine : null} />
         </article>
       </div>
     </section>

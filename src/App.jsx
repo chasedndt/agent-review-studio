@@ -6,6 +6,10 @@ import { CheckCircleIcon } from "@phosphor-icons/react/CheckCircle";
 import { CheckIcon } from "@phosphor-icons/react/Check";
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/ClockCounterClockwise";
 import { ClockIcon } from "@phosphor-icons/react/Clock";
+import { ArchiveIcon } from "@phosphor-icons/react/Archive";
+import { BracketsCurlyIcon } from "@phosphor-icons/react/BracketsCurly";
+import { ChartBarIcon } from "@phosphor-icons/react/ChartBar";
+import { DatabaseIcon } from "@phosphor-icons/react/Database";
 import { FileArrowUpIcon } from "@phosphor-icons/react/FileArrowUp";
 import { FilesIcon } from "@phosphor-icons/react/Files";
 import { FloppyDiskIcon } from "@phosphor-icons/react/FloppyDisk";
@@ -13,11 +17,13 @@ import { FolderIcon } from "@phosphor-icons/react/Folder";
 import { FolderOpenIcon } from "@phosphor-icons/react/FolderOpen";
 import { GaugeIcon } from "@phosphor-icons/react/Gauge";
 import { GearSixIcon } from "@phosphor-icons/react/GearSix";
+import { GitDiffIcon } from "@phosphor-icons/react/GitDiff";
 import { InfoIcon } from "@phosphor-icons/react/Info";
 import { ListIcon } from "@phosphor-icons/react/List";
 import { LockIcon } from "@phosphor-icons/react/Lock";
 import { MoonIcon } from "@phosphor-icons/react/Moon";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
+import { PlayIcon } from "@phosphor-icons/react/Play";
 import { ShieldCheckIcon } from "@phosphor-icons/react/ShieldCheck";
 import { SquaresFourIcon } from "@phosphor-icons/react/SquaresFour";
 import { SunIcon } from "@phosphor-icons/react/Sun";
@@ -25,7 +31,9 @@ import { TargetIcon } from "@phosphor-icons/react/Target";
 import { XIcon } from "@phosphor-icons/react/X";
 import {
   appendReviewRevision,
+  archiveWorkspaceDefinition,
   BUILT_IN_WORKSPACE,
+  canDeleteWorkspace,
   createWorkspaceDefinition,
   createSessionEvaluationPack,
   createReviewRevision,
@@ -42,15 +50,30 @@ import {
   RATING_DEFINITIONS,
   reviewCompletionState,
   reviewStateForRun,
+  restoreWorkspaceDefinition,
   SCORE_SCALE,
   validateRunBundle,
 } from "./data.js";
-import { loadStoredRuns, storeImportedRuns } from "./storage.js";
+import { loadStoredRuns, removeProjectRuns, storeImportedRuns } from "./storage.js";
 import { FilesWorkspace } from "./FilesWorkspace.jsx";
 import { GuidedTour } from "./Tour.jsx";
 import { HistoryWorkspace } from "./HistoryWorkspace.jsx";
 import { OverviewWorkspace } from "./OverviewWorkspace.jsx";
 import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
+import {
+  CompareWorkspace,
+  DatasetsWorkspace,
+  InsightsWorkspace,
+  RunConsoleWorkspace,
+  SystemsWorkspace,
+} from "./WorkbenchWorkspace.jsx";
+import {
+  CLAIM_LABELS,
+  createExperimentRecord,
+  loadWorkbenchConfiguration,
+  persistWorkbenchConfiguration,
+  runBrowserDeterministicCase,
+} from "./workbench.js";
 
 const SELECTED_WORKSPACE_KEY = "agent-review-studio-selected-workspace-v1";
 const REVIEWER_KEY = "agent-review-studio-reviewer-v1";
@@ -60,9 +83,14 @@ const THEME_KEY = "agent-review-studio-theme-v1";
 const INSPECT_TABS = [["claims", "Claims"], ["source", "Source card"], ["actions", "Actions"], ["memory", "Memory"], ["uncertainty", "Uncertainty"], ["trace", "Run log"]];
 const APP_PAGES = [
   ["overview", "Overview", SquaresFourIcon],
+  ["run", "Run", PlayIcon],
   ["review", "Review", TargetIcon],
+  ["datasets", "Datasets", DatabaseIcon],
+  ["compare", "Compare", GitDiffIcon],
+  ["insights", "Insights", ChartBarIcon],
   ["files", "Files", FilesIcon],
   ["history", "History", ClockCounterClockwiseIcon],
+  ["systems", "Systems", BracketsCurlyIcon],
   ["settings", "Settings", GearSixIcon],
 ];
 
@@ -183,6 +211,8 @@ export function App() {
   const [showRubricModal, setShowRubricModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark");
+  const [fileFocus, setFileFocus] = useState({ fileName: "", line: null });
+  const [workbenchConfiguration, setWorkbenchConfiguration] = useState(() => loadWorkbenchConfiguration(BUILT_IN_WORKSPACE.id, BUILT_IN_WORKSPACE, []));
   const folderInputRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -234,6 +264,13 @@ export function App() {
   }, [runs]);
   const activeSessionRuns = run ? runs.filter((item) => item.sessionId === run.sessionId) : [];
   const activeSessionRunIndex = run ? activeSessionRuns.findIndex((item) => item.id === run.id) : -1;
+  const activeWorkspaces = workspaces.filter((item) => !item.archivedAt);
+  const archivedWorkspaces = workspaces.filter((item) => item.archivedAt);
+
+  useEffect(() => {
+    if (loading) return;
+    setWorkbenchConfiguration(loadWorkbenchConfiguration(selectedProjectId, workspace, runs));
+  }, [loading, selectedProjectId]);
 
   useEffect(() => { setRunIndex(0); }, [selectedProjectId]);
 
@@ -250,6 +287,8 @@ export function App() {
 
   const claim = run?.claims?.[claimIndex] || null;
   const evidence = run && claim ? findEvidence(run, claim) : null;
+  const claimJudgment = claim ? (draft.claimJudgments?.[claim.claim_id] || { labels: [], correction: "" }) : { labels: [], correction: "" };
+  const claimNeedsCorrection = CLAIM_LABELS.some((label) => label.needsCorrection && claimJudgment.labels?.includes(label.id));
   const inspected = new Set(draft.inspectedClaims || []);
   const completion = useMemo(() => reviewCompletionState(run, draft), [run, draft]);
   const { ratingsComplete, claimsComplete, artifactsComplete, complete: reviewComplete } = completion;
@@ -270,9 +309,24 @@ export function App() {
     updateDraft({ ratings: { ...draft.ratings, [key]: value } });
   }
 
-  function markClaim(item) {
+  function updateClaimJudgment(item, patch) {
+    if (!item || draft.status === "reviewed") return;
+    const current = draft.claimJudgments?.[item.claim_id] || { labels: [], correction: "" };
+    const next = { ...current, ...patch };
+    const nextJudgments = { ...(draft.claimJudgments || {}), [item.claim_id]: next };
+    const inspectedClaims = Object.entries(nextJudgments)
+      .filter(([, judgment]) => Array.isArray(judgment.labels) && judgment.labels.length > 0)
+      .map(([claimId]) => claimId);
+    updateDraft({ claimJudgments: nextJudgments, inspectedClaims });
+  }
+
+  function toggleClaimLabel(item, labelId) {
     if (!item) return;
-    updateDraft({ inspectedClaims: Array.from(new Set([...(draft.inspectedClaims || []), item.claim_id])) });
+    const current = draft.claimJudgments?.[item.claim_id] || { labels: [], correction: "" };
+    const labels = current.labels?.includes(labelId)
+      ? current.labels.filter((value) => value !== labelId)
+      : [...(current.labels || []), labelId];
+    updateClaimJudgment(item, { labels });
   }
 
   function goToClaim(nextIndex) {
@@ -369,6 +423,96 @@ export function App() {
     setWorkspaces(next);
   }
 
+  function openClaimSource() {
+    const line = Number(String(claim?.source_location || "").match(/\d+/)?.[0]) || null;
+    setFileFocus({ fileName: "original_source.md", line });
+    setActivePage("files");
+  }
+
+  function updateWorkbenchConfiguration(next) {
+    const value = typeof next === "function" ? next(workbenchConfiguration) : next;
+    persistWorkbenchConfiguration(selectedProjectId, value);
+    setWorkbenchConfiguration(value);
+    return value;
+  }
+
+  async function runEvaluation({ dataset, testCase, harness, version, runnerMode }) {
+    if (runnerMode === "import_only") throw new Error("Use Import run folder for an import-only execution.");
+    let generatedRun;
+    if (runnerMode === "chaser_bridge") {
+      const response = await fetch("http://127.0.0.1:4318/v1/runs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workspaceId: selectedProjectId, workspace, dataset, testCase, harness, version }),
+      });
+      if (!response.ok) throw new Error(`The local Chaser bridge returned ${response.status}. Start it with npm run runner.`);
+      generatedRun = await response.json();
+    } else {
+      generatedRun = runBrowserDeterministicCase({
+        workspaceId: selectedProjectId,
+        workspaceName: workspace.name,
+        agentName: workspace.agentName,
+        dataset,
+        testCase,
+        harness,
+        version,
+        profile: version.profile,
+      });
+    }
+    const existing = projectRuns[selectedProjectId] || [];
+    await storeImportedRuns(selectedProjectId, [generatedRun]);
+    setProjectRuns((current) => ({ ...current, [selectedProjectId]: [...(current[selectedProjectId] || []), generatedRun] }));
+    const experiment = createExperimentRecord({ datasetId: dataset.id, testCaseId: testCase.id, harnessId: harness.id, versionId: version.id, runnerMode, run: generatedRun });
+    updateWorkbenchConfiguration({ ...workbenchConfiguration, experiments: [experiment, ...workbenchConfiguration.experiments] });
+    setRunIndex(existing.length);
+    setActivePage("review");
+    setSection("understand");
+    setSaveMessage("A new immutable run was created. Read the task boundary, then classify each claim candidate.");
+    return generatedRun;
+  }
+
+  function archiveWorkspace(workspaceId) {
+    const target = workspaces.find((item) => item.id === workspaceId);
+    if (!target) return;
+    try {
+      const updated = archiveWorkspaceDefinition(target);
+      const next = workspaces.map((item) => item.id === workspaceId ? updated : item);
+      persistWorkspaceDefinitions(next);
+      setWorkspaces(next);
+      if (selectedProjectId === workspaceId) setSelectedProjectId(next.find((item) => !item.archivedAt)?.id || BUILT_IN_WORKSPACE.id);
+      setSaveMessage(`${target.name} was archived. Its runs and reviews remain available.`);
+    } catch (error) {
+      setSaveMessage(error.message);
+    }
+  }
+
+  function restoreWorkspace(workspaceId) {
+    const target = workspaces.find((item) => item.id === workspaceId);
+    if (!target) return;
+    const next = workspaces.map((item) => item.id === workspaceId ? restoreWorkspaceDefinition(item) : item);
+    persistWorkspaceDefinitions(next);
+    setWorkspaces(next);
+    setSelectedProjectId(workspaceId);
+    setSaveMessage(`${target.name} was restored.`);
+  }
+
+  async function deleteWorkspace(workspaceId) {
+    const target = workspaces.find((item) => item.id === workspaceId);
+    const runCount = (projectRuns[workspaceId] || []).length;
+    const reviewCount = reviewHistory.filter((record) => record.project_id === workspaceId).length;
+    if (!canDeleteWorkspace(target, runCount, reviewCount)) {
+      setSaveMessage("A workspace can be removed only after it is archived and has no runs or review revisions. Export and intentionally clear governed data first.");
+      return;
+    }
+    await removeProjectRuns(workspaceId);
+    const next = workspaces.filter((item) => item.id !== workspaceId);
+    persistWorkspaceDefinitions(next);
+    setWorkspaces(next);
+    setProjectRuns((current) => { const copy = { ...current }; delete copy[workspaceId]; return copy; });
+    setSelectedProjectId(next.find((item) => !item.archivedAt)?.id || BUILT_IN_WORKSPACE.id);
+    setSaveMessage(`${target.name} was removed from this browser.`);
+  }
+
   function saveReviewer(value) {
     localStorage.setItem(REVIEWER_KEY, value);
     setReviewerName(value);
@@ -411,7 +555,7 @@ export function App() {
       <header className="topbar">
         <div className="brand"><span className="brand-mark"><img src="/assets/agent-review-studio-mark.png" alt="" /></span><strong><span>AGENT REVIEW STUDIO</span><small>REVIEW · LABEL · IMPROVE</small></strong></div>
         <div className="top-context">
-          <div data-tour="workspace"><span>Workspace</span><strong>{workspace.name}</strong></div>
+          <label className="workspace-switcher" data-tour="workspace-switcher"><span>Workspace</span><select aria-label="Switch evaluation workspace" value={selectedProjectId} onChange={(event) => setSelectedProjectId(event.target.value)}>{activeWorkspaces.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <div><span>Agent / harness</span><strong>{workspace.agentName}</strong></div>
           <div><span>Session</span><strong>{run?.sessionLabel || "No session selected"}</strong></div>
           {run && <div className="run-progress"><span>Run {activeSessionRunIndex + 1} of {activeSessionRuns.length}</span><div>{activeSessionRuns.map((item, index) => <i key={item.id} className={index === activeSessionRunIndex ? "active" : ""} />)}</div></div>}
@@ -425,10 +569,11 @@ export function App() {
       <aside className={`sidebar ${mobileNavOpen ? "mobile-open" : ""}`}>
         <div className="sidebar-mobile-header"><strong>Browse workspace</strong><button type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close workspace navigation"><XIcon size={19} /></button></div>
         <section>
-          <div className="sidebar-heading"><span>Workspaces</span><button type="button" onClick={() => { setShowWorkspaceModal(true); setMobileNavOpen(false); }} aria-label="New workspace"><PlusIcon size={16} /></button></div>
+          <div className="sidebar-heading"><span>Workspaces</span><button type="button" data-tour="new-workspace" onClick={() => { setShowWorkspaceModal(true); setMobileNavOpen(false); }} aria-label="New workspace"><PlusIcon size={16} /></button></div>
           <nav className="project-list" aria-label="Evaluation workspaces">
-            {workspaces.map((project) => <button type="button" key={project.id} className={project.id === selectedProjectId ? "active" : ""} onClick={() => { setSelectedProjectId(project.id); setMobileNavOpen(false); }}><FolderIcon size={17} weight={project.id === selectedProjectId ? "fill" : "regular"} /><span>{project.name}</span></button>)}
+            {activeWorkspaces.map((project) => <button type="button" key={project.id} className={project.id === selectedProjectId ? "active" : ""} onClick={() => { setSelectedProjectId(project.id); setMobileNavOpen(false); }}><FolderIcon size={17} weight={project.id === selectedProjectId ? "fill" : "regular"} /><span>{project.name}</span></button>)}
           </nav>
+          {archivedWorkspaces.length > 0 && <details className="archived-workspaces"><summary><ArchiveIcon size={15} /> Archived <span>{archivedWorkspaces.length}</span></summary>{archivedWorkspaces.map((project) => { const runCount = (projectRuns[project.id] || []).length; const reviewCount = reviewHistory.filter((record) => record.project_id === project.id).length; const removable = canDeleteWorkspace(project, runCount, reviewCount); return <div key={project.id}><span><strong>{project.name}</strong><small>{runCount} runs · {reviewCount} reviews</small></span><button type="button" onClick={() => restoreWorkspace(project.id)}>Restore</button><button type="button" className="danger-link" disabled={!removable} title={removable ? "Remove empty archived workspace" : "Runs or reviews must be retained"} onClick={() => deleteWorkspace(project.id)}>Remove</button></div>; })}</details>}
         </section>
 
         <nav className="app-nav" aria-label="Workspace sections">
@@ -449,6 +594,11 @@ export function App() {
         {saveMessage && activePage !== "review" && <p className="global-message">{saveMessage}</p>}
 
         {activePage === "overview" && <OverviewWorkspace workspace={workspace} runs={runs} history={workspaceHistory} onOpenRun={openRun} onImport={() => folderInputRef.current?.click()} onExportSession={exportSession} />}
+        {activePage === "run" && <RunConsoleWorkspace workspace={workspace} runs={runs} configuration={workbenchConfiguration} onRun={runEvaluation} onOpenRun={openRun} />}
+        {activePage === "datasets" && <DatasetsWorkspace configuration={workbenchConfiguration} onChange={updateWorkbenchConfiguration} />}
+        {activePage === "compare" && <CompareWorkspace runs={runs} history={workspaceHistory} configuration={workbenchConfiguration} onConfigurationChange={updateWorkbenchConfiguration} />}
+        {activePage === "insights" && <InsightsWorkspace runs={runs} history={workspaceHistory} configuration={workbenchConfiguration} onConfigurationChange={updateWorkbenchConfiguration} />}
+        {activePage === "systems" && <SystemsWorkspace />}
 
         {activePage === "review" && !run && <EmptyProject onFolderImport={() => folderInputRef.current?.click()} onFileImport={() => fileInputRef.current?.click()} />}
         {activePage === "review" && run && (
@@ -482,18 +632,25 @@ export function App() {
                       <div className="claim-nav"><span>Claim {claimIndex + 1} of {run.claims.length}</span><div><button type="button" disabled={claimIndex === 0} onClick={() => goToClaim(claimIndex - 1)}><ArrowLeftIcon size={16} /> Previous</button><button type="button" disabled={claimIndex === run.claims.length - 1} onClick={() => goToClaim(claimIndex + 1)}>Next <ArrowRightIcon size={16} /></button></div></div>
                       <div className="evidence-pair">
                         <article className="claim-pane">
-                          <header><span>Agent output</span><code>{claim?.claim_id}</code></header>
+                          <header><span>Extracted claim candidate</span><code>{claim?.claim_id}</code></header>
                           <blockquote>{claim?.claim_text}</blockquote>
-                          <dl><div><dt>Type</dt><dd>{claim?.claim_type || "not classified"}</dd></div><div><dt>Confidence</dt><dd>{claim?.confidence || "not recorded"}</dd></div><div><dt>Source location</dt><dd>{claim?.source_location || "not recorded"}</dd></div></dl>
+                          <dl><div><dt>Extractor type</dt><dd>{claim?.claim_type || "not classified"}</dd></div><div><dt>Extraction confidence</dt><dd>{claim?.extraction_confidence || claim?.confidence || "not recorded"}</dd></div><div><dt>Source location</dt><dd>{claim?.source_location || "not recorded"}</dd></div></dl>
+                          <p className="confidence-explainer"><InfoIcon size={16} /> Extraction confidence means the parser is confident it copied a candidate—not that the statement is true, relevant, or useful.</p>
                           {claim?.review_note && <p className="review-note"><InfoIcon size={16} /> {claim.review_note}</p>}
                           <div className="linked-actions"><strong>Linked actions <span>{run.actions.filter((item) => !item.source_claim_ids || item.source_claim_ids.includes(claim?.claim_id)).length}</span></strong>{run.actions.filter((item) => !item.source_claim_ids || item.source_claim_ids.includes(claim?.claim_id)).slice(0, 2).map((item, index) => <div key={item.action_id || index}><code>{item.action_id || `action-${index + 1}`}</code><p>{item.action_text || item.text || "Unlabelled action"}</p><small>{item.requires_approval ? "Operator approval required" : "No approval flag"}</small></div>)}</div>
                         </article>
                         <article className="evidence-pane">
-                          <header><span>Exact evidence</span><span className="readonly"><LockIcon size={14} /> Immutable</span></header>
-                          {evidence ? <><div className="source-id"><FilesIcon size={18} /><span><strong>{run.sourceMetadata.title || run.sourceTitle}</strong><small>{evidence.source_location}</small></span><code>{evidence.snippet_id}</code></div><blockquote>{evidence.text}</blockquote><p className="privacy"><ShieldCheckIcon size={15} /> Privacy: {evidence.privacy_class || "not recorded"}</p><dl className="source-provenance"><div><dt>Captured</dt><dd>{formatDate(run.createdAt)}</dd></div><div><dt>Published</dt><dd>{run.sourceMetadata.published || "not recorded"}</dd></div><div><dt>Authors</dt><dd>{run.sourceMetadata.authors || "not recorded"}</dd></div><div><dt>Source origin</dt><dd>{run.sourceOrigin || "not recorded"}</dd></div></dl></> : <div className="missing-evidence"><InfoIcon size={22} /><div><strong>No linked evidence found</strong><p>This claim needs correction or explicit uncertainty before acceptance.</p></div></div>}
+                          <header><span>Linked source excerpt</span><span className="readonly"><LockIcon size={14} /> Immutable</span></header>
+                          {evidence ? <><div className="source-id"><FilesIcon size={18} /><span><strong>{run.sourceMetadata.title || run.sourceTitle}</strong><small>{evidence.source_location}</small></span><code>{evidence.snippet_id}</code></div>{evidence.context_before && <p className="source-context"><span>Before</span>{evidence.context_before}</p>}<blockquote>{evidence.text}</blockquote>{evidence.context_after && <p className="source-context"><span>After</span>{evidence.context_after}</p>}<div className="source-actions">{run.sourceMetadata?.url && <a href={run.sourceMetadata.url} target="_blank" rel="noreferrer">Open primary source ↗</a>}<button type="button" onClick={openClaimSource}>Open local source at {evidence.source_location || "linked line"}</button></div><p className="privacy"><ShieldCheckIcon size={15} /> Privacy: {evidence.privacy_class || "not recorded"}</p><dl className="source-provenance"><div><dt>Captured</dt><dd>{formatDate(run.createdAt)}</dd></div><div><dt>Published</dt><dd>{run.sourceMetadata.published || "not recorded"}</dd></div><div><dt>Authors</dt><dd>{run.sourceMetadata.authors || "not recorded"}</dd></div><div><dt>Source origin</dt><dd>{run.sourceOrigin || "not recorded"}</dd></div></dl></> : <div className="missing-evidence"><InfoIcon size={22} /><div><strong>No linked evidence found</strong><p>This candidate needs an Unsupported label and a correction before acceptance.</p></div></div>}
                         </article>
                       </div>
-                      <div className="claim-checklist"><div><strong>Claims checklist</strong><span>{inspected.size} of {run.claims.length} explicitly confirmed</span></div><div className="claim-dots">{run.claims.map((item, index) => <button type="button" key={item.claim_id} className={`${index === claimIndex ? "current" : ""} ${inspected.has(item.claim_id) ? "done" : ""}`} onClick={() => setClaimIndex(index)}>{inspected.has(item.claim_id) ? <CheckIcon size={13} /> : index + 1}</button>)}</div><button type="button" disabled={draft.status === "reviewed"} className={inspected.has(claim?.claim_id) ? "checked" : ""} onClick={() => markClaim(claim)}>{inspected.has(claim?.claim_id) ? <CheckCircleIcon size={18} weight="fill" /> : <CheckCircleIcon size={18} />} Mark this claim inspected</button></div>
+                      <section className="claim-judgment" data-tour="claim-labels">
+                        <header><div><strong>What is your judgment?</strong><span>Choose every label that applies. This is the human ground truth for this candidate.</span></div><b>{claimJudgment.labels?.length || 0} selected</b></header>
+                        <div className="claim-label-grid">{CLAIM_LABELS.map((label) => <button type="button" key={label.id} disabled={draft.status === "reviewed"} className={`${label.tone} ${claimJudgment.labels?.includes(label.id) ? "selected" : ""}`} aria-pressed={claimJudgment.labels?.includes(label.id)} onClick={() => toggleClaimLabel(claim, label.id)}>{claimJudgment.labels?.includes(label.id) && <CheckIcon size={14} />}{label.label}</button>)}</div>
+                        <label className={claimNeedsCorrection ? "required" : ""}>Correction or better classification {claimNeedsCorrection && <em>Required for the selected issue</em>}<textarea disabled={draft.status === "reviewed"} value={claimJudgment.correction || ""} onChange={(event) => updateClaimJudgment(claim, { correction: event.target.value })} placeholder="Write the corrected claim, missing context, or why this candidate should be removed." /></label>
+                        <p><LockIcon size={14} /> Finishing the review saves this judgment in a new immutable revision. Editing a draft does not change the source run.</p>
+                      </section>
+                      <div className="claim-checklist"><div><strong>Claim classification progress</strong><span>{inspected.size} of {run.claims.length} labelled</span></div><div className="claim-dots">{run.claims.map((item, index) => <button type="button" key={item.claim_id} className={`${index === claimIndex ? "current" : ""} ${inspected.has(item.claim_id) ? "done" : ""}`} onClick={() => setClaimIndex(index)}>{inspected.has(item.claim_id) ? <CheckIcon size={13} /> : index + 1}</button>)}</div><span className={`classification-state ${inspected.has(claim?.claim_id) ? "checked" : ""}`}>{inspected.has(claim?.claim_id) ? <><CheckCircleIcon size={18} weight="fill" /> Candidate classified</> : "Select at least one label above"}</span></div>
                     </> : <div className="artifact-empty"><InfoIcon size={28} /><h2>No normalized claims were detected</h2><p>Use the Files workspace to inspect the imported bundle. Add a recognized claims table when this run should enter the paired evidence-review flow.</p><button type="button" className="secondary-button" onClick={() => setActivePage("files")}>Open Files</button></div>}
                   </div>}
 
@@ -501,7 +658,7 @@ export function App() {
                   {inspectTab === "actions" && <div className="artifact-view"><p className="eyebrow">Proposed actions</p><h2>Would these help the operator?</h2>{run.actions.length ? run.actions.map((item, index) => <article key={item.action_id || index}><header><code>{item.action_id || `action-${index + 1}`}</code><span>{item.requires_approval ? "Approval required" : "No approval flag"}</span></header><h3>{item.action_text || item.text || "Unlabelled action"}</h3><p>{item.rationale || "No rationale recorded."}</p><small>Owner: {item.suggested_owner || "not assigned"} · Risk: {item.risk_level || "not recorded"}</small></article>) : <p className="empty-copy">No actions were proposed.</p>}<label className="reviewed-toggle"><input type="checkbox" disabled={draft.status === "reviewed"} checked={draft.actionsChecked} onChange={(event) => updateDraft({ actionsChecked: event.target.checked })} /> I checked action usefulness for this run.</label></div>}
                   {inspectTab === "memory" && <div className="artifact-view"><p className="eyebrow">Memory candidates</p><h2>Should any of this become durable memory?</h2>{run.memories.length ? run.memories.map((item, index) => <article key={item.memory_id || index}><header><code>{item.memory_id || `candidate-${index + 1}`}</code><span>{item.status || "candidate only"}</span></header><p>{item.memory_text || item.text || item.content || JSON.stringify(item)}</p></article>) : <div className="positive-empty"><ShieldCheckIcon size={24} /><div><strong>No memory was proposed.</strong><p>Absence is acceptable when the source does not contain a safe, durable fact.</p></div></div>}<label className="reviewed-toggle"><input type="checkbox" disabled={draft.status === "reviewed"} checked={draft.memoryChecked} onChange={(event) => updateDraft({ memoryChecked: event.target.checked })} /> I checked memory safety for this run.</label></div>}
                   {inspectTab === "uncertainty" && <div className="artifact-view"><p className="eyebrow">Uncertainty labels</p><h2>Did the run admit what it could not know?</h2>{run.uncertainties.length ? run.uncertainties.map((item, index) => <article key={item.uncertainty_id || index}><header><code>{item.uncertainty_id || `uncertainty-${index + 1}`}</code><span>{item.label || "unlabelled"}</span></header><p>{item.explanation || item.text || JSON.stringify(item)}</p></article>) : <p className="empty-copy">No uncertainty labels were recorded.</p>}<label className="reviewed-toggle"><input type="checkbox" disabled={draft.status === "reviewed"} checked={draft.uncertaintyChecked} onChange={(event) => updateDraft({ uncertaintyChecked: event.target.checked })} /> I checked uncertainty coverage and limitation honesty.</label></div>}
-                  {inspectTab === "trace" && <div className="artifact-view"><p className="eyebrow">Run log / execution trace</p><h2>What actually ran, and what remained blocked?</h2><div className="trace-summary"><article><header><span>Command</span></header><p>{run.runLog.command || "No command was recorded."}</p></article><article><header><span>External/provider activity</span></header><p>Provider calls: {run.runLog.provider_calls || run.runLog.external_api_calls || "not recorded"}</p><p>Browser/computer use: {run.runLog.browser_or_computer_use || "not recorded"}</p><p>Training: {run.runLog.fine_tuning_or_training || "not recorded"}</p></article><article><header><span>Blocked boundaries</span></header>{Array.isArray(run.runLog.blocked_actions) && run.runLog.blocked_actions.length ? <ul>{run.runLog.blocked_actions.map((item) => <li key={item}>{item}</li>)}</ul> : <p>No blocked-action list was recorded.</p>}</article></div><label className="reviewed-toggle"><input type="checkbox" disabled={draft.status === "reviewed"} checked={draft.traceChecked} onChange={(event) => updateDraft({ traceChecked: event.target.checked })} /> I checked the run log, external-call state and blocked boundaries.</label></div>}
+                  {inspectTab === "trace" && <div className="artifact-view"><p className="eyebrow">Run log / execution trace</p><h2>What actually ran, and what remained blocked?</h2>{Array.isArray(run.runLog.trace_steps) && run.runLog.trace_steps.length ? <ol className="trace-tree">{run.runLog.trace_steps.map((step, index) => <li key={step.id || index}><span>{index + 1}</span><div><strong>{step.name || step.id}</strong><p>{step.status || "status not recorded"}{Number.isFinite(step.duration_ms) ? ` · ${step.duration_ms} ms` : ""}</p>{Number.isFinite(step.output_count) && <small>{step.output_count} outputs</small>}</div></li>)}</ol> : <p className="legacy-trace"><InfoIcon size={18} /> This imported legacy run contains only a summary log. A full trace cannot be reconstructed after execution.</p>}<div className="trace-summary"><article><header><span>Command</span></header><p>{run.runLog.command || "No command was recorded."}</p></article><article><header><span>External/provider activity</span></header><p>Provider calls: {run.runLog.provider_calls || run.runLog.external_api_calls || "not recorded"}</p><p>Browser/computer use: {run.runLog.browser_or_computer_use || "not recorded"}</p><p>Training: {run.runLog.fine_tuning_or_training || "not recorded"}</p></article><article><header><span>Blocked boundaries</span></header>{Array.isArray(run.runLog.blocked_actions) && run.runLog.blocked_actions.length ? <ul>{run.runLog.blocked_actions.map((item) => <li key={item}>{item}</li>)}</ul> : <p>No blocked-action list was recorded.</p>}</article></div><label className="reviewed-toggle"><input type="checkbox" disabled={draft.status === "reviewed"} checked={draft.traceChecked} onChange={(event) => updateDraft({ traceChecked: event.target.checked })} /> I checked the full available trace, external-call state and blocked boundaries.</label></div>}
                 </>}
 
                 {section === "decide" && <div className="decide-summary"><p className="eyebrow">Human quality judgement</p><h2>Score the complete run once</h2><p>Explicitly confirm all eight canonical artifacts, then use the rating panel. Automated diagnostics cannot supply these scores.</p>{draft.parentRevisionId && <div className="revision-seed"><ClockCounterClockwiseIcon size={19} /><span>This re-review started from <code>{draft.parentRevisionId}</code>. Finishing creates a linked revision.</span></div>}<ul><li className={completion.contractComplete ? "complete" : ""}>{completion.contractComplete ? <CheckCircleIcon weight="fill" /> : <ClockIcon />} Human review contract understood</li><li className={claimsComplete ? "complete" : ""}>{claimsComplete ? <CheckCircleIcon weight="fill" /> : <ClockIcon />} Claims and evidence: {inspected.size}/{run.claims.length} confirmed</li><li className={completion.sourceComplete ? "complete" : ""}>{completion.sourceComplete ? <CheckCircleIcon weight="fill" /> : <ClockIcon />} Source card and inference separation checked</li><li className={completion.actionsComplete ? "complete" : ""}>{completion.actionsComplete ? <CheckCircleIcon weight="fill" /> : <ClockIcon />} Action candidates checked</li><li className={completion.memoryComplete ? "complete" : ""}>{completion.memoryComplete ? <CheckCircleIcon weight="fill" /> : <ClockIcon />} Memory candidates checked</li><li className={completion.uncertaintyComplete ? "complete" : ""}>{completion.uncertaintyComplete ? <CheckCircleIcon weight="fill" /> : <ClockIcon />} Uncertainty labels checked</li><li className={completion.traceComplete ? "complete" : ""}>{completion.traceComplete ? <CheckCircleIcon weight="fill" /> : <ClockIcon />} Run log and blocked boundaries checked</li><li className={ratingsComplete ? "complete" : ""}>{ratingsComplete ? <CheckCircleIcon weight="fill" /> : <ClockIcon />} Five ratings completed</li></ul></div>}
@@ -526,9 +683,9 @@ export function App() {
           </>
         )}
 
-        {activePage === "files" && <FilesWorkspace run={run} onImport={importFiles} folderInputRef={folderInputRef} fileInputRef={fileInputRef} />}
+        {activePage === "files" && <FilesWorkspace run={run} onImport={importFiles} folderInputRef={folderInputRef} fileInputRef={fileInputRef} focusFileName={fileFocus.fileName} focusLine={fileFocus.line} />}
         {activePage === "history" && <HistoryWorkspace history={workspaceHistory} onReReview={startReReview} />}
-        {activePage === "settings" && <SettingsWorkspace workspace={workspace} reviewerName={reviewerName} onSaveWorkspace={saveWorkspace} onSaveReviewer={saveReviewer} onRestartTour={openTour} runCount={runs.length} reviewCount={workspaceHistory.length} theme={theme} onThemeChange={setTheme} />}
+        {activePage === "settings" && <SettingsWorkspace workspace={workspace} reviewerName={reviewerName} onSaveWorkspace={saveWorkspace} onSaveReviewer={saveReviewer} onRestartTour={openTour} onArchiveWorkspace={() => archiveWorkspace(workspace.id)} runCount={runs.length} reviewCount={workspaceHistory.length} theme={theme} onThemeChange={setTheme} />}
       </section>
 
       {showWorkspaceModal && <WorkspaceModal onClose={() => setShowWorkspaceModal(false)} onCreate={createWorkspace} />}

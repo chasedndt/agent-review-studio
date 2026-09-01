@@ -1,16 +1,18 @@
 {
   "name": "agent-review-studio",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "runner": "node runner/server.mjs",
     "build": "vite build && node scripts/prepare-sites-build.mjs",
     "preview": "vite preview",
-    "test": "node --test tests/data.test.mjs tests/sites-worker.test.mjs",
+    "test": "npm run build && node --test tests/data.test.mjs tests/workbench.test.mjs tests/sites-worker.test.mjs",
     "test:data": "node --test tests/data.test.mjs",
-    "test:sites": "node --test tests/sites-worker.test.mjs"
+    "test:sites": "node --test tests/sites-worker.test.mjs",
+    "test:workbench": "node --test tests/workbench.test.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
