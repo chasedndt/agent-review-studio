@@ -174,6 +174,14 @@ export function persistWorkbenchConfiguration(workspaceId, value, storage = glob
   return value;
 }
 
+export function removeWorkbenchConfiguration(workspaceId, storage = globalThis.localStorage) {
+  let all = {};
+  try { all = JSON.parse(storage?.getItem(WORKBENCH_KEY) || "{}"); } catch { all = {}; }
+  delete all[workspaceId];
+  storage?.setItem(WORKBENCH_KEY, JSON.stringify(all));
+  return all;
+}
+
 function sourceLines(text) {
   return String(text || "").split(/\r?\n/);
 }

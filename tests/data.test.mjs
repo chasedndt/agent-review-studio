@@ -123,6 +123,16 @@ test("new agent workspaces persist independently from the built-in Chaser exampl
   assert.throws(() => createWorkspaceDefinition("", "Agent", 1), /required/);
 });
 
+test("workspace setup retains the harness purpose and primary evaluation goal", () => {
+  const created = createWorkspaceDefinition("Research QA", "Evidence agent", {
+    description: "Ground every research claim in an approved primary source.",
+    evaluationGoal: "evidence",
+  }, 4321);
+  assert.equal(created.id, "workspace-4321");
+  assert.equal(created.description, "Ground every research claim in an approved primary source.");
+  assert.equal(created.evaluationGoal, "evidence");
+});
+
 test("personal Chaser Agent instance ships four complete canonical review runs", async () => {
   const runs = await Promise.all(["run-4", "run-1", "run-2", "run-3"].map((name) => loadDemoFixture(name)));
   const diagnostics = runs.map(validateRunBundle);

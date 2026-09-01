@@ -1,6 +1,26 @@
-# Design QA — version 1.2 release candidate
+# Design QA — version 1.3 release candidate
 
-Date: 1 September 2026
+Date: 2 September 2026
+
+## Version 1.3 navigation and onboarding acceptance
+
+- Workspace creation retained the supplied workspace name, agent/harness name, intended outcome and primary evaluation goal.
+- A temporary lifecycle workspace was created, archived, restored, archived again and permanently deleted only after the exact name was typed.
+- The desktop sidebar minimised and restored without hiding the active page.
+- The Learn workspace rendered the searchable terminology library, deterministic/probabilistic/human strategy split and the explicitly non-executing Python starter.
+- Overview rendered a chronological append-only lineage node with harness version, dataset/source and review state.
+- All 18 onboarding scenes completed on the desktop viewport. Step 6 kept Back and Next visible; the previous black-overlay failure did not recur.
+- All 18 onboarding scenes also completed at 390 × 844. The Step 6 and final lifecycle cards remained inside the viewport with visible controls.
+- At 390 × 844, Overview used the mobile top bar and the Browse drawer exposed every navigation page. The drawer itself scrolled instead of allowing footer controls to overlap session rows.
+- No QA workspace or fabricated human review remains in the browser after lifecycle testing.
+
+Evidence is stored in `E:\Visual QA\Agent Review Studio Visual QA\Current Reviews\2026-09-01-navigation-onboarding-repair`.
+
+Automated acceptance after implementation:
+
+- `npm test` — 33 passed, 0 failed.
+- `npm run build` — passed; Sites bundle prepared.
+- `git diff --check` — passed.
 
 ## Version 1.2 release-readiness acceptance
 

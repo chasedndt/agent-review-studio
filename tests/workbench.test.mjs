@@ -14,6 +14,7 @@ import {
   runAutomatedEvaluators,
   runBrowserDeterministicCase,
 } from "../src/workbench.js";
+import { recommendEvaluationPlan } from "../src/learning.js";
 
 const SOURCE = `# Source\n\n- URL: https://example.com/article\n- Status: research intake only\n\nThe article says agent harnesses need auditable evidence and explicit approval.\n\nA future runtime should preserve provenance before acting.\n\n- machine-readable policy;\n- bounded action gates;\n`;
 
@@ -102,4 +103,12 @@ test("CI gates require deterministic quality and the configured human boundary",
   const gate = { minimumAutomatedScore: 80, maximumCriticalFailures: 0, requireHumanPass: true };
   assert.equal(evaluateCiGate({ run, gate }).status, "blocked");
   assert.equal(evaluateCiGate({ run, gate, latestReview: { decision: "pass" } }).status, "passed");
+});
+
+test("evaluation suggestions keep deterministic, probabilistic and human authority separate", () => {
+  const plan = recommendEvaluationPlan("custom", "Check every research claim against its source citation.");
+  assert.equal(plan.goal, "evidence");
+  assert.ok(plan.deterministic.some((item) => /claim-to-evidence/i.test(item)));
+  assert.ok(plan.probabilistic.some((item) => /supports the claim/i.test(item)));
+  assert.match(plan.human, /ambiguity/i);
 });

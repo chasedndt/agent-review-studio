@@ -2,6 +2,7 @@
 
 - [Operator guide](OPERATOR_GUIDE.md) - first-run fundamentals, panel order, claim provenance, scoring and training boundary.
 - [Version 1.2 release-readiness audit](RELEASE_READINESS_AUDIT.md) - corrected candidate, onboarding, accessibility, verification and current limits.
+- [Version 1.3 navigation, onboarding and lifecycle record](PHASE8_NAVIGATION_ONBOARDING_LIFECYCLE.md) - guided harness setup, field guide, archive manager, run lineage and responsive acceptance.
 
 - [Artifact compatibility](ARTIFACT_COMPATIBILITY.md) — supported formats, adapter detection, canonical roles and fallback behaviour.
 - [Review revision model](REVIEW_REVISION_MODEL.md) — draft, finished revision, re-review lineage and export contracts.

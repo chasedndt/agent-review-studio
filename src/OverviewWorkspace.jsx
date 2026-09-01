@@ -5,6 +5,7 @@ import { ClockIcon } from "@phosphor-icons/react/Clock";
 import { DownloadSimpleIcon } from "@phosphor-icons/react/DownloadSimple";
 import { FileArrowUpIcon } from "@phosphor-icons/react/FileArrowUp";
 import { FilesIcon } from "@phosphor-icons/react/Files";
+import { GitBranchIcon } from "@phosphor-icons/react/GitBranch";
 import { NotePencilIcon } from "@phosphor-icons/react/NotePencil";
 import { RepeatIcon } from "@phosphor-icons/react/Repeat";
 import { ShieldCheckIcon } from "@phosphor-icons/react/ShieldCheck";
@@ -129,6 +130,11 @@ export function OverviewWorkspace({ workspace, runs, history, onOpenRun, onImpor
           <article className={draftCount ? "attention" : ""}><span>Drafts in progress</span><strong>{draftCount}</strong><small>Safe to resume later</small></article>
           <article className={blockedCount ? "danger" : "success"}><span>Bundle diagnostics</span><strong>{blockedCount ? `${blockedCount} blocked` : "Ready"}</strong><small>{blockedCount ? "Resolve before relying on output" : "Canonical links resolve"}</small></article>
         </div>
+
+        <section className="run-lineage-card" data-tour="run-lineage">
+          <header><div><p className="eyebrow">Immutable run lineage</p><h2>What a chronological evaluation history looks like</h2></div><p>Every execution becomes a new node. Earlier runs and reviews stay readable, so an engineer can trace exactly which dataset, harness version and runner produced a result.</p></header>
+          <div className="lineage-flow">{rows.map((row, index) => <article key={row.run.id}><span className="lineage-index">{index + 1}</span><div><strong>{row.run.label} · {row.run.shortLabel}</strong><small>{new Date(row.run.createdAt || Date.now()).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</small><dl><div><dt>Harness version</dt><dd>{row.run.runLog?.harness_version || row.run.workflowProfile || "imported"}</dd></div><div><dt>Dataset / source</dt><dd>{row.run.runLog?.dataset_id || row.run.sourceId}</dd></div><div><dt>Review state</dt><dd>{stateLabel(row.state)}</dd></div></dl></div><i><GitBranchIcon size={15} /> append-only</i></article>)}</div>
+        </section>
 
         <section className="queue-card" data-tour="overview-queue">
           <header>

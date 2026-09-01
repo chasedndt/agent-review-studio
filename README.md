@@ -6,11 +6,11 @@ Chaser Agent is the built-in demonstration workspace. It is not the product iden
 
 **Live application:** [agent-review-studio.chaseintech.chatgpt.site](https://agent-review-studio.chaseintech.chatgpt.site)
 
-Version 1.2 in this branch is a verified local release candidate. Publication to the live application and merge to the public main branch remain separate approval-gated actions.
+Version 1.3 in this branch is a verified local release candidate. Publication to the live application and merge to the public main branch remain separate approval-gated actions.
 
 ![Agent Review Studio evidence workspace](docs/media/agent-review-studio-light.png)
 
-Version 1.2 makes that evaluation loop review-ready for first-time operators. The built-in Chaser Agent workspace now opens on a relevance-fixed candidate while preserving the flawed legacy run as regression evidence, and the product explains exactly what it can improve directly versus what requires a separate training system.
+Version 1.3 makes that evaluation loop easier to configure, learn and govern. Workspace setup captures the agent or harness purpose and evaluation goal; the Learn page recommends a transparent mix of deterministic checks, probabilistic evaluators and human decisions; run lineage is visible; and workspace archive, restore and guarded deletion are managed in Settings.
 
 ## What process is this?
 
@@ -55,7 +55,9 @@ The complete beginner walkthrough is in [docs/OPERATOR_GUIDE.md](docs/OPERATOR_G
 
 ## Working capabilities
 
-- A prominent workspace switcher, agent/harness identity, one-step workspace creation, reversible archive/restore and deliberately constrained empty-workspace removal.
+- A prominent workspace switcher plus guided setup for workspace name, agent/harness name, intended outcome and primary evaluation goal.
+- Reversible archive and restore plus guarded permanent deletion that requires the exact archived workspace name.
+- A minimisable desktop sidebar and scroll-safe mobile drawer that keep the full workflow available without reducing evidence space.
 - Versioned datasets and immutable test cases with source text, primary URL, expected behaviour, privacy class and tags.
 - An integrated run console with a browser-local deterministic runner, optional localhost runner bridge and import-only boundary.
 - Append-only harness and configuration versions carrying a workflow profile plus commit or build reference.
@@ -84,7 +86,8 @@ The complete beginner walkthrough is in [docs/OPERATOR_GUIDE.md](docs/OPERATOR_G
 - Baseline-versus-candidate metrics and a separate immutable pairwise preference.
 - Aggregate evaluator metrics, failure taxonomy, multi-reviewer agreement and configurable CI regression gates.
 - A System inspector that exposes implemented algorithms, data structures, complexity and Year Two computer-science links while marking backpropagation as future work.
-- A 15-step guided tour that navigates the actual workspace lifecycle, datasets, runner, claim labels, comparison, metrics, files, history and system inspector.
+- A searchable Agent Harness Field Guide with plain-English terminology, goal-aware evaluation recommendations and a clearly labelled non-executing Python starter template.
+- An 18-step guided tour that points directly to the Run button and navigates real workspace setup, dataset, runner, immutable lineage, review, comparison, learning and lifecycle controls.
 - Persistent light and dark themes for extended evidence reading and focused operator sessions.
 - A responsive desktop, tablet and phone layout with contained headers, stacked mobile controls and drawer navigation.
 - IndexedDB storage for imported run bundles and binary attachments; local browser storage for identities, drafts and revision records.
@@ -129,7 +132,7 @@ npm test
 npm run build
 ```
 
-The test suite covers adapter aliases, JSON Lines recovery, nested run grouping, deterministic diagnostics, claim-label contracts, ranked extraction, immutable run creation, the corrected built-in candidate, automated evaluators, baseline comparison, reviewer agreement, CI gates, revision lineage and Sites packaging. Browser interaction and real Chaser Agent runner proof are recorded in [design-qa.md](design-qa.md).
+The test suite covers adapter aliases, JSON Lines recovery, nested run grouping, workspace purpose/goal persistence, deterministic diagnostics, claim-label contracts, ranked extraction, immutable run creation, goal-aware evaluation recommendations, the corrected built-in candidate, automated evaluators, baseline comparison, reviewer agreement, CI gates, revision lineage and Sites packaging. Browser interaction and real Chaser Agent runner proof are recorded in [design-qa.md](design-qa.md).
 
 ## Data and safety boundary
 
@@ -137,7 +140,7 @@ The test suite covers adapter aliases, JSON Lines recovery, nested run grouping,
 - Finishing a review creates a new review revision and exports JSON; it never rewrites the imported bundle.
 - Re-review links a new revision to its parent instead of overwriting the earlier judgement.
 - No provider call, external tool action, memory promotion, training job or deployment is authorized by a review.
-- Version 1.2 remains local-first. The localhost bridge is a bounded single-operator adapter, not a hosted multi-user execution service. Authentication, queues, rate limiting and network context transport remain a later governed HTTP/server phase.
+- Version 1.3 remains local-first. The localhost bridge is a bounded single-operator adapter, not a hosted multi-user execution service. Authentication, queues, rate limiting and network context transport remain a later governed HTTP/server phase.
 
 ## Open-source release
 
@@ -154,5 +157,6 @@ Version 1.0 is licensed under Apache-2.0 and includes contribution and security 
 - [Version 1.1 industry workbench implementation](docs/PHASE7_INDUSTRY_WORKBENCH.md)
 - [Operator guide](docs/OPERATOR_GUIDE.md)
 - [Version 1.2 release-readiness audit](docs/RELEASE_READINESS_AUDIT.md)
+- [Version 1.3 navigation, onboarding and lifecycle record](docs/PHASE8_NAVIGATION_ONBOARDING_LIFECYCLE.md)
 - [Chaser Agent case-study and redaction contract](docs/CHASER_CASE_STUDY_REDACTION.md)
 - [Documentation index](docs/index.md)

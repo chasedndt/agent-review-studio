@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0 — 2026-09-02
+
+- Expanded workspace setup with agent/harness purpose and a primary evaluation goal.
+- Added a minimisable desktop sidebar and repaired mobile drawer scrolling around the expanded navigation.
+- Added a searchable Agent Harness Field Guide, transparent deterministic/probabilistic/human strategy suggestions and a labelled Python evaluator template.
+- Added visible chronological, append-only run lineage to Overview.
+- Added a Settings archive manager with one-click restore and name-confirmed permanent deletion for archived local workspaces.
+- Expanded onboarding to 18 real controls, targeted the actual Run evaluation button and fixed the Step 6 viewport overflow/black-overlay failure.
+- Verified all onboarding scenes at desktop and 390 × 844 mobile viewports.
+
 ## 1.2.0 — 2026-09-01
 
 - Added a relevance-fixed Chaser Agent candidate while preserving the flawed legacy run as immutable regression evidence.

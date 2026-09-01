@@ -7,9 +7,11 @@ import { HardDrivesIcon } from "@phosphor-icons/react/HardDrives";
 import { IdentificationCardIcon } from "@phosphor-icons/react/IdentificationCard";
 import { MoonIcon } from "@phosphor-icons/react/Moon";
 import { SunIcon } from "@phosphor-icons/react/Sun";
+import { TrashIcon } from "@phosphor-icons/react/Trash";
 import { SUPPORTED_FILE_GROUPS } from "./data.js";
+import { EVALUATION_GOALS } from "./learning.js";
 
-export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, onSaveReviewer, onRestartTour, onArchiveWorkspace, runCount, reviewCount, theme, onThemeChange }) {
+export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, onSaveReviewer, onRestartTour, onArchiveWorkspace, archivedWorkspaces, onRestoreWorkspace, onDeleteWorkspace, runCount, reviewCount, theme, onThemeChange }) {
   const [form, setForm] = useState(workspace);
   const [reviewer, setReviewer] = useState(reviewerName);
   const [saved, setSaved] = useState(false);
@@ -26,6 +28,7 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
       name: form.name.trim() || workspace.name,
       agentName: form.agentName.trim() || "Unnamed agent",
       description: form.description.trim(),
+      evaluationGoal: form.evaluationGoal || "custom",
     });
     onSaveReviewer(reviewer.trim() || "Local operator");
     setSaved(true);
@@ -44,6 +47,7 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
           <label>Workspace name<input value={form.name} onChange={(event) => { setForm({ ...form, name: event.target.value }); setSaved(false); }} /></label>
           <label>Agent or harness name<input value={form.agentName} onChange={(event) => { setForm({ ...form, agentName: event.target.value }); setSaved(false); }} /></label>
           <label>Purpose<textarea value={form.description || ""} onChange={(event) => { setForm({ ...form, description: event.target.value }); setSaved(false); }} placeholder="What does this agent do, and what are you evaluating?" /></label>
+          <label>Primary evaluation goal<select value={form.evaluationGoal || "custom"} onChange={(event) => { setForm({ ...form, evaluationGoal: event.target.value }); setSaved(false); }}>{EVALUATION_GOALS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
           <label>Default reviewer<input value={reviewer} onChange={(event) => { setReviewer(event.target.value); setSaved(false); }} /></label>
           <button type="submit" className="primary-button">Save workspace settings</button>
         </form>
@@ -61,7 +65,7 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
 
         <section className="settings-card tour-settings-card">
           <header><ArrowCounterClockwiseIcon size={22} /><div><h2>Guided onboarding</h2><p>Walk a new operator through the real product controls.</p></div></header>
-          <p>The 15-step tour moves through workspaces, datasets, versioned runs, paired evidence review, categorical labels, scoring, comparison, failure analysis, files, history and lifecycle controls.</p>
+          <p>The guided tour points to the real Run button, then moves through versioned data, immutable lineage, evidence review, categorical labels, scoring, comparison, failure analysis, terminology and lifecycle controls.</p>
           <button type="button" className="secondary-button" onClick={onRestartTour}><ArrowCounterClockwiseIcon size={17} /> Restart guided tour</button>
         </section>
 
@@ -78,7 +82,14 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
         <section className="settings-card lifecycle-card" data-tour="workspace-lifecycle">
           <header><ArchiveIcon size={22} /><div><h2>Workspace lifecycle</h2><p>Take inactive work out of the main switcher without losing evidence.</p></div></header>
           {workspace.kind === "built-in" ? <p>The built-in Chaser Agent calibration workspace is permanent so every new operator has a working example.</p> : <><p>Archive hides this workspace from the active list. Runs, source files and review revisions stay intact and can be restored from the sidebar.</p><button type="button" className="secondary-button" onClick={onArchiveWorkspace}><ArchiveIcon size={17} /> Archive workspace</button></>}
-          <small>Removal is intentionally stricter: only an empty archived workspace can be removed.</small>
+          <small>Archiving is reversible. Permanent deletion is available from the archive manager and always requires the exact workspace name.</small>
+        </section>
+
+        <section className="settings-card archives-card" data-tour="archive-manager">
+          <header><ArchiveIcon size={22} /><div><h2>Archived workspaces</h2><p>Restore old projects or permanently remove an archived local workspace.</p></div></header>
+          {!archivedWorkspaces.length && <p className="archive-empty">Nothing is archived. Archive keeps a workspace out of the main switcher without losing its evidence.</p>}
+          <div className="archive-manager-list">{archivedWorkspaces.map((item) => <article key={item.id}><div><strong>{item.name}</strong><span>{item.agentName}</span><small>{item.runCount} runs · {item.reviewCount} reviews · archived {new Date(item.archivedAt).toLocaleDateString("en-GB")}</small></div><button type="button" className="secondary-button" onClick={() => onRestoreWorkspace(item.id)}>Restore</button><button type="button" className="danger-button" onClick={() => onDeleteWorkspace(item.id)}><TrashIcon size={16} /> Delete</button></article>)}</div>
+          <p className="archive-warning">Delete is permanent and asks you to type the workspace name. Export anything you need first.</p>
         </section>
 
         <section className="settings-card appearance-card">

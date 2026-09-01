@@ -78,22 +78,26 @@ export const BUILT_IN_WORKSPACE = {
   name: "Chaser Agent — Personal Evaluation",
   agentName: "Chaser Agent",
   description: "Personal workspace for Chaser Agent golden evaluations, harness refinement and reviewed improvement examples.",
+  evaluationGoal: "evidence",
   kind: "built-in",
   archivedAt: null,
   harnessId: "chaser-agent",
 };
 
-export function createWorkspaceDefinition(name, agentName, now = Date.now()) {
+export function createWorkspaceDefinition(name, agentName, optionsOrNow = {}, now = Date.now()) {
   const safeName = String(name || "").trim();
   if (!safeName) throw new Error("Workspace name is required.");
+  const legacyNow = typeof optionsOrNow === "number" ? optionsOrNow : now;
+  const options = typeof optionsOrNow === "object" && optionsOrNow !== null ? optionsOrNow : {};
   return {
-    id: `workspace-${now}`,
+    id: `workspace-${legacyNow}`,
     name: safeName,
     agentName: String(agentName || "").trim() || safeName,
-    description: "Local agent evaluation workspace",
+    description: String(options.description || "").trim() || "Local agent evaluation workspace",
+    evaluationGoal: String(options.evaluationGoal || "custom"),
     kind: "local",
     archivedAt: null,
-    harnessId: `harness-${now}`,
+    harnessId: `harness-${legacyNow}`,
   };
 }
 
@@ -849,6 +853,14 @@ export function appendReviewRevision(record) {
   const next = [record, ...records.filter((item) => item.revision_id !== record.revision_id)];
   localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
   return record;
+}
+
+export function removeReviewHistoryForProject(projectId, storage = globalThis.localStorage) {
+  const saved = readJsonStorage(HISTORY_KEY, []);
+  const records = Array.isArray(saved) ? saved : [];
+  const next = records.filter((record) => record.project_id !== projectId);
+  storage?.setItem(HISTORY_KEY, JSON.stringify(next));
+  return records.length - next.length;
 }
 
 export function createSessionEvaluationPack({ projectId, workspaceName, agentName, reviewerName, session, runs, history, drafts = {} }) {

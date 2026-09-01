@@ -17,6 +17,7 @@ import { FolderIcon } from "@phosphor-icons/react/Folder";
 import { FolderOpenIcon } from "@phosphor-icons/react/FolderOpen";
 import { GaugeIcon } from "@phosphor-icons/react/Gauge";
 import { GearSixIcon } from "@phosphor-icons/react/GearSix";
+import { GraduationCapIcon } from "@phosphor-icons/react/GraduationCap";
 import { GitDiffIcon } from "@phosphor-icons/react/GitDiff";
 import { InfoIcon } from "@phosphor-icons/react/Info";
 import { ListIcon } from "@phosphor-icons/react/List";
@@ -25,15 +26,16 @@ import { MoonIcon } from "@phosphor-icons/react/Moon";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { PlayIcon } from "@phosphor-icons/react/Play";
 import { ShieldCheckIcon } from "@phosphor-icons/react/ShieldCheck";
+import { SidebarSimpleIcon } from "@phosphor-icons/react/SidebarSimple";
 import { SquaresFourIcon } from "@phosphor-icons/react/SquaresFour";
 import { SunIcon } from "@phosphor-icons/react/Sun";
 import { TargetIcon } from "@phosphor-icons/react/Target";
+import { TrashIcon } from "@phosphor-icons/react/Trash";
 import { XIcon } from "@phosphor-icons/react/X";
 import {
   appendReviewRevision,
   archiveWorkspaceDefinition,
   BUILT_IN_WORKSPACE,
-  canDeleteWorkspace,
   createWorkspaceDefinition,
   createSessionEvaluationPack,
   createReviewRevision,
@@ -47,6 +49,7 @@ import {
   parseRunFolderFiles,
   persistDraft,
   persistWorkspaceDefinitions,
+  removeReviewHistoryForProject,
   RATING_DEFINITIONS,
   reviewCompletionState,
   reviewStateForRun,
@@ -58,6 +61,7 @@ import { loadStoredRuns, removeProjectRuns, storeImportedRuns } from "./storage.
 import { FilesWorkspace } from "./FilesWorkspace.jsx";
 import { GuidedTour } from "./Tour.jsx";
 import { HistoryWorkspace } from "./HistoryWorkspace.jsx";
+import { LearnWorkspace } from "./LearnWorkspace.jsx";
 import { OverviewWorkspace } from "./OverviewWorkspace.jsx";
 import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
 import {
@@ -72,6 +76,7 @@ import {
   createExperimentRecord,
   loadWorkbenchConfiguration,
   persistWorkbenchConfiguration,
+  removeWorkbenchConfiguration,
   runBrowserDeterministicCase,
 } from "./workbench.js";
 
@@ -79,6 +84,7 @@ const SELECTED_WORKSPACE_KEY = "agent-review-studio-selected-workspace-v1";
 const REVIEWER_KEY = "agent-review-studio-reviewer-v1";
 const TOUR_KEY = "agent-review-studio-tour-complete-v1";
 const THEME_KEY = "agent-review-studio-theme-v1";
+const SIDEBAR_KEY = "agent-review-studio-sidebar-collapsed-v1";
 
 const INSPECT_TABS = [["claims", "Claims"], ["source", "Source card"], ["actions", "Actions"], ["memory", "Memory"], ["uncertainty", "Uncertainty"], ["trace", "Run log"]];
 const APP_PAGES = [
@@ -91,6 +97,7 @@ const APP_PAGES = [
   ["files", "Files", FilesIcon],
   ["history", "History", ClockCounterClockwiseIcon],
   ["systems", "Systems", BracketsCurlyIcon],
+  ["learn", "Learn", GraduationCapIcon],
   ["settings", "Settings", GearSixIcon],
 ];
 
@@ -138,16 +145,30 @@ function Modal({ title, children, onClose, className = "" }) {
 function WorkspaceModal({ onClose, onCreate }) {
   const [name, setName] = useState("");
   const [agentName, setAgentName] = useState("");
+  const [description, setDescription] = useState("");
+  const [evaluationGoal, setEvaluationGoal] = useState("custom");
   return (
     <Modal title="Create evaluation workspace" onClose={onClose}>
       <div className="project-form">
         <p>Workspaces keep one agent, harness or service and its review history together.</p>
         <label>Workspace name<input autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="Example: Support Agent QA" /></label>
         <label>Agent or harness name<input value={agentName} onChange={(event) => setAgentName(event.target.value)} placeholder="Example: Returns assistant" /></label>
+        <label>What are you building it toward?<textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Example: Reliably answer return-policy questions from approved support documents, then escalate uncertain cases." /></label>
+        <label>Primary evaluation goal<select value={evaluationGoal} onChange={(event) => setEvaluationGoal(event.target.value)}><option value="evidence">Evidence and factuality</option><option value="reliability">Reliability and consistency</option><option value="tool_use">Tool use and actions</option><option value="workflow">Workflow completion</option><option value="safety">Safety and approvals</option><option value="custom">Custom objective</option></select></label>
       </div>
-      <div className="modal-actions"><button type="button" className="secondary-button" onClick={onClose}>Cancel</button><button type="button" className="primary-button" disabled={!name.trim()} onClick={() => onCreate(name.trim(), agentName.trim() || name.trim())}>Create workspace</button></div>
+      <div className="modal-actions"><button type="button" className="secondary-button" onClick={onClose}>Cancel</button><button type="button" className="primary-button" disabled={!name.trim() || !description.trim()} onClick={() => onCreate(name.trim(), agentName.trim() || name.trim(), description.trim(), evaluationGoal)}>Create workspace</button></div>
     </Modal>
   );
+}
+
+function DeleteWorkspaceModal({ workspace, runCount, reviewCount, onClose, onConfirm }) {
+  const [confirmation, setConfirmation] = useState("");
+  const matches = confirmation.trim() === workspace.name;
+  return <Modal title="Delete archived workspace" onClose={onClose}>
+    <div className="delete-workspace-warning"><TrashIcon size={28} /><div><strong>This permanently deletes local evaluation data.</strong><p>{workspace.name} contains {runCount} run{runCount === 1 ? "" : "s"} and {reviewCount} review revision{reviewCount === 1 ? "" : "s"}. Archive is reversible; deletion is not.</p></div></div>
+    <div className="project-form"><label>Type <strong>{workspace.name}</strong> to confirm<input autoFocus value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></label></div>
+    <div className="modal-actions"><button type="button" className="secondary-button" onClick={onClose}>Keep workspace</button><button type="button" className="danger-button" disabled={!matches} onClick={onConfirm}><TrashIcon size={17} /> Delete permanently</button></div>
+  </Modal>;
 }
 
 function RubricModal({ onClose }) {
@@ -210,6 +231,8 @@ export function App() {
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [showRubricModal, setShowRubricModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === "yes");
+  const [deleteCandidateId, setDeleteCandidateId] = useState("");
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark");
   const [fileFocus, setFileFocus] = useState({ fileName: "", line: null });
   const [workbenchConfiguration, setWorkbenchConfiguration] = useState(() => loadWorkbenchConfiguration(BUILT_IN_WORKSPACE.id, BUILT_IN_WORKSPACE, []));
@@ -248,6 +271,8 @@ export function App() {
     document.documentElement.style.colorScheme = theme;
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
+
+  useEffect(() => { localStorage.setItem(SIDEBAR_KEY, sidebarCollapsed ? "yes" : "no"); }, [sidebarCollapsed]);
 
   const workspace = workspaces.find((item) => item.id === selectedProjectId) || workspaces[0] || BUILT_IN_WORKSPACE;
   const runs = projectRuns[selectedProjectId] || [];
@@ -406,8 +431,8 @@ export function App() {
     setSaveMessage(`Exported ${pack.summary.reviewed_runs}/${pack.summary.total_runs} finished reviews with deterministic bundle diagnostics.`);
   }
 
-  function createWorkspace(name, agentName) {
-    const project = createWorkspaceDefinition(name, agentName);
+  function createWorkspace(name, agentName, description, evaluationGoal) {
+    const project = createWorkspaceDefinition(name, agentName, { description, evaluationGoal });
     const next = [...workspaces, project];
     persistWorkspaceDefinitions(next);
     setWorkspaces(next);
@@ -498,18 +523,20 @@ export function App() {
 
   async function deleteWorkspace(workspaceId) {
     const target = workspaces.find((item) => item.id === workspaceId);
-    const runCount = (projectRuns[workspaceId] || []).length;
-    const reviewCount = reviewHistory.filter((record) => record.project_id === workspaceId).length;
-    if (!canDeleteWorkspace(target, runCount, reviewCount)) {
-      setSaveMessage("A workspace can be removed only after it is archived and has no runs or review revisions. Export and intentionally clear governed data first.");
+    if (!target || target.kind === "built-in" || !target.archivedAt) {
+      setSaveMessage("Only an archived local workspace can be permanently deleted.");
       return;
     }
     await removeProjectRuns(workspaceId);
+    removeReviewHistoryForProject(workspaceId);
+    removeWorkbenchConfiguration(workspaceId);
     const next = workspaces.filter((item) => item.id !== workspaceId);
     persistWorkspaceDefinitions(next);
     setWorkspaces(next);
     setProjectRuns((current) => { const copy = { ...current }; delete copy[workspaceId]; return copy; });
+    setReviewHistory(loadReviewHistory());
     setSelectedProjectId(next.find((item) => !item.archivedAt)?.id || BUILT_IN_WORKSPACE.id);
+    setDeleteCandidateId("");
     setSaveMessage(`${target.name} was removed from this browser.`);
   }
 
@@ -548,7 +575,7 @@ export function App() {
   if (loading) return <main className="loading-screen"><GaugeIcon size={46} weight="duotone" /><p>Preparing Agent Review Studio…</p></main>;
 
   return (
-    <main className="app-shell" data-theme={theme}>
+    <main className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""}`} data-theme={theme}>
       <input ref={folderInputRef} type="file" multiple webkitdirectory="true" directory="true" hidden onChange={importFiles} />
       <input ref={fileInputRef} type="file" multiple hidden onChange={importFiles} />
 
@@ -573,7 +600,7 @@ export function App() {
           <nav className="project-list" aria-label="Evaluation workspaces">
             {activeWorkspaces.map((project) => <button type="button" key={project.id} className={project.id === selectedProjectId ? "active" : ""} onClick={() => { setSelectedProjectId(project.id); setMobileNavOpen(false); }}><FolderIcon size={17} weight={project.id === selectedProjectId ? "fill" : "regular"} /><span>{project.name}</span></button>)}
           </nav>
-          {archivedWorkspaces.length > 0 && <details className="archived-workspaces"><summary><ArchiveIcon size={15} /> Archived <span>{archivedWorkspaces.length}</span></summary>{archivedWorkspaces.map((project) => { const runCount = (projectRuns[project.id] || []).length; const reviewCount = reviewHistory.filter((record) => record.project_id === project.id).length; const removable = canDeleteWorkspace(project, runCount, reviewCount); return <div key={project.id}><span><strong>{project.name}</strong><small>{runCount} runs · {reviewCount} reviews</small></span><button type="button" onClick={() => restoreWorkspace(project.id)}>Restore</button><button type="button" className="danger-link" disabled={!removable} title={removable ? "Remove empty archived workspace" : "Runs or reviews must be retained"} onClick={() => deleteWorkspace(project.id)}>Remove</button></div>; })}</details>}
+          {archivedWorkspaces.length > 0 && <button type="button" className="archive-shortcut" onClick={() => { setActivePage("settings"); setMobileNavOpen(false); }}><ArchiveIcon size={16} /><span>Archived workspaces</span><b>{archivedWorkspaces.length}</b></button>}
         </section>
 
         <nav className="app-nav" aria-label="Workspace sections">
@@ -586,7 +613,7 @@ export function App() {
             {runGroups.map((group) => <div className="run-group" key={group.id}><span className="session-label">{group.label}</span>{group.items.map(({ item, index }) => { const state = reviewStateForRun(item, workspaceHistory, loadDraft(item.id)); return <button type="button" key={item.id} className={index === runIndex && activePage === "review" ? "active" : ""} onClick={() => openRun(index)}><span className={`status-dot ${state}`} /><span><strong>{item.label} · {item.shortLabel}</strong><small>{compactProfile(item.description)}</small></span></button>; })}</div>)}
           </div>
         </section>
-        <footer className="sidebar-footer"><button type="button" onClick={() => folderInputRef.current?.click()}><FileArrowUpIcon size={17} /> Import run folder</button><p><LockIcon size={13} /> Local-first · source files stay immutable</p></footer>
+        <footer className="sidebar-footer"><button type="button" onClick={() => folderInputRef.current?.click()} title="Import run folder"><FileArrowUpIcon size={17} /><span>Import run folder</span></button><button type="button" className="collapse-sidebar-button" onClick={() => setSidebarCollapsed((value) => !value)} title={sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}><SidebarSimpleIcon size={17} /><span>{sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}</span></button><p><LockIcon size={13} /><span>Local-first · source files stay immutable</span></p></footer>
       </aside>
 
       <section className="workspace">
@@ -599,6 +626,7 @@ export function App() {
         {activePage === "compare" && <CompareWorkspace runs={runs} history={workspaceHistory} configuration={workbenchConfiguration} onConfigurationChange={updateWorkbenchConfiguration} />}
         {activePage === "insights" && <InsightsWorkspace runs={runs} history={workspaceHistory} configuration={workbenchConfiguration} onConfigurationChange={updateWorkbenchConfiguration} />}
         {activePage === "systems" && <SystemsWorkspace />}
+        {activePage === "learn" && <LearnWorkspace workspace={workspace} onOpenRun={() => setActivePage("run")} />}
 
         {activePage === "review" && !run && <EmptyProject onFolderImport={() => folderInputRef.current?.click()} onFileImport={() => fileInputRef.current?.click()} />}
         {activePage === "review" && run && (
@@ -686,10 +714,11 @@ export function App() {
 
         {activePage === "files" && <FilesWorkspace run={run} onImport={importFiles} folderInputRef={folderInputRef} fileInputRef={fileInputRef} focusFileName={fileFocus.fileName} focusLine={fileFocus.line} />}
         {activePage === "history" && <HistoryWorkspace history={workspaceHistory} onReReview={startReReview} />}
-        {activePage === "settings" && <SettingsWorkspace workspace={workspace} reviewerName={reviewerName} onSaveWorkspace={saveWorkspace} onSaveReviewer={saveReviewer} onRestartTour={openTour} onArchiveWorkspace={() => archiveWorkspace(workspace.id)} runCount={runs.length} reviewCount={workspaceHistory.length} theme={theme} onThemeChange={setTheme} />}
+        {activePage === "settings" && <SettingsWorkspace workspace={workspace} reviewerName={reviewerName} onSaveWorkspace={saveWorkspace} onSaveReviewer={saveReviewer} onRestartTour={openTour} onArchiveWorkspace={() => archiveWorkspace(workspace.id)} archivedWorkspaces={archivedWorkspaces.map((item) => ({ ...item, runCount: (projectRuns[item.id] || []).length, reviewCount: reviewHistory.filter((record) => record.project_id === item.id).length }))} onRestoreWorkspace={restoreWorkspace} onDeleteWorkspace={setDeleteCandidateId} runCount={runs.length} reviewCount={workspaceHistory.length} theme={theme} onThemeChange={setTheme} />}
       </section>
 
       {showWorkspaceModal && <WorkspaceModal onClose={() => setShowWorkspaceModal(false)} onCreate={createWorkspace} />}
+      {deleteCandidateId && (() => { const target = workspaces.find((item) => item.id === deleteCandidateId); return target ? <DeleteWorkspaceModal workspace={target} runCount={(projectRuns[target.id] || []).length} reviewCount={reviewHistory.filter((record) => record.project_id === target.id).length} onClose={() => setDeleteCandidateId("")} onConfirm={() => deleteWorkspace(target.id)} /> : null; })()}
       {showRubricModal && <RubricModal onClose={() => setShowRubricModal(false)} />}
       <GuidedTour open={tourOpen} step={tourStep} onStep={setTourStep} onClose={closeTour} onNavigate={navigateForTour} />
     </main>
