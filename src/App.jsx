@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeftIcon } from "@phosphor-icons/react/ArrowLeft";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
-import { BookOpenIcon } from "@phosphor-icons/react/BookOpen";
 import { CheckCircleIcon } from "@phosphor-icons/react/CheckCircle";
 import { CheckIcon } from "@phosphor-icons/react/Check";
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/ClockCounterClockwise";
@@ -232,12 +231,14 @@ export function App() {
   const [showRubricModal, setShowRubricModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === "yes");
+  const [sidebarView, setSidebarView] = useState("pages");
   const [deleteCandidateId, setDeleteCandidateId] = useState("");
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark");
   const [fileFocus, setFileFocus] = useState({ fileName: "", line: null });
   const [workbenchConfiguration, setWorkbenchConfiguration] = useState(() => loadWorkbenchConfiguration(BUILT_IN_WORKSPACE.id, BUILT_IN_WORKSPACE, []));
   const folderInputRef = useRef(null);
   const fileInputRef = useRef(null);
+  const workspaceRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -300,6 +301,10 @@ export function App() {
   useEffect(() => { setRunIndex(0); }, [selectedProjectId]);
 
   useEffect(() => {
+    workspaceRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [activePage, selectedProjectId, run?.id]);
+
+  useEffect(() => {
     if (!run) {
       setDraft(emptyDraft());
       return;
@@ -322,7 +327,8 @@ export function App() {
 
   const navigateForTour = useCallback((page, target) => {
     setActivePage(page);
-    setMobileNavOpen(target === "imports" || target === "runs");
+    if (target === "workspace-scope-tabs" || target === "new-workspace") setSidebarView("pages");
+    setMobileNavOpen(["imports", "runs", "workspace-scope-tabs", "new-workspace"].includes(target));
   }, []);
 
   function updateDraft(patch) {
@@ -582,14 +588,14 @@ export function App() {
       <header className="topbar">
         <div className="brand"><span className="brand-mark"><img src="/assets/agent-review-studio-mark.png" alt="" /></span><strong><span>AGENT REVIEW STUDIO</span><small>REVIEW · LABEL · IMPROVE</small></strong></div>
         <div className="top-context">
-          <label className="workspace-switcher" data-tour="workspace-switcher"><span>Workspace</span><select aria-label="Switch evaluation workspace" value={selectedProjectId} onChange={(event) => setSelectedProjectId(event.target.value)}>{activeWorkspaces.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label className="workspace-switcher" data-tour="workspace-switcher"><span>Workspace</span><select aria-label="Switch evaluation workspace" value={selectedProjectId} onChange={(event) => { setSelectedProjectId(event.target.value); setSidebarView("pages"); }}>{activeWorkspaces.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <div><span>Agent / harness</span><strong>{workspace.agentName}</strong></div>
           <div><span>Session</span><strong>{run?.sessionLabel || "No session selected"}</strong></div>
           {run && <div className="run-progress"><span>Run {activeSessionRunIndex + 1} of {activeSessionRuns.length}</span><div>{activeSessionRuns.map((item, index) => <i key={item.id} className={index === activeSessionRunIndex ? "active" : ""} />)}</div></div>}
         </div>
         <button type="button" className="mobile-nav-button" aria-label="Browse workspace" onClick={() => setMobileNavOpen(true)}><ListIcon size={19} /><span>Browse</span></button>
         <button type="button" className="theme-button" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")}>{theme === "dark" ? <SunIcon size={18} /> : <MoonIcon size={18} />}<span>{theme === "dark" ? "Light" : "Dark"}</span></button>
-        <button type="button" className="guide-button" aria-label="Open guided tour" onClick={openTour}><BookOpenIcon size={18} /><span>Guided tour</span></button>
+        <button type="button" className="guide-button" aria-label="Open help and guided tour" title="Help and guided onboarding" onClick={openTour}><InfoIcon size={19} weight="fill" /><span>Help &amp; tour</span></button>
       </header>
 
       {mobileNavOpen && <button type="button" className="sidebar-scrim" onClick={() => setMobileNavOpen(false)} aria-label="Close workspace navigation" />}
@@ -598,25 +604,38 @@ export function App() {
         <section>
           <div className="sidebar-heading"><span>Workspaces</span><button type="button" data-tour="new-workspace" onClick={() => { setShowWorkspaceModal(true); setMobileNavOpen(false); }} aria-label="New workspace"><PlusIcon size={16} /></button></div>
           <nav className="project-list" aria-label="Evaluation workspaces">
-            {activeWorkspaces.map((project) => <button type="button" key={project.id} className={project.id === selectedProjectId ? "active" : ""} onClick={() => { setSelectedProjectId(project.id); setMobileNavOpen(false); }}><FolderIcon size={17} weight={project.id === selectedProjectId ? "fill" : "regular"} /><span>{project.name}</span></button>)}
+            {activeWorkspaces.map((project) => <button type="button" key={project.id} title={project.name} aria-label={`Open workspace ${project.name}`} aria-current={project.id === selectedProjectId ? "page" : undefined} className={project.id === selectedProjectId ? "active" : ""} onClick={() => { setSelectedProjectId(project.id); setSidebarView("pages"); setMobileNavOpen(false); }}><FolderIcon size={17} weight={project.id === selectedProjectId ? "fill" : "regular"} /><span>{project.name}</span></button>)}
           </nav>
           {archivedWorkspaces.length > 0 && <button type="button" className="archive-shortcut" onClick={() => { setActivePage("settings"); setMobileNavOpen(false); }}><ArchiveIcon size={16} /><span>Archived workspaces</span><b>{archivedWorkspaces.length}</b></button>}
         </section>
 
-        <nav className="app-nav" aria-label="Workspace sections">
-          {APP_PAGES.map(([id, label, Icon]) => <button type="button" key={id} data-tour={`nav-${id}`} className={activePage === id ? "active" : ""} onClick={() => { setActivePage(id); setMobileNavOpen(false); }}><Icon size={18} /><span>{label}</span>{id === "history" && workspaceHistory.length > 0 && <b>{workspaceHistory.length}</b>}</button>)}
-        </nav>
-
-        <section className="session-section" data-tour="runs">
-          <div className="sidebar-heading"><span>Sessions & runs</span><button type="button" data-tour="imports" onClick={() => folderInputRef.current?.click()} aria-label="Import run folders"><FileArrowUpIcon size={16} /></button></div>
-          <div className="run-list">
-            {runGroups.map((group) => <div className="run-group" key={group.id}><span className="session-label">{group.label}</span>{group.items.map(({ item, index }) => { const state = reviewStateForRun(item, workspaceHistory, loadDraft(item.id)); return <button type="button" key={item.id} className={index === runIndex && activePage === "review" ? "active" : ""} onClick={() => openRun(index)}><span className={`status-dot ${state}`} /><span><strong>{item.label} · {item.shortLabel}</strong><small>{compactProfile(item.description)}</small></span></button>; })}</div>)}
+        <section className="workspace-scope" aria-label={`Inside ${workspace.name}`}>
+          <header className="workspace-scope-header">
+            <span>Inside this workspace</span>
+            <strong>{workspace.name}</strong>
+            <small>{workspace.agentName}</small>
+          </header>
+          <div className="workspace-scope-tabs" data-tour="workspace-scope-tabs" role="tablist" aria-label="Workspace navigation mode">
+            <button type="button" role="tab" aria-selected={sidebarView === "pages"} className={sidebarView === "pages" ? "active" : ""} onClick={() => setSidebarView("pages")}><SquaresFourIcon size={16} /> Pages</button>
+            <button type="button" role="tab" aria-selected={sidebarView === "runs"} className={sidebarView === "runs" ? "active" : ""} onClick={() => setSidebarView("runs")}><ClockCounterClockwiseIcon size={16} /> Runs <b>{runs.length}</b></button>
           </div>
+
+          {sidebarView === "pages" && <nav className="app-nav" aria-label={`Pages in ${workspace.name}`}>
+            {APP_PAGES.map(([id, label, Icon]) => <button type="button" key={id} title={label} aria-label={`Open ${label}`} data-tour={`nav-${id}`} className={activePage === id ? "active" : ""} onClick={() => { setActivePage(id); setMobileNavOpen(false); }}><Icon size={18} /><span>{label}</span>{id === "history" && workspaceHistory.length > 0 && <b>{workspaceHistory.length}</b>}</button>)}
+          </nav>}
+
+          {sidebarView === "runs" && <section className="session-section" data-tour="runs">
+            <div className="sidebar-heading"><span>Sessions & immutable runs</span><button type="button" data-tour="imports" onClick={() => folderInputRef.current?.click()} aria-label="Import run folders"><FileArrowUpIcon size={16} /></button></div>
+            <p className="session-scope-note">Only sessions belonging to <strong>{workspace.name}</strong> appear here.</p>
+            <div className="run-list">
+              {runGroups.map((group) => <div className="run-group" key={group.id}><div className="session-label"><ClockIcon size={14} /><span><small>Session</small><strong>{group.label}</strong></span><b>{group.items.length}</b></div>{group.items.map(({ item, index }) => { const state = reviewStateForRun(item, workspaceHistory, loadDraft(item.id)); return <button type="button" key={item.id} className={index === runIndex && activePage === "review" ? "active" : ""} onClick={() => openRun(index)}><span className={`status-dot ${state}`} /><span><strong>{item.label} · {item.shortLabel}</strong><small><LockIcon size={12} /> Immutable run · {compactProfile(item.description)}</small></span></button>; })}</div>)}
+            </div>
+          </section>}
         </section>
-        <footer className="sidebar-footer"><button type="button" onClick={() => folderInputRef.current?.click()} title="Import run folder"><FileArrowUpIcon size={17} /><span>Import run folder</span></button><button type="button" className="collapse-sidebar-button" onClick={() => setSidebarCollapsed((value) => !value)} title={sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}><SidebarSimpleIcon size={17} /><span>{sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}</span></button><p><LockIcon size={13} /><span>Local-first · source files stay immutable</span></p></footer>
+        <footer className="sidebar-footer"><button type="button" onClick={() => folderInputRef.current?.click()} title="Import run folder"><FileArrowUpIcon size={17} /><span>Import run folder</span></button><button type="button" className="collapse-sidebar-button" onClick={() => { setSidebarView("pages"); setSidebarCollapsed((value) => !value); }} title={sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}><SidebarSimpleIcon size={17} /><span>{sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}</span></button><p><LockIcon size={13} /><span>Local-first · source files stay immutable</span></p></footer>
       </aside>
 
-      <section className="workspace">
+      <section ref={workspaceRef} className="workspace">
         {loadError && <p className="error-banner">{loadError}</p>}
         {saveMessage && activePage !== "review" && <p className="global-message">{saveMessage}</p>}
 

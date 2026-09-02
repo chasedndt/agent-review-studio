@@ -5,6 +5,7 @@ import { CheckCircleIcon } from "@phosphor-icons/react/CheckCircle";
 import { FileTextIcon } from "@phosphor-icons/react/FileText";
 import { HardDrivesIcon } from "@phosphor-icons/react/HardDrives";
 import { IdentificationCardIcon } from "@phosphor-icons/react/IdentificationCard";
+import { InfoIcon } from "@phosphor-icons/react/Info";
 import { MoonIcon } from "@phosphor-icons/react/Moon";
 import { SunIcon } from "@phosphor-icons/react/Sun";
 import { TrashIcon } from "@phosphor-icons/react/Trash";
@@ -64,9 +65,10 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
         </section>
 
         <section className="settings-card tour-settings-card">
-          <header><ArrowCounterClockwiseIcon size={22} /><div><h2>Guided onboarding</h2><p>Walk a new operator through the real product controls.</p></div></header>
-          <p>The guided tour points to the real Run button, then moves through versioned data, immutable lineage, evidence review, categorical labels, scoring, comparison, failure analysis, terminology and lifecycle controls.</p>
-          <button type="button" className="secondary-button" onClick={onRestartTour}><ArrowCounterClockwiseIcon size={17} /> Restart guided tour</button>
+          <header><InfoIcon size={24} weight="fill" /><div><h2>Help and guided onboarding</h2><p>Start the complete walkthrough from here at any time.</p></div></header>
+          <p>The guide points to the real Run button, then moves through versioned data, immutable lineage, evidence review, categorical labels, scoring, comparison, failure analysis, terminology and lifecycle controls.</p>
+          <p className="tour-access-note">You can also open it from the persistent <strong>Help &amp; tour</strong> information button in the header on every page.</p>
+          <button type="button" className="primary-button tour-start-button" onClick={onRestartTour}><ArrowCounterClockwiseIcon size={17} /> Start guided onboarding</button>
         </section>
 
         <section className="settings-card training-boundary-card">

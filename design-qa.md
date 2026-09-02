@@ -1,6 +1,26 @@
-# Design QA — version 1.3 release candidate
+# Design QA — version 1.3.1 release candidate
 
 Date: 2 September 2026
+
+## Version 1.3.1 hierarchy, typography and responsive acceptance
+
+- The header **Help & tour** information button opened onboarding from Overview at desktop and phone widths.
+- Settings exposed a prominent **Start guided onboarding** action and explained the persistent header entry.
+- The selected workspace owned a bordered Pages/Runs scope. Runs displayed only that workspace's dated sessions and immutable run rows.
+- The desktop sidebar minimised to accessible labelled icons and restored without changing the active page.
+- At 1016 × 743, the sidebar became a drawer and the top context reflowed to two columns without clipped controls.
+- At 390 × 844, the workspace scope header and Pages/Runs tabs remained aligned and readable.
+- The mobile run tree remained inside the workspace scope; the final run ended above the footer with zero overlap.
+- All 19 onboarding scenes were reached. The new workspace-hierarchy scene opened the mobile drawer, and the first and final cards kept their controls visible.
+- Page navigation reset the workspace scroll position instead of inheriting the previous page's scroll offset.
+
+Evidence is stored in `E:\Visual QA\Agent Review Studio Visual QA\Current Reviews\2026-09-02-onboarding-navigation-typography`.
+
+Automated acceptance after implementation:
+
+- `npm test` — 33 passed, 0 failed.
+- Production build and Sites bundle preparation — passed.
+- In-app browser console — 0 errors and 0 warnings in the accepted final state.
 
 ## Version 1.3 navigation and onboarding acceptance
 

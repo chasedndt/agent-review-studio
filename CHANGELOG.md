@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.1 — 2026-09-02
+
+- Added a persistent header information button and a prominent Settings entry for restarting guided onboarding.
+- Grouped Pages and Runs inside the selected workspace so dated sessions and immutable runs no longer appear to be global.
+- Added a workspace-hierarchy onboarding scene and expanded the complete walkthrough to 19 scenes.
+- Raised the operator typography scale and strengthened heading, label, metadata and control readability.
+- Moved compact-window navigation to the mobile drawer at 1040 px to prevent the partially minimised header and content state.
+- Fixed collapsed-sidebar accessible names, mobile workspace-tab reflow, page-change scroll position and run-tree/footer overlap.
+- Verified desktop, 1016 × 743 and 390 × 844 layouts plus the complete onboarding sequence.
+
 ## 1.3.0 — 2026-09-02
 
 - Expanded workspace setup with agent/harness purpose and a primary evaluation goal.
