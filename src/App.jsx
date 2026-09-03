@@ -3,12 +3,14 @@ import { ArrowLeftIcon } from "@phosphor-icons/react/ArrowLeft";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CheckCircleIcon } from "@phosphor-icons/react/CheckCircle";
 import { CheckIcon } from "@phosphor-icons/react/Check";
+import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/ClockCounterClockwise";
 import { ClockIcon } from "@phosphor-icons/react/Clock";
 import { ArchiveIcon } from "@phosphor-icons/react/Archive";
 import { BracketsCurlyIcon } from "@phosphor-icons/react/BracketsCurly";
 import { ChartBarIcon } from "@phosphor-icons/react/ChartBar";
 import { DatabaseIcon } from "@phosphor-icons/react/Database";
+import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
 import { FileArrowUpIcon } from "@phosphor-icons/react/FileArrowUp";
 import { FilesIcon } from "@phosphor-icons/react/Files";
 import { FloppyDiskIcon } from "@phosphor-icons/react/FloppyDisk";
@@ -22,6 +24,7 @@ import { InfoIcon } from "@phosphor-icons/react/Info";
 import { ListIcon } from "@phosphor-icons/react/List";
 import { LockIcon } from "@phosphor-icons/react/Lock";
 import { MoonIcon } from "@phosphor-icons/react/Moon";
+import { PencilSimpleIcon } from "@phosphor-icons/react/PencilSimple";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { PlayIcon } from "@phosphor-icons/react/Play";
 import { ShieldCheckIcon } from "@phosphor-icons/react/ShieldCheck";
@@ -78,12 +81,14 @@ import {
   removeWorkbenchConfiguration,
   runBrowserDeterministicCase,
 } from "./workbench.js";
+import { clampSidebarWidth, DEFAULT_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH } from "./sidebar.js";
 
 const SELECTED_WORKSPACE_KEY = "agent-review-studio-selected-workspace-v1";
 const REVIEWER_KEY = "agent-review-studio-reviewer-v1";
 const TOUR_KEY = "agent-review-studio-tour-complete-v1";
 const THEME_KEY = "agent-review-studio-theme-v1";
 const SIDEBAR_KEY = "agent-review-studio-sidebar-collapsed-v1";
+const SIDEBAR_WIDTH_KEY = "agent-review-studio-sidebar-width-v1";
 
 const INSPECT_TABS = [["claims", "Claims"], ["source", "Source card"], ["actions", "Actions"], ["memory", "Memory"], ["uncertainty", "Uncertainty"], ["trace", "Run log"]];
 const APP_PAGES = [
@@ -163,10 +168,22 @@ function WorkspaceModal({ onClose, onCreate }) {
 function DeleteWorkspaceModal({ workspace, runCount, reviewCount, onClose, onConfirm }) {
   const [confirmation, setConfirmation] = useState("");
   const matches = confirmation.trim() === workspace.name;
-  return <Modal title="Delete archived workspace" onClose={onClose}>
+  return <Modal title="Delete workspace" onClose={onClose}>
     <div className="delete-workspace-warning"><TrashIcon size={28} /><div><strong>This permanently deletes local evaluation data.</strong><p>{workspace.name} contains {runCount} run{runCount === 1 ? "" : "s"} and {reviewCount} review revision{reviewCount === 1 ? "" : "s"}. Archive is reversible; deletion is not.</p></div></div>
     <div className="project-form"><label>Type <strong>{workspace.name}</strong> to confirm<input autoFocus value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></label></div>
     <div className="modal-actions"><button type="button" className="secondary-button" onClick={onClose}>Keep workspace</button><button type="button" className="danger-button" disabled={!matches} onClick={onConfirm}><TrashIcon size={17} /> Delete permanently</button></div>
+  </Modal>;
+}
+
+function RenameWorkspaceModal({ workspace, onClose, onConfirm }) {
+  const [name, setName] = useState(workspace.name);
+  const valid = name.trim().length > 0 && name.trim() !== workspace.name;
+  return <Modal title="Rename workspace" onClose={onClose}>
+    <div className="project-form">
+      <p>Only the workspace label changes. Its agent identity, runs, reviews and immutable source files stay linked.</p>
+      <label>Workspace name<input autoFocus value={name} onChange={(event) => setName(event.target.value)} /></label>
+    </div>
+    <div className="modal-actions"><button type="button" className="secondary-button" onClick={onClose}>Cancel</button><button type="button" className="primary-button" disabled={!valid} onClick={() => onConfirm(name.trim())}><PencilSimpleIcon size={17} /> Rename</button></div>
   </Modal>;
 }
 
@@ -231,7 +248,12 @@ export function App() {
   const [showRubricModal, setShowRubricModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === "yes");
-  const [sidebarView, setSidebarView] = useState("pages");
+  const [sidebarWidth, setSidebarWidth] = useState(() => clampSidebarWidth(localStorage.getItem(SIDEBAR_WIDTH_KEY) || DEFAULT_SIDEBAR_WIDTH));
+  const [sidebarResizing, setSidebarResizing] = useState(false);
+  const [expandedWorkspaceId, setExpandedWorkspaceId] = useState(selectedProjectId);
+  const [workspaceViews, setWorkspaceViews] = useState({});
+  const [workspaceMenuId, setWorkspaceMenuId] = useState("");
+  const [renameWorkspaceId, setRenameWorkspaceId] = useState("");
   const [deleteCandidateId, setDeleteCandidateId] = useState("");
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark");
   const [fileFocus, setFileFocus] = useState({ fileName: "", line: null });
@@ -275,6 +297,27 @@ export function App() {
 
   useEffect(() => { localStorage.setItem(SIDEBAR_KEY, sidebarCollapsed ? "yes" : "no"); }, [sidebarCollapsed]);
 
+  useEffect(() => { localStorage.setItem(SIDEBAR_WIDTH_KEY, String(sidebarWidth)); }, [sidebarWidth]);
+
+  useEffect(() => {
+    if (!sidebarResizing) return undefined;
+    const resize = (event) => setSidebarWidth(clampSidebarWidth(event.clientX));
+    const stop = () => setSidebarResizing(false);
+    window.addEventListener("pointermove", resize);
+    window.addEventListener("pointerup", stop, { once: true });
+    return () => {
+      window.removeEventListener("pointermove", resize);
+      window.removeEventListener("pointerup", stop);
+    };
+  }, [sidebarResizing]);
+
+  useEffect(() => {
+    if (!workspaceMenuId) return undefined;
+    const close = () => setWorkspaceMenuId("");
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [workspaceMenuId]);
+
   const workspace = workspaces.find((item) => item.id === selectedProjectId) || workspaces[0] || BUILT_IN_WORKSPACE;
   const runs = projectRuns[selectedProjectId] || [];
   const run = runs[runIndex] || null;
@@ -292,6 +335,7 @@ export function App() {
   const activeSessionRunIndex = run ? activeSessionRuns.findIndex((item) => item.id === run.id) : -1;
   const activeWorkspaces = workspaces.filter((item) => !item.archivedAt);
   const archivedWorkspaces = workspaces.filter((item) => item.archivedAt);
+  const activeSidebarView = workspaceViews[selectedProjectId] || "pages";
 
   useEffect(() => {
     if (loading) return;
@@ -327,9 +371,11 @@ export function App() {
 
   const navigateForTour = useCallback((page, target) => {
     setActivePage(page);
-    if (target === "workspace-scope-tabs" || target === "new-workspace") setSidebarView("pages");
-    setMobileNavOpen(["imports", "runs", "workspace-scope-tabs", "new-workspace"].includes(target));
-  }, []);
+    if (["workspace-accordion", "new-workspace", "runs", "imports"].includes(target)) setExpandedWorkspaceId(selectedProjectId);
+    if (target === "workspace-accordion" || target === "new-workspace") setWorkspaceViews((current) => ({ ...current, [selectedProjectId]: "pages" }));
+    if (target === "runs" || target === "imports") setWorkspaceViews((current) => ({ ...current, [selectedProjectId]: "runs" }));
+    setMobileNavOpen(["imports", "runs", "workspace-accordion", "new-workspace"].includes(target));
+  }, [selectedProjectId]);
 
   function updateDraft(patch) {
     setDraft((current) => current.status === "reviewed" ? current : ({ ...current, ...patch, status: "draft" }));
@@ -444,14 +490,46 @@ export function App() {
     setWorkspaces(next);
     setProjectRuns((current) => ({ ...current, [project.id]: [] }));
     setSelectedProjectId(project.id);
+    setExpandedWorkspaceId(project.id);
+    setWorkspaceViews((current) => ({ ...current, [project.id]: "pages" }));
     setActivePage("overview");
     setShowWorkspaceModal(false);
+  }
+
+  function selectWorkspace(workspaceId, { closeMobile = false } = {}) {
+    setSelectedProjectId(workspaceId);
+    setExpandedWorkspaceId(workspaceId);
+    setWorkspaceMenuId("");
+    if (closeMobile) setMobileNavOpen(false);
+  }
+
+  function toggleWorkspace(workspaceId) {
+    if (expandedWorkspaceId === workspaceId) {
+      setExpandedWorkspaceId("");
+      setWorkspaceMenuId("");
+      return;
+    }
+    selectWorkspace(workspaceId);
+  }
+
+  function setWorkspaceView(workspaceId, view) {
+    if (selectedProjectId !== workspaceId) setSelectedProjectId(workspaceId);
+    setExpandedWorkspaceId(workspaceId);
+    setWorkspaceViews((current) => ({ ...current, [workspaceId]: view }));
   }
 
   function saveWorkspace(updated) {
     const next = workspaces.map((item) => item.id === updated.id ? updated : item);
     persistWorkspaceDefinitions(next);
     setWorkspaces(next);
+  }
+
+  function renameWorkspace(name) {
+    const target = workspaces.find((item) => item.id === renameWorkspaceId);
+    if (!target) return;
+    saveWorkspace({ ...target, name });
+    setRenameWorkspaceId("");
+    setSaveMessage(`Workspace renamed to ${name}. Its evidence and history were not changed.`);
   }
 
   function openClaimSource() {
@@ -511,6 +589,8 @@ export function App() {
       persistWorkspaceDefinitions(next);
       setWorkspaces(next);
       if (selectedProjectId === workspaceId) setSelectedProjectId(next.find((item) => !item.archivedAt)?.id || BUILT_IN_WORKSPACE.id);
+      if (expandedWorkspaceId === workspaceId) setExpandedWorkspaceId(next.find((item) => !item.archivedAt)?.id || BUILT_IN_WORKSPACE.id);
+      setWorkspaceMenuId("");
       setSaveMessage(`${target.name} was archived. Its runs and reviews remain available.`);
     } catch (error) {
       setSaveMessage(error.message);
@@ -524,13 +604,14 @@ export function App() {
     persistWorkspaceDefinitions(next);
     setWorkspaces(next);
     setSelectedProjectId(workspaceId);
+    setExpandedWorkspaceId(workspaceId);
     setSaveMessage(`${target.name} was restored.`);
   }
 
   async function deleteWorkspace(workspaceId) {
     const target = workspaces.find((item) => item.id === workspaceId);
-    if (!target || target.kind === "built-in" || !target.archivedAt) {
-      setSaveMessage("Only an archived local workspace can be permanently deleted.");
+    if (!target || target.kind === "built-in") {
+      setSaveMessage("The built-in example workspace cannot be permanently deleted.");
       return;
     }
     await removeProjectRuns(workspaceId);
@@ -581,14 +662,14 @@ export function App() {
   if (loading) return <main className="loading-screen"><GaugeIcon size={46} weight="duotone" /><p>Preparing Agent Review Studio…</p></main>;
 
   return (
-    <main className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""}`} data-theme={theme}>
+    <main className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""} ${sidebarResizing ? "sidebar-resizing" : ""}`} data-theme={theme} style={{ "--sidebar-width": `${sidebarWidth}px` }}>
       <input ref={folderInputRef} type="file" multiple webkitdirectory="true" directory="true" hidden onChange={importFiles} />
       <input ref={fileInputRef} type="file" multiple hidden onChange={importFiles} />
 
       <header className="topbar">
         <div className="brand"><span className="brand-mark"><img src="/assets/agent-review-studio-mark.png" alt="" /></span><strong><span>AGENT REVIEW STUDIO</span><small>REVIEW · LABEL · IMPROVE</small></strong></div>
         <div className="top-context">
-          <label className="workspace-switcher" data-tour="workspace-switcher"><span>Workspace</span><select aria-label="Switch evaluation workspace" value={selectedProjectId} onChange={(event) => { setSelectedProjectId(event.target.value); setSidebarView("pages"); }}>{activeWorkspaces.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label className="workspace-switcher" data-tour="workspace-switcher"><span>Workspace</span><select aria-label="Switch evaluation workspace" value={selectedProjectId} onChange={(event) => selectWorkspace(event.target.value)}>{activeWorkspaces.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <div><span>Agent / harness</span><strong>{workspace.agentName}</strong></div>
           <div><span>Session</span><strong>{run?.sessionLabel || "No session selected"}</strong></div>
           {run && <div className="run-progress"><span>Run {activeSessionRunIndex + 1} of {activeSessionRuns.length}</span><div>{activeSessionRuns.map((item, index) => <i key={item.id} className={index === activeSessionRunIndex ? "active" : ""} />)}</div></div>}
@@ -601,38 +682,57 @@ export function App() {
       {mobileNavOpen && <button type="button" className="sidebar-scrim" onClick={() => setMobileNavOpen(false)} aria-label="Close workspace navigation" />}
       <aside className={`sidebar ${mobileNavOpen ? "mobile-open" : ""}`}>
         <div className="sidebar-mobile-header"><strong>Browse workspace</strong><button type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close workspace navigation"><XIcon size={19} /></button></div>
-        <section>
-          <div className="sidebar-heading"><span>Workspaces</span><button type="button" data-tour="new-workspace" onClick={() => { setShowWorkspaceModal(true); setMobileNavOpen(false); }} aria-label="New workspace"><PlusIcon size={16} /></button></div>
-          <nav className="project-list" aria-label="Evaluation workspaces">
-            {activeWorkspaces.map((project) => <button type="button" key={project.id} title={project.name} aria-label={`Open workspace ${project.name}`} aria-current={project.id === selectedProjectId ? "page" : undefined} className={project.id === selectedProjectId ? "active" : ""} onClick={() => { setSelectedProjectId(project.id); setSidebarView("pages"); setMobileNavOpen(false); }}><FolderIcon size={17} weight={project.id === selectedProjectId ? "fill" : "regular"} /><span>{project.name}</span></button>)}
-          </nav>
+        <section className="workspace-stack-section" data-tour="workspace-accordion">
+          <div className="sidebar-heading workspace-stack-heading"><span>Workspace stack</span><button type="button" data-tour="new-workspace" onClick={() => { setShowWorkspaceModal(true); setMobileNavOpen(false); }} aria-label="New workspace" title="New workspace"><PlusIcon size={16} /></button></div>
+          <div className="workspace-stack" aria-label="Evaluation workspace stack">
+            {activeWorkspaces.map((project) => {
+              const isSelected = project.id === selectedProjectId;
+              const isExpanded = project.id === expandedWorkspaceId;
+              const projectRunCount = (projectRuns[project.id] || []).length;
+              const projectReviewCount = reviewHistory.filter((record) => record.project_id === project.id).length;
+              return <article key={project.id} className={`workspace-tree-item ${isSelected ? "selected" : ""} ${isExpanded ? "expanded" : ""}`} onContextMenu={(event) => { event.preventDefault(); selectWorkspace(project.id); setWorkspaceMenuId(project.id); }}>
+                <header className="workspace-tree-header">
+                  <button type="button" className="workspace-toggle" aria-expanded={isExpanded} aria-controls={`workspace-panel-${project.id}`} title={`${isExpanded ? "Collapse" : "Expand"} ${project.name}`} onClick={() => toggleWorkspace(project.id)}>
+                    <span className="workspace-folder"><FolderIcon size={17} weight={isSelected ? "fill" : "regular"} /></span>
+                    <span className="workspace-item-copy"><strong>{project.name}</strong><small>{project.agentName}</small></span>
+                    <span className="workspace-counts"><b>{projectRunCount}</b><CaretDownIcon size={15} /></span>
+                  </button>
+                  <button type="button" className="workspace-actions-button" aria-label={`Workspace actions for ${project.name}`} title="Rename, archive or delete" onClick={(event) => { event.stopPropagation(); setWorkspaceMenuId((current) => current === project.id ? "" : project.id); }}><DotsThreeVerticalIcon size={18} weight="bold" /></button>
+                  {workspaceMenuId === project.id && <div className="workspace-actions-menu" role="menu" onClick={(event) => event.stopPropagation()}>
+                    <button type="button" role="menuitem" onClick={() => { setRenameWorkspaceId(project.id); setWorkspaceMenuId(""); }}><PencilSimpleIcon size={16} /> Rename</button>
+                    <button type="button" role="menuitem" onClick={() => { selectWorkspace(project.id); setActivePage("settings"); setMobileNavOpen(false); }}><GearSixIcon size={16} /> Edit details</button>
+                    {project.kind !== "built-in" && <button type="button" role="menuitem" onClick={() => archiveWorkspace(project.id)}><ArchiveIcon size={16} /> Archive</button>}
+                    {project.kind !== "built-in" && <button type="button" role="menuitem" className="danger-menu-item" onClick={() => { setDeleteCandidateId(project.id); setWorkspaceMenuId(""); }}><TrashIcon size={16} /> Delete…</button>}
+                    {project.kind === "built-in" && <p>Protected example · rename only</p>}
+                  </div>}
+                </header>
+
+                {isExpanded && <div id={`workspace-panel-${project.id}`} className="workspace-tree-panel">
+                  <div className="workspace-scope-tabs" role="tablist" aria-label={`Navigation inside ${project.name}`}>
+                    <button type="button" role="tab" aria-selected={activeSidebarView === "pages"} className={activeSidebarView === "pages" ? "active" : ""} onClick={() => setWorkspaceView(project.id, "pages")}><SquaresFourIcon size={16} /> Pages</button>
+                    <button type="button" role="tab" aria-selected={activeSidebarView === "runs"} className={activeSidebarView === "runs" ? "active" : ""} onClick={() => setWorkspaceView(project.id, "runs")}><ClockCounterClockwiseIcon size={16} /> Runs <b>{projectRunCount}</b></button>
+                  </div>
+
+                  {activeSidebarView === "pages" && <nav className="app-nav" aria-label={`Pages in ${project.name}`}>
+                    {APP_PAGES.map(([id, label, Icon]) => <button type="button" key={id} title={label} aria-label={`Open ${label} in ${project.name}`} data-tour={`nav-${id}`} className={activePage === id ? "active" : ""} onClick={() => { selectWorkspace(project.id, { closeMobile: true }); setActivePage(id); }}><Icon size={18} /><span>{label}</span>{id === "history" && projectReviewCount > 0 && <b>{projectReviewCount}</b>}</button>)}
+                  </nav>}
+
+                  {activeSidebarView === "runs" && <section className="session-section" data-tour="runs">
+                    <div className="sidebar-heading"><span>Sessions & immutable runs</span><button type="button" data-tour="imports" onClick={() => folderInputRef.current?.click()} aria-label="Import run folders"><FileArrowUpIcon size={16} /></button></div>
+                    <p className="session-scope-note">Only sessions belonging to <strong>{project.name}</strong> appear here.</p>
+                    {!runGroups.length && <p className="sidebar-empty-runs">No runs yet. Import a folder or use Run.</p>}
+                    <div className="run-list">
+                      {runGroups.map((group) => <div className="run-group" key={group.id}><div className="session-label"><ClockIcon size={14} /><span><small>Session</small><strong>{group.label}</strong></span><b>{group.items.length}</b></div>{group.items.map(({ item, index }) => { const state = reviewStateForRun(item, workspaceHistory, loadDraft(item.id)); return <button type="button" key={item.id} className={index === runIndex && activePage === "review" ? "active" : ""} onClick={() => openRun(index)}><span className={`status-dot ${state}`} /><span><strong>{item.label} · {item.shortLabel}</strong><small><LockIcon size={12} /> Immutable run · {compactProfile(item.description)}</small></span></button>; })}</div>)}
+                    </div>
+                  </section>}
+                </div>}
+              </article>;
+            })}
+          </div>
           {archivedWorkspaces.length > 0 && <button type="button" className="archive-shortcut" onClick={() => { setActivePage("settings"); setMobileNavOpen(false); }}><ArchiveIcon size={16} /><span>Archived workspaces</span><b>{archivedWorkspaces.length}</b></button>}
         </section>
-
-        <section className="workspace-scope" aria-label={`Inside ${workspace.name}`}>
-          <header className="workspace-scope-header">
-            <span>Inside this workspace</span>
-            <strong>{workspace.name}</strong>
-            <small>{workspace.agentName}</small>
-          </header>
-          <div className="workspace-scope-tabs" data-tour="workspace-scope-tabs" role="tablist" aria-label="Workspace navigation mode">
-            <button type="button" role="tab" aria-selected={sidebarView === "pages"} className={sidebarView === "pages" ? "active" : ""} onClick={() => setSidebarView("pages")}><SquaresFourIcon size={16} /> Pages</button>
-            <button type="button" role="tab" aria-selected={sidebarView === "runs"} className={sidebarView === "runs" ? "active" : ""} onClick={() => setSidebarView("runs")}><ClockCounterClockwiseIcon size={16} /> Runs <b>{runs.length}</b></button>
-          </div>
-
-          {sidebarView === "pages" && <nav className="app-nav" aria-label={`Pages in ${workspace.name}`}>
-            {APP_PAGES.map(([id, label, Icon]) => <button type="button" key={id} title={label} aria-label={`Open ${label}`} data-tour={`nav-${id}`} className={activePage === id ? "active" : ""} onClick={() => { setActivePage(id); setMobileNavOpen(false); }}><Icon size={18} /><span>{label}</span>{id === "history" && workspaceHistory.length > 0 && <b>{workspaceHistory.length}</b>}</button>)}
-          </nav>}
-
-          {sidebarView === "runs" && <section className="session-section" data-tour="runs">
-            <div className="sidebar-heading"><span>Sessions & immutable runs</span><button type="button" data-tour="imports" onClick={() => folderInputRef.current?.click()} aria-label="Import run folders"><FileArrowUpIcon size={16} /></button></div>
-            <p className="session-scope-note">Only sessions belonging to <strong>{workspace.name}</strong> appear here.</p>
-            <div className="run-list">
-              {runGroups.map((group) => <div className="run-group" key={group.id}><div className="session-label"><ClockIcon size={14} /><span><small>Session</small><strong>{group.label}</strong></span><b>{group.items.length}</b></div>{group.items.map(({ item, index }) => { const state = reviewStateForRun(item, workspaceHistory, loadDraft(item.id)); return <button type="button" key={item.id} className={index === runIndex && activePage === "review" ? "active" : ""} onClick={() => openRun(index)}><span className={`status-dot ${state}`} /><span><strong>{item.label} · {item.shortLabel}</strong><small><LockIcon size={12} /> Immutable run · {compactProfile(item.description)}</small></span></button>; })}</div>)}
-            </div>
-          </section>}
-        </section>
-        <footer className="sidebar-footer"><button type="button" onClick={() => folderInputRef.current?.click()} title="Import run folder"><FileArrowUpIcon size={17} /><span>Import run folder</span></button><button type="button" className="collapse-sidebar-button" onClick={() => { setSidebarView("pages"); setSidebarCollapsed((value) => !value); }} title={sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}><SidebarSimpleIcon size={17} /><span>{sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}</span></button><p><LockIcon size={13} /><span>Local-first · source files stay immutable</span></p></footer>
+        <footer className="sidebar-footer"><button type="button" onClick={() => folderInputRef.current?.click()} title="Import run folder"><FileArrowUpIcon size={17} /><span>Import run folder</span></button><button type="button" className="collapse-sidebar-button" onClick={() => setSidebarCollapsed((value) => !value)} title={sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}><SidebarSimpleIcon size={17} /><span>{sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}</span></button><p><LockIcon size={13} /><span>Local-first · source files stay immutable</span></p></footer>
+        {!sidebarCollapsed && <div className="sidebar-resize-handle" role="separator" aria-label="Resize workspace sidebar" aria-orientation="vertical" aria-valuemin={MIN_SIDEBAR_WIDTH} aria-valuemax={MAX_SIDEBAR_WIDTH} aria-valuenow={sidebarWidth} tabIndex={0} title="Drag to resize · double-click to reset" onPointerDown={(event) => { event.preventDefault(); setSidebarResizing(true); }} onDoubleClick={() => setSidebarWidth(DEFAULT_SIDEBAR_WIDTH)} onKeyDown={(event) => { if (event.key === "ArrowLeft") setSidebarWidth((value) => clampSidebarWidth(value - 12)); if (event.key === "ArrowRight") setSidebarWidth((value) => clampSidebarWidth(value + 12)); if (event.key === "Home") setSidebarWidth(DEFAULT_SIDEBAR_WIDTH); }} />}
       </aside>
 
       <section ref={workspaceRef} className="workspace">
@@ -737,6 +837,7 @@ export function App() {
       </section>
 
       {showWorkspaceModal && <WorkspaceModal onClose={() => setShowWorkspaceModal(false)} onCreate={createWorkspace} />}
+      {renameWorkspaceId && (() => { const target = workspaces.find((item) => item.id === renameWorkspaceId); return target ? <RenameWorkspaceModal workspace={target} onClose={() => setRenameWorkspaceId("")} onConfirm={renameWorkspace} /> : null; })()}
       {deleteCandidateId && (() => { const target = workspaces.find((item) => item.id === deleteCandidateId); return target ? <DeleteWorkspaceModal workspace={target} runCount={(projectRuns[target.id] || []).length} reviewCount={reviewHistory.filter((record) => record.project_id === target.id).length} onClose={() => setDeleteCandidateId("")} onConfirm={() => deleteWorkspace(target.id)} /> : null; })()}
       {showRubricModal && <RubricModal onClose={() => setShowRubricModal(false)} />}
       <GuidedTour open={tourOpen} step={tourStep} onStep={setTourStep} onClose={closeTour} onNavigate={navigateForTour} />

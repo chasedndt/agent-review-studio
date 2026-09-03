@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0 — 2026-09-03
+
+- Replaced the duplicated workspace list and selected-scope card with one accordion-style workspace stack.
+- Each workspace now expands into its own Pages or Runs tree; opening another workspace collapses the previous one and preserves its chosen view.
+- Added a visible three-dot menu and matching right-click menu for direct rename, detail editing, archive and guarded deletion.
+- Added a keyboard-accessible drag rail for resizing the desktop sidebar from 248 to 390 pixels, with a 320-pixel reset point and browser-local persistence.
+- Capped each expanded workspace panel so another workspace remains visible at desktop, compact and phone sizes.
+- Updated onboarding and operator documentation to teach the workspace stack and direct lifecycle controls.
+- Verified two live local workspaces, workspace switching, run grouping, renaming, guarded deletion entry, minimising, resizing, compact drawer and phone drawer.
+
 ## 1.3.1 — 2026-09-02
 
 - Added a persistent header information button and a prominent Settings entry for restarting guided onboarding.

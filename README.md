@@ -6,11 +6,11 @@ Chaser Agent is the built-in demonstration workspace. It is not the product iden
 
 **Live application:** [agent-review-studio.chaseintech.chatgpt.site](https://agent-review-studio.chaseintech.chatgpt.site)
 
-Version 1.3.1 in this branch is a verified local release candidate. Publication to the live application and merge to the public main branch remain separate approval-gated actions.
+Version 1.4.0 in this branch is a verified local release candidate. Publication to the live application and merge to the public main branch remain separate approval-gated actions.
 
 ![Agent Review Studio evidence workspace](docs/media/agent-review-studio-light.png)
 
-Version 1.3.1 makes that evaluation loop easier to configure, learn and govern. Workspace setup captures the agent or harness purpose and evaluation goal; the Learn page recommends a transparent mix of deterministic checks, probabilistic evaluators and human decisions; run lineage is visible; and workspace archive, restore and guarded deletion are managed in Settings. Pages and Runs are visibly scoped inside the selected workspace, with dated sessions containing their own immutable run lists.
+Version 1.4.0 makes that evaluation loop easier to configure, learn and govern. Workspace setup captures the agent or harness purpose and evaluation goal; the Learn page recommends a transparent mix of deterministic checks, probabilistic evaluators and human decisions; and run lineage is visible. The sidebar is now a real workspace accordion: each workspace expands into its own Pages or Runs tree, can be collapsed while another opens, and exposes direct rename, archive and guarded deletion actions. The desktop rail can be minimised or drag-resized, while compact and phone layouts use the same stack in a drawer.
 
 ## What process is this?
 
@@ -56,8 +56,10 @@ The complete beginner walkthrough is in [docs/OPERATOR_GUIDE.md](docs/OPERATOR_G
 ## Working capabilities
 
 - A prominent workspace switcher plus guided setup for workspace name, agent/harness name, intended outcome and primary evaluation goal.
-- Reversible archive and restore plus guarded permanent deletion that requires the exact archived workspace name.
-- A minimisable desktop sidebar and scroll-safe mobile drawer with separate **Pages** and **Runs** tabs inside the selected workspace.
+- Reversible archive and restore plus guarded permanent deletion that requires the exact workspace name.
+- An accordion-style multi-workspace stack where every workspace owns its **Pages** and **Runs** tree, remembers its view and collapses when another opens.
+- Visible three-dot and right-click workspace actions for rename, detail editing, archive and exact-name-confirmed deletion.
+- A minimisable, drag-resizable desktop sidebar and scroll-safe compact/mobile drawer.
 - Versioned datasets and immutable test cases with source text, primary URL, expected behaviour, privacy class and tags.
 - An integrated run console with a browser-local deterministic runner, optional localhost runner bridge and import-only boundary.
 - Append-only harness and configuration versions carrying a workflow profile plus commit or build reference.
@@ -140,7 +142,7 @@ The test suite covers adapter aliases, JSON Lines recovery, nested run grouping,
 - Finishing a review creates a new review revision and exports JSON; it never rewrites the imported bundle.
 - Re-review links a new revision to its parent instead of overwriting the earlier judgement.
 - No provider call, external tool action, memory promotion, training job or deployment is authorized by a review.
-- Version 1.3.1 remains local-first. The localhost bridge is a bounded single-operator adapter, not a hosted multi-user execution service. Authentication, queues, rate limiting and network context transport remain a later governed HTTP/server phase.
+- Version 1.4.0 remains local-first. The localhost bridge is a bounded single-operator adapter, not a hosted multi-user execution service. Authentication, queues, rate limiting and network context transport remain a later governed HTTP/server phase.
 
 ## Open-source release
 
@@ -159,5 +161,6 @@ Version 1.0 is licensed under Apache-2.0 and includes contribution and security 
 - [Version 1.2 release-readiness audit](docs/RELEASE_READINESS_AUDIT.md)
 - [Version 1.3 navigation, onboarding and lifecycle record](docs/PHASE8_NAVIGATION_ONBOARDING_LIFECYCLE.md)
 - [Version 1.3.1 hierarchy, typography and responsive repair](docs/PHASE9_HIERARCHY_TYPOGRAPHY_RESPONSIVE.md)
+- [Version 1.4 workspace accordion and resizable sidebar](docs/PHASE10_WORKSPACE_ACCORDION_SIDEBAR.md)
 - [Chaser Agent case-study and redaction contract](docs/CHASER_CASE_STUDY_REDACTION.md)
 - [Documentation index](docs/index.md)

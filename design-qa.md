@@ -1,6 +1,27 @@
-# Design QA — version 1.3.1 release candidate
+# Design QA — version 1.4.0 release candidate
 
-Date: 2 September 2026
+Date: 3 September 2026
+
+## Version 1.4 workspace accordion and sidebar acceptance
+
+- Created a second real browser-local workspace, **Website QA Harness — Example**, alongside the built-in Chaser Agent workspace.
+- Opening either workspace collapsed the other and moved the top-bar identity, page navigation and run data to the selected scope.
+- Pages and Runs rendered inside the expanded workspace rather than in a duplicated global scope card.
+- Chaser Agent's four immutable runs stayed grouped beneath two dated sessions; the second workspace remained visible below the capped inner panel.
+- The three-dot menu exposed Rename, Edit details, Archive and Delete. Right-click opened the same menu.
+- Rename changed only the workspace label. Guarded deletion opened with zero data implied and required the exact workspace name before enabling the permanent action.
+- Keyboard resizing reset the sidebar to 320 pixels and moved it to 332 pixels with Arrow Right; the accepted state had no sidebar-level horizontal overflow.
+- The full sidebar minimised to two labelled workspace icons and restored without changing the active page.
+- At 1016 pixels and 390 × 844, Browse opened a 300-pixel drawer with no horizontal overflow. Both workspace headers remained visible, and either workspace could be expanded inside the drawer.
+- The in-app browser console contained zero warnings and zero errors.
+
+Evidence is stored in `E:\Visual QA\Agent Review Studio Visual QA\Current Reviews\2026-09-02-workspace-accordion-sidebar`.
+
+Automated acceptance after implementation:
+
+- `npm test` — 34 passed, 0 failed.
+- Production build and Sites bundle preparation — passed.
+- `git diff --check` — passed.
 
 ## Version 1.3.1 hierarchy, typography and responsive acceptance
 

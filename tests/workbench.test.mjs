@@ -15,6 +15,7 @@ import {
   runBrowserDeterministicCase,
 } from "../src/workbench.js";
 import { recommendEvaluationPlan } from "../src/learning.js";
+import { clampSidebarWidth, DEFAULT_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH } from "../src/sidebar.js";
 
 const SOURCE = `# Source\n\n- URL: https://example.com/article\n- Status: research intake only\n\nThe article says agent harnesses need auditable evidence and explicit approval.\n\nA future runtime should preserve provenance before acting.\n\n- machine-readable policy;\n- bounded action gates;\n`;
 
@@ -25,6 +26,13 @@ function generatedRun(now = 1_700_000_000_000) {
   const harness = createHarnessDefinition("Example harness", now);
   return runBrowserDeterministicCase({ workspaceId: "workspace-1", workspaceName: "QA", agentName: "Example harness", dataset, testCase, harness, version: harness.versions[0] }, now + 2);
 }
+
+test("sidebar resizing stays within a usable desktop range", () => {
+  assert.equal(clampSidebarWidth(120), MIN_SIDEBAR_WIDTH);
+  assert.equal(clampSidebarWidth(920), MAX_SIDEBAR_WIDTH);
+  assert.equal(clampSidebarWidth("not-a-number"), DEFAULT_SIDEBAR_WIDTH);
+  assert.equal(clampSidebarWidth(318.4), 318);
+});
 
 test("claim labels distinguish supported output from specific failure categories", () => {
   assert.ok(CLAIM_LABELS.some((item) => item.id === "not_a_claim"));
