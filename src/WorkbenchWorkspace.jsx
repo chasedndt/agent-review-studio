@@ -84,7 +84,7 @@ export function RunConsoleWorkspace({ workspace, runs, configuration, onRun, onO
 
           <div className="runner-step"><span>3</span><div><strong>Choose execution boundary</strong><p>A runner creates output; the review screen never pretends that inspection executed the harness.</p></div></div>
           <div className="runner-modes" role="radiogroup" aria-label="Runner mode">{RUNNER_MODES.map((mode) => <label key={mode.id} className={runnerMode === mode.id ? "active" : ""}><input type="radio" name="runner" value={mode.id} checked={runnerMode === mode.id} onChange={() => setRunnerMode(mode.id)} /><span><strong>{mode.label}</strong><small>{mode.detail}</small></span></label>)}</div>
-          {runnerMode === "chaser_bridge" && <p className="boundary-callout"><ShieldCheckIcon size={18} /> The bridge must be running locally and explicitly allow this harness, profile and source. It cannot overwrite an earlier run.</p>}
+          {runnerMode === "local_bridge" && <p className="boundary-callout"><ShieldCheckIcon size={18} /> The bridge must be running locally and explicitly allow this harness, profile and source. It cannot overwrite an earlier run.</p>}
           {runnerMode === "import_only" ? <button type="button" className="primary-button" onClick={() => setMessage("Use Import run folder in the workspace header. The imported folder becomes a new dated session.")}>Show import instruction <ArrowRightIcon size={16} /></button> : <button type="submit" className="primary-button run-button" data-tour="run-execute" disabled={running || !testCase}><PlayIcon size={18} weight="fill" /> {running ? "Running…" : "Run evaluation"}</button>}
           {message && <p className="runner-message">{message}</p>}
         </form>

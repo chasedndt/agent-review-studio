@@ -18,7 +18,7 @@ const LEGACY_TOUR_STEPS = [
     target: "workspace",
     eyebrow: "1 · Name the system",
     title: "Each workspace belongs to one agent or harness.",
-    body: "The product stays neutral. Your workspace name and agent identity travel with reviews and exports, so Chaser Agent can be one project among many.",
+    body: "The product stays neutral. Your workspace name and agent identity travel with reviews and exports, so every team can evaluate its own system without inheriting another user's agent.",
   },
   {
     page: "overview",
@@ -80,7 +80,7 @@ const LEGACY_TOUR_STEPS = [
 
 export const TOUR_STEPS = [
   { page: "overview", target: null, eyebrow: "Welcome to Agent Review Studio", title: "Run, review and improve an agent—without losing the evidence.", body: "The Studio turns repeatable tasks into immutable evaluation runs. Automated checks find structural problems; human reviewers decide what is correct, relevant and safe. Reviewed cases support harness regression testing and may later be selected for governed model training—the Studio itself does not update model weights." },
-  { page: "overview", target: "workspace-switcher", eyebrow: "1 · Switch or remove systems", title: "The workspace menu switches and manages every agent or harness.", body: "Open this menu to switch workspace, create a new one, or use the clearly labelled Delete action beside a custom workspace. Deletion opens an exact-name confirmation. The built-in Chaser Agent example is visibly protected." },
+  { page: "overview", target: "workspace-switcher", eyebrow: "1 · Switch or remove systems", title: "The workspace menu switches and manages every agent or harness.", body: "Open this menu to switch workspace, create a new one, or use the clearly labelled Delete action beside any workspace. Deletion opens an exact-name confirmation; no product-specific workspace is protected or forced into the list." },
   { page: "overview", target: "workspace-accordion", eyebrow: "2 · Workspace hierarchy", title: "Each workspace expands into its own pages, sessions and immutable runs.", body: "Open one workspace in the sidebar stack and collapse it when you move to another. Pages and Runs belong to the expanded workspace. Use the three-dot menu—or right-click the row—to rename, edit, archive or delete it." },
   { page: "overview", target: "new-workspace", eyebrow: "3 · Create and manage", title: "Describe what you are building before you evaluate it.", body: "Name the workspace and agent or harness, explain the outcome you are building toward, and choose the primary evaluation goal. That identity travels with datasets, runs, reviews and exports." },
   { page: "datasets", target: "datasets-workspace", eyebrow: "4 · Define the test data", title: "Datasets make evaluations repeatable.", body: "A dataset contains versioned test cases: input text, a primary-source URL, expected behaviour, privacy class and tags. Adding a case creates a new dataset version instead of changing earlier evidence." },

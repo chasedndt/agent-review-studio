@@ -14,7 +14,7 @@ export const CLAIM_LABELS = [
 
 export const RUNNER_MODES = [
   { id: "browser_deterministic", label: "Local deterministic baseline", detail: "Runs entirely in this browser and creates a new immutable artifact bundle." },
-  { id: "chaser_bridge", label: "Local runner bridge", detail: "Calls the optional bounded localhost adapter for the selected harness and records its exact command and version." },
+  { id: "local_bridge", label: "Local runner bridge", detail: "Calls the optional bounded localhost adapter for the selected harness and records its exact command and version." },
   { id: "import_only", label: "Import an external run", detail: "Keep execution separate and import the resulting folder without changing it." },
 ];
 

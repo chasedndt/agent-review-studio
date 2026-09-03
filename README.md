@@ -2,15 +2,15 @@
 
 Agent Review Studio is a local-first evaluation workbench for AI agents and agent harnesses. It lets an operator define repeatable test cases, run a versioned harness, inspect the complete execution trace, label individual claim failures, compare a baseline with a candidate, and preserve every human judgment as evidence for future regression testing.
 
-Chaser Agent is the built-in demonstration workspace. It is not the product identity; any agent, harness, workflow or service can have its own named workspace.
+Fresh installations contain no preloaded agent, workspace or evaluation runs. Each operator creates and names the agent, harness, workflow or service they want to evaluate. Chaser Agent exists only in the owner's personal browser data and as an optional importable case-study pack; it is not a product default.
 
 **Live application:** [agent-review-studio.chaseintech.chatgpt.site](https://agent-review-studio.chaseintech.chatgpt.site)
 
-Version 1.4.0 in this branch is a verified local release candidate. Publication to the live application and merge to the public main branch remain separate approval-gated actions.
+Version 1.5.0 in this branch is a verified local release candidate. Publication to the live application and merge to the public main branch remain separate approval-gated actions.
 
 ![Agent Review Studio evidence workspace](docs/media/agent-review-studio-light.png)
 
-Version 1.4.0 makes that evaluation loop easier to configure, learn and govern. Workspace setup captures the agent or harness purpose and evaluation goal; the Learn page recommends a transparent mix of deterministic checks, probabilistic evaluators and human decisions; and run lineage is visible. The sidebar is now a real workspace accordion: each workspace expands into its own Pages or Runs tree, can be collapsed while another opens, and exposes direct rename, archive and guarded deletion actions. The desktop rail can be minimised or drag-resized, while compact and phone layouts use the same stack in a drawer.
+Version 1.5.0 makes that evaluation loop agent-agnostic from first launch. A new operator starts with an empty workspace screen and names the system they are evaluating; no Chaser Agent identity or data is injected. Existing personal Chaser installations migrate into ordinary deletable local workspaces. Workspace setup captures the agent or harness purpose and evaluation goal; the sidebar accordion keeps Pages and Runs inside each workspace; and deterministic checks, probabilistic evaluators and human decisions remain visibly separate.
 
 ## What process is this?
 
@@ -93,7 +93,7 @@ The complete beginner walkthrough is in [docs/OPERATOR_GUIDE.md](docs/OPERATOR_G
 - Persistent light and dark themes for extended evidence reading and focused operator sessions.
 - A responsive desktop, tablet and phone layout with contained headers, stacked mobile controls and drawer navigation.
 - IndexedDB storage for imported run bundles and binary attachments; local browser storage for identities, drafts and revision records.
-- A relevance-fixed built-in candidate that excludes document metadata from claims, preserves surrounding context and links each suggested action to one specific claim. The original flawed Run 1 remains immutable regression evidence.
+- An optional Chaser Agent case-study pack with a relevance-fixed candidate and immutable flawed baseline. It is retained as importable test evidence and is never loaded into a fresh user's workspace list.
 
 ## File compatibility
 
@@ -134,7 +134,7 @@ npm test
 npm run build
 ```
 
-The test suite covers adapter aliases, JSON Lines recovery, nested run grouping, workspace purpose/goal persistence, deterministic diagnostics, claim-label contracts, ranked extraction, immutable run creation, goal-aware evaluation recommendations, the corrected built-in candidate, automated evaluators, baseline comparison, reviewer agreement, CI gates, revision lineage and Sites packaging. Browser interaction and real Chaser Agent runner proof are recorded in [design-qa.md](design-qa.md).
+The test suite covers adapter aliases, JSON Lines recovery, nested run grouping, empty first-run workspace state, legacy personal-workspace migration, workspace purpose/goal persistence, deterministic diagnostics, claim-label contracts, ranked extraction, immutable run creation, goal-aware evaluation recommendations, optional case-study fixtures, automated evaluators, baseline comparison, reviewer agreement, CI gates, revision lineage and Sites packaging. Browser interaction and personal-instance migration proof are recorded in [design-qa.md](design-qa.md).
 
 ## Data and safety boundary
 
@@ -162,5 +162,6 @@ Version 1.0 is licensed under Apache-2.0 and includes contribution and security 
 - [Version 1.3 navigation, onboarding and lifecycle record](docs/PHASE8_NAVIGATION_ONBOARDING_LIFECYCLE.md)
 - [Version 1.3.1 hierarchy, typography and responsive repair](docs/PHASE9_HIERARCHY_TYPOGRAPHY_RESPONSIVE.md)
 - [Version 1.4 workspace accordion and resizable sidebar](docs/PHASE10_WORKSPACE_ACCORDION_SIDEBAR.md)
+- [Version 1.5 agent-agnostic first run](docs/PHASE11_AGENT_AGNOSTIC_FIRST_RUN.md)
 - [Chaser Agent case-study and redaction contract](docs/CHASER_CASE_STUDY_REDACTION.md)
 - [Documentation index](docs/index.md)

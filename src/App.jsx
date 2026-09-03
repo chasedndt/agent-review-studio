@@ -37,7 +37,6 @@ import { XIcon } from "@phosphor-icons/react/X";
 import {
   appendReviewRevision,
   archiveWorkspaceDefinition,
-  BUILT_IN_WORKSPACE,
   createWorkspaceDefinition,
   createSessionEvaluationPack,
   createReviewRevision,
@@ -89,6 +88,8 @@ const TOUR_KEY = "agent-review-studio-tour-complete-v1";
 const THEME_KEY = "agent-review-studio-theme-v1";
 const SIDEBAR_KEY = "agent-review-studio-sidebar-collapsed-v1";
 const SIDEBAR_WIDTH_KEY = "agent-review-studio-sidebar-width-v1";
+const LEGACY_DEMO_WORKSPACE_ID = "chaser-agent";
+const NO_WORKSPACE = { id: "", name: "Create a workspace", agentName: "Not selected", description: "", evaluationGoal: "custom", kind: "local", archivedAt: null, harnessId: "" };
 
 const INSPECT_TABS = [["claims", "Claims"], ["source", "Source card"], ["actions", "Actions"], ["memory", "Memory"], ["uncertainty", "Uncertainty"], ["trace", "Run log"]];
 const APP_PAGES = [
@@ -227,10 +228,22 @@ function EmptyProject({ onFolderImport, onFileImport }) {
   );
 }
 
+function NoWorkspace({ archivedCount, onCreate, onOpenArchives }) {
+  return (
+    <section className="no-workspace-state">
+      <span><FolderOpenIcon size={42} weight="duotone" /></span>
+      <p className="eyebrow">Agent-agnostic by default</p>
+      <h1>Create your first workspace</h1>
+      <p>Name the agent, harness, workflow or service you want to evaluate. Agent Review Studio will not preload another organisation's agent or example data.</p>
+      <div><button type="button" className="primary-button" onClick={onCreate}><PlusIcon size={18} /> Create workspace</button>{archivedCount > 0 && <button type="button" className="secondary-button" onClick={onOpenArchives}><ArchiveIcon size={18} /> Restore archived workspace</button>}</div>
+    </section>
+  );
+}
+
 export function App() {
   const [workspaces, setWorkspaces] = useState(loadWorkspaceDefinitions);
-  const [selectedProjectId, setSelectedProjectId] = useState(() => localStorage.getItem(SELECTED_WORKSPACE_KEY) || BUILT_IN_WORKSPACE.id);
-  const [projectRuns, setProjectRuns] = useState({ [BUILT_IN_WORKSPACE.id]: [] });
+  const [selectedProjectId, setSelectedProjectId] = useState(() => localStorage.getItem(SELECTED_WORKSPACE_KEY) || workspaces.find((item) => !item.archivedAt)?.id || "");
+  const [projectRuns, setProjectRuns] = useState({});
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [runIndex, setRunIndex] = useState(0);
@@ -242,9 +255,9 @@ export function App() {
   const [saveMessage, setSaveMessage] = useState("");
   const [reviewHistory, setReviewHistory] = useState(() => loadReviewHistory());
   const [reviewerName, setReviewerName] = useState(() => localStorage.getItem(REVIEWER_KEY) || "Local operator");
-  const [tourOpen, setTourOpen] = useState(() => localStorage.getItem(TOUR_KEY) !== "yes");
+  const [tourOpen, setTourOpen] = useState(() => workspaces.length > 0 && localStorage.getItem(TOUR_KEY) !== "yes");
   const [tourStep, setTourStep] = useState(0);
-  const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
+  const [showWorkspaceModal, setShowWorkspaceModal] = useState(() => workspaces.length === 0);
   const [showRubricModal, setShowRubricModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === "yes");
@@ -258,15 +271,16 @@ export function App() {
   const [deleteCandidateId, setDeleteCandidateId] = useState("");
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark");
   const [fileFocus, setFileFocus] = useState({ fileName: "", line: null });
-  const [workbenchConfiguration, setWorkbenchConfiguration] = useState(() => loadWorkbenchConfiguration(BUILT_IN_WORKSPACE.id, BUILT_IN_WORKSPACE, []));
+  const [workbenchConfiguration, setWorkbenchConfiguration] = useState(null);
   const folderInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const workspaceRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([loadDemoRuns(), loadStoredRuns()])
-      .then(([demoRuns, storedRuns]) => {
+    const legacyPersonalWorkspace = workspaces.find((item) => item.migratedFromBuiltIn && item.id === LEGACY_DEMO_WORKSPACE_ID);
+    Promise.all([legacyPersonalWorkspace ? loadDemoRuns() : Promise.resolve([]), loadStoredRuns()])
+      .then(async ([demoRuns, storedRuns]) => {
         if (cancelled) return;
         const legacyRuns = loadLegacyImportedRuns();
         const merged = {};
@@ -275,9 +289,18 @@ export function App() {
           const combined = [...(legacyRuns[projectId] || []), ...(storedRuns[projectId] || [])];
           merged[projectId] = combined.filter((item, index, list) => list.findIndex((candidate) => candidate.id === item.id) === index);
         });
-        const storedBuiltIn = merged[BUILT_IN_WORKSPACE.id] || [];
-        const importedBuiltIn = storedBuiltIn.filter((item) => item.kind !== "built-in" && !String(item.demoId || "").startsWith("run-"));
-        merged[BUILT_IN_WORKSPACE.id] = [...demoRuns, ...importedBuiltIn];
+        if (legacyPersonalWorkspace) {
+          merged[legacyPersonalWorkspace.id] = [...demoRuns, ...(merged[legacyPersonalWorkspace.id] || [])]
+            .filter((item, index, list) => list.findIndex((candidate) => candidate.id === item.id) === index);
+          try {
+            await storeImportedRuns(legacyPersonalWorkspace.id, merged[legacyPersonalWorkspace.id]);
+            const migratedDefinitions = workspaces.map(({ migratedFromBuiltIn, ...item }) => item);
+            persistWorkspaceDefinitions(migratedDefinitions);
+            if (!cancelled) setWorkspaces(migratedDefinitions);
+          } catch {
+            // Retain the migration marker so local persistence can retry next session.
+          }
+        }
         setProjectRuns(merged);
       })
       .catch((error) => setLoadError(error.message || "The demonstration runs could not be loaded."))
@@ -286,8 +309,10 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (!workspaces.some((workspace) => workspace.id === selectedProjectId)) setSelectedProjectId(workspaces[0]?.id || BUILT_IN_WORKSPACE.id);
-    localStorage.setItem(SELECTED_WORKSPACE_KEY, selectedProjectId);
+    const active = workspaces.filter((item) => !item.archivedAt);
+    if (!active.some((item) => item.id === selectedProjectId)) setSelectedProjectId(active[0]?.id || "");
+    if (selectedProjectId) localStorage.setItem(SELECTED_WORKSPACE_KEY, selectedProjectId);
+    else localStorage.removeItem(SELECTED_WORKSPACE_KEY);
   }, [selectedProjectId, workspaces]);
 
   useEffect(() => {
@@ -331,7 +356,7 @@ export function App() {
     };
   }, [workspaceSwitcherOpen]);
 
-  const workspace = workspaces.find((item) => item.id === selectedProjectId) || workspaces[0] || BUILT_IN_WORKSPACE;
+  const workspace = workspaces.find((item) => item.id === selectedProjectId && !item.archivedAt) || NO_WORKSPACE;
   const runs = projectRuns[selectedProjectId] || [];
   const run = runs[runIndex] || null;
   const workspaceHistory = reviewHistory.filter((record) => record.project_id === selectedProjectId);
@@ -352,6 +377,10 @@ export function App() {
 
   useEffect(() => {
     if (loading) return;
+    if (!selectedProjectId) {
+      setWorkbenchConfiguration(null);
+      return;
+    }
     setWorkbenchConfiguration(loadWorkbenchConfiguration(selectedProjectId, workspace, runs));
   }, [loading, selectedProjectId]);
 
@@ -497,6 +526,7 @@ export function App() {
   }
 
   function createWorkspace(name, agentName, description, evaluationGoal) {
+    const isFirstWorkspace = activeWorkspaces.length === 0;
     const project = createWorkspaceDefinition(name, agentName, { description, evaluationGoal });
     const next = [...workspaces, project];
     persistWorkspaceDefinitions(next);
@@ -507,6 +537,10 @@ export function App() {
     setWorkspaceViews((current) => ({ ...current, [project.id]: "pages" }));
     setActivePage("overview");
     setShowWorkspaceModal(false);
+    if (isFirstWorkspace) {
+      setTourStep(0);
+      setTourOpen(true);
+    }
   }
 
   function selectWorkspace(workspaceId, { closeMobile = false } = {}) {
@@ -553,6 +587,7 @@ export function App() {
   }
 
   function updateWorkbenchConfiguration(next) {
+    if (!selectedProjectId || !workbenchConfiguration) return null;
     const value = typeof next === "function" ? next(workbenchConfiguration) : next;
     persistWorkbenchConfiguration(selectedProjectId, value);
     setWorkbenchConfiguration(value);
@@ -562,13 +597,13 @@ export function App() {
   async function runEvaluation({ dataset, testCase, harness, version, runnerMode }) {
     if (runnerMode === "import_only") throw new Error("Use Import run folder for an import-only execution.");
     let generatedRun;
-    if (runnerMode === "chaser_bridge") {
+    if (runnerMode === "local_bridge") {
       const response = await fetch("http://127.0.0.1:4318/v1/runs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ workspaceId: selectedProjectId, workspace, dataset, testCase, harness, version }),
       });
-      if (!response.ok) throw new Error(`The local Chaser bridge returned ${response.status}. Start it with npm run runner.`);
+      if (!response.ok) throw new Error(`The local runner bridge returned ${response.status}. Start it with npm run runner.`);
       generatedRun = await response.json();
     } else {
       generatedRun = runBrowserDeterministicCase({
@@ -602,8 +637,8 @@ export function App() {
       const next = workspaces.map((item) => item.id === workspaceId ? updated : item);
       persistWorkspaceDefinitions(next);
       setWorkspaces(next);
-      if (selectedProjectId === workspaceId) setSelectedProjectId(next.find((item) => !item.archivedAt)?.id || BUILT_IN_WORKSPACE.id);
-      if (expandedWorkspaceId === workspaceId) setExpandedWorkspaceId(next.find((item) => !item.archivedAt)?.id || BUILT_IN_WORKSPACE.id);
+      if (selectedProjectId === workspaceId) setSelectedProjectId(next.find((item) => !item.archivedAt)?.id || "");
+      if (expandedWorkspaceId === workspaceId) setExpandedWorkspaceId(next.find((item) => !item.archivedAt)?.id || "");
       setWorkspaceMenuId("");
       setSaveMessage(`${target.name} was archived. Its runs and reviews remain available.`);
     } catch (error) {
@@ -624,10 +659,7 @@ export function App() {
 
   async function deleteWorkspace(workspaceId) {
     const target = workspaces.find((item) => item.id === workspaceId);
-    if (!target || target.kind === "built-in") {
-      setSaveMessage("The built-in example workspace cannot be permanently deleted.");
-      return;
-    }
+    if (!target) return;
     await removeProjectRuns(workspaceId);
     removeReviewHistoryForProject(workspaceId);
     removeWorkbenchConfiguration(workspaceId);
@@ -636,7 +668,10 @@ export function App() {
     setWorkspaces(next);
     setProjectRuns((current) => { const copy = { ...current }; delete copy[workspaceId]; return copy; });
     setReviewHistory(loadReviewHistory());
-    setSelectedProjectId(next.find((item) => !item.archivedAt)?.id || BUILT_IN_WORKSPACE.id);
+    const nextActiveId = next.find((item) => !item.archivedAt)?.id || "";
+    setSelectedProjectId(nextActiveId);
+    setExpandedWorkspaceId(nextActiveId);
+    setActivePage("overview");
     setDeleteCandidateId("");
     setSaveMessage(`${target.name} was removed from this browser.`);
   }
@@ -697,12 +732,11 @@ export function App() {
                     <span><strong>{item.name}</strong><small>{item.agentName}</small></span>
                     {item.id === selectedProjectId && <CheckIcon size={15} />}
                   </button>
-                  {item.kind !== "built-in"
-                    ? <button type="button" role="menuitem" className="workspace-picker-delete" aria-label={`Delete ${item.name}`} title={`Delete ${item.name}`} onClick={() => { setWorkspaceSwitcherOpen(false); setDeleteCandidateId(item.id); }}><TrashIcon size={16} /><span>Delete</span></button>
-                    : <span className="workspace-picker-protected" title="Built-in example cannot be deleted"><LockIcon size={15} /><span>Built-in</span></span>}
+                  <button type="button" role="menuitem" className="workspace-picker-delete" aria-label={`Delete ${item.name}`} title={`Delete ${item.name}`} onClick={() => { setWorkspaceSwitcherOpen(false); setDeleteCandidateId(item.id); }}><TrashIcon size={16} /><span>Delete</span></button>
                 </div>)}
+                {!activeWorkspaces.length && <p className="workspace-picker-empty">No active workspaces yet.</p>}
               </div>
-              {archivedWorkspaces.length > 0 && <button type="button" className="workspace-picker-archived" onClick={() => { setWorkspaceSwitcherOpen(false); setActivePage("settings"); }}><ArchiveIcon size={15} /> Manage {archivedWorkspaces.length} archived workspace{archivedWorkspaces.length === 1 ? "" : "s"}</button>}
+              {archivedWorkspaces.length > 0 && <div className="workspace-picker-archive-list"><span>Archived</span>{archivedWorkspaces.map((item) => <div key={item.id}><span><strong>{item.name}</strong><small>{item.agentName}</small></span><button type="button" onClick={() => { setWorkspaceSwitcherOpen(false); restoreWorkspace(item.id); }}><ArchiveIcon size={15} /> Restore</button></div>)}</div>}
             </div>}
           </div>
           <div><span>Agent / harness</span><strong>{workspace.agentName}</strong></div>
@@ -720,6 +754,7 @@ export function App() {
         <section className="workspace-stack-section" data-tour="workspace-accordion">
           <div className="sidebar-heading workspace-stack-heading"><span>Workspace stack</span><button type="button" data-tour="new-workspace" onClick={() => { setShowWorkspaceModal(true); setMobileNavOpen(false); }} aria-label="New workspace" title="New workspace"><PlusIcon size={16} /></button></div>
           <div className="workspace-stack" aria-label="Evaluation workspace stack">
+            {!activeWorkspaces.length && <p className="sidebar-empty-workspaces">No active workspaces. Create one here or restore an archived workspace from the top menu.</p>}
             {activeWorkspaces.map((project) => {
               const isSelected = project.id === selectedProjectId;
               const isExpanded = project.id === expandedWorkspaceId;
@@ -736,9 +771,8 @@ export function App() {
                   {workspaceMenuId === project.id && <div className="workspace-actions-menu" role="menu" onClick={(event) => event.stopPropagation()}>
                     <button type="button" role="menuitem" onClick={() => { setRenameWorkspaceId(project.id); setWorkspaceMenuId(""); }}><PencilSimpleIcon size={16} /> Rename</button>
                     <button type="button" role="menuitem" onClick={() => { selectWorkspace(project.id); setActivePage("settings"); setMobileNavOpen(false); }}><GearSixIcon size={16} /> Edit details</button>
-                    {project.kind !== "built-in" && <button type="button" role="menuitem" onClick={() => archiveWorkspace(project.id)}><ArchiveIcon size={16} /> Archive</button>}
-                    {project.kind !== "built-in" && <button type="button" role="menuitem" className="danger-menu-item" onClick={() => { setDeleteCandidateId(project.id); setWorkspaceMenuId(""); }}><TrashIcon size={16} /> Delete…</button>}
-                    {project.kind === "built-in" && <p>Protected example · rename only</p>}
+                    <button type="button" role="menuitem" onClick={() => archiveWorkspace(project.id)}><ArchiveIcon size={16} /> Archive</button>
+                    <button type="button" role="menuitem" className="danger-menu-item" onClick={() => { setDeleteCandidateId(project.id); setWorkspaceMenuId(""); }}><TrashIcon size={16} /> Delete…</button>
                   </div>}
                 </header>
 
@@ -766,11 +800,12 @@ export function App() {
           </div>
           {archivedWorkspaces.length > 0 && <button type="button" className="archive-shortcut" onClick={() => { setActivePage("settings"); setMobileNavOpen(false); }}><ArchiveIcon size={16} /><span>Archived workspaces</span><b>{archivedWorkspaces.length}</b></button>}
         </section>
-        <footer className="sidebar-footer"><button type="button" onClick={() => folderInputRef.current?.click()} title="Import run folder"><FileArrowUpIcon size={17} /><span>Import run folder</span></button><button type="button" className="collapse-sidebar-button" onClick={() => setSidebarCollapsed((value) => !value)} title={sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}><SidebarSimpleIcon size={17} /><span>{sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}</span></button><p><LockIcon size={13} /><span>Local-first · source files stay immutable</span></p></footer>
+        <footer className="sidebar-footer"><button type="button" disabled={!workspace.id} onClick={() => folderInputRef.current?.click()} title={workspace.id ? "Import run folder" : "Create a workspace before importing runs"}><FileArrowUpIcon size={17} /><span>Import run folder</span></button><button type="button" className="collapse-sidebar-button" onClick={() => setSidebarCollapsed((value) => !value)} title={sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}><SidebarSimpleIcon size={17} /><span>{sidebarCollapsed ? "Expand sidebar" : "Minimise sidebar"}</span></button><p><LockIcon size={13} /><span>Local-first · source files stay immutable</span></p></footer>
         {!sidebarCollapsed && <div className="sidebar-resize-handle" role="separator" aria-label="Resize workspace sidebar" aria-orientation="vertical" aria-valuemin={MIN_SIDEBAR_WIDTH} aria-valuemax={MAX_SIDEBAR_WIDTH} aria-valuenow={sidebarWidth} tabIndex={0} title="Drag to resize · double-click to reset" onPointerDown={(event) => { event.preventDefault(); setSidebarResizing(true); }} onDoubleClick={() => setSidebarWidth(DEFAULT_SIDEBAR_WIDTH)} onKeyDown={(event) => { if (event.key === "ArrowLeft") setSidebarWidth((value) => clampSidebarWidth(value - 12)); if (event.key === "ArrowRight") setSidebarWidth((value) => clampSidebarWidth(value + 12)); if (event.key === "Home") setSidebarWidth(DEFAULT_SIDEBAR_WIDTH); }} />}
       </aside>
 
       <section ref={workspaceRef} className="workspace">
+        {!workspace.id ? <NoWorkspace archivedCount={archivedWorkspaces.length} onCreate={() => setShowWorkspaceModal(true)} onOpenArchives={() => setWorkspaceSwitcherOpen(true)} /> : <>
         {loadError && <p className="error-banner">{loadError}</p>}
         {saveMessage && activePage !== "review" && <p className="global-message">{saveMessage}</p>}
 
@@ -869,13 +904,14 @@ export function App() {
         {activePage === "files" && <FilesWorkspace run={run} onImport={importFiles} folderInputRef={folderInputRef} fileInputRef={fileInputRef} focusFileName={fileFocus.fileName} focusLine={fileFocus.line} />}
         {activePage === "history" && <HistoryWorkspace history={workspaceHistory} onReReview={startReReview} />}
         {activePage === "settings" && <SettingsWorkspace workspace={workspace} reviewerName={reviewerName} onSaveWorkspace={saveWorkspace} onSaveReviewer={saveReviewer} onRestartTour={openTour} onArchiveWorkspace={() => archiveWorkspace(workspace.id)} archivedWorkspaces={archivedWorkspaces.map((item) => ({ ...item, runCount: (projectRuns[item.id] || []).length, reviewCount: reviewHistory.filter((record) => record.project_id === item.id).length }))} onRestoreWorkspace={restoreWorkspace} onDeleteWorkspace={setDeleteCandidateId} runCount={runs.length} reviewCount={workspaceHistory.length} theme={theme} onThemeChange={setTheme} />}
+        </>}
       </section>
 
       {showWorkspaceModal && <WorkspaceModal onClose={() => setShowWorkspaceModal(false)} onCreate={createWorkspace} />}
       {renameWorkspaceId && (() => { const target = workspaces.find((item) => item.id === renameWorkspaceId); return target ? <RenameWorkspaceModal workspace={target} onClose={() => setRenameWorkspaceId("")} onConfirm={renameWorkspace} /> : null; })()}
       {deleteCandidateId && (() => { const target = workspaces.find((item) => item.id === deleteCandidateId); return target ? <DeleteWorkspaceModal workspace={target} runCount={(projectRuns[target.id] || []).length} reviewCount={reviewHistory.filter((record) => record.project_id === target.id).length} onClose={() => setDeleteCandidateId("")} onConfirm={() => deleteWorkspace(target.id)} /> : null; })()}
       {showRubricModal && <RubricModal onClose={() => setShowRubricModal(false)} />}
-      <GuidedTour open={tourOpen} step={tourStep} onStep={setTourStep} onClose={closeTour} onNavigate={navigateForTour} />
+      <GuidedTour open={tourOpen && Boolean(workspace.id)} step={tourStep} onStep={setTourStep} onClose={closeTour} onNavigate={navigateForTour} />
     </main>
   );
 }

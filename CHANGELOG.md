@@ -1,8 +1,13 @@
 # Changelog
 
-## Unreleased
+## 1.5.0 — 2026-09-03
 
-- Replaced the top-bar native selector with a complete workspace menu that exposes an obvious Delete action beside every custom workspace while keeping exact-name confirmation and built-in-example protection.
+- Removed the product-level Chaser Agent workspace and automatic demo-run seeding from fresh installations.
+- Added a true empty first-run state that asks each operator to name their own agent, harness, workflow or service.
+- Migrated existing personal Chaser Agent installations into ordinary local workspaces and preserved their runs in browser storage.
+- Made every workspace renameable, archivable and exact-name-confirmed deletable, including the former personal example.
+- Renamed the optional execution adapter from `chaser_bridge` to the agent-neutral `local_bridge`.
+- Replaced the top-bar native selector with a complete workspace menu that exposes an obvious Delete action beside every workspace.
 
 ## 1.4.0 — 2026-09-03
 

@@ -73,17 +73,6 @@ export const SCORE_SCALE = [[0, "Unusable"], [1, "Weak"], [2, "Acceptable"], [3,
 
 export const DEVELOPMENT_QA_NOTE = "QA draft: evidence navigation and review state verified.";
 
-export const BUILT_IN_WORKSPACE = {
-  id: "chaser-agent",
-  name: "Chaser Agent — Personal Evaluation",
-  agentName: "Chaser Agent",
-  description: "Personal workspace for Chaser Agent golden evaluations, harness refinement and reviewed improvement examples.",
-  evaluationGoal: "evidence",
-  kind: "built-in",
-  archivedAt: null,
-  harnessId: "chaser-agent",
-};
-
 export function createWorkspaceDefinition(name, agentName, optionsOrNow = {}, now = Date.now()) {
   const safeName = String(name || "").trim();
   if (!safeName) throw new Error("Workspace name is required.");
@@ -102,7 +91,7 @@ export function createWorkspaceDefinition(name, agentName, optionsOrNow = {}, no
 }
 
 export function archiveWorkspaceDefinition(workspace, now = Date.now()) {
-  if (!workspace || workspace.kind === "built-in") throw new Error("The built-in example workspace cannot be archived.");
+  if (!workspace) throw new Error("Workspace is required.");
   return { ...workspace, archivedAt: new Date(now).toISOString() };
 }
 
@@ -112,21 +101,25 @@ export function restoreWorkspaceDefinition(workspace) {
 }
 
 export function canDeleteWorkspace(workspace, runCount = 0, reviewCount = 0) {
-  return Boolean(workspace && workspace.kind !== "built-in" && workspace.archivedAt && runCount === 0 && reviewCount === 0);
+  return Boolean(workspace && workspace.archivedAt && runCount === 0 && reviewCount === 0);
 }
 
 export function loadWorkspaceDefinitions(storage = globalThis.localStorage) {
   try {
-    const saved = JSON.parse(storage?.getItem("agent-review-studio-workspaces-v2") || "[]");
-    if (Array.isArray(saved) && saved.length) {
-      const withoutBuiltIn = saved.filter((workspace) => workspace.id !== BUILT_IN_WORKSPACE.id);
-      const storedBuiltIn = saved.find((workspace) => workspace.id === BUILT_IN_WORKSPACE.id);
-      return [{ ...BUILT_IN_WORKSPACE, ...(storedBuiltIn || {}) }, ...withoutBuiltIn];
+    const savedValue = storage?.getItem("agent-review-studio-workspaces-v2");
+    if (savedValue !== null && savedValue !== undefined) {
+      const saved = JSON.parse(savedValue || "[]");
+      if (!Array.isArray(saved)) return [];
+      return saved.map((workspace) => workspace?.kind === "built-in"
+        ? { ...workspace, kind: "local", migratedFromBuiltIn: true }
+        : workspace);
     }
     const legacy = JSON.parse(storage?.getItem("chaser-agent-projects-v1") || "[]");
-    return [BUILT_IN_WORKSPACE, ...legacy.map((project) => ({ ...project, agentName: project.name, description: "Migrated Phase 1 workspace" }))];
+    return Array.isArray(legacy)
+      ? legacy.map((project) => ({ ...project, kind: "local", agentName: project.agentName || project.name, description: project.description || "Migrated Phase 1 workspace" }))
+      : [];
   } catch {
-    return [BUILT_IN_WORKSPACE];
+    return [];
   }
 }
 
@@ -147,7 +140,7 @@ export const SUPPORTED_FILE_GROUPS = [
 const DEMO_META = [
   {
     id: "run-4",
-    kind: "built-in",
+    kind: "sample",
     sessionId: "relevance-regression-2026-09-01",
     sessionLabel: "Relevance Regression Candidate — 1 Sep 2026",
     label: "Candidate 1",
@@ -156,7 +149,7 @@ const DEMO_META = [
   },
   {
     id: "run-1",
-    kind: "built-in",
+    kind: "sample",
     sessionId: "source-review-calibration-2026-08-25",
     sessionLabel: "Source Review Calibration — 25 Aug 2026",
     label: "Run 1",
@@ -165,7 +158,7 @@ const DEMO_META = [
   },
   {
     id: "run-2",
-    kind: "built-in",
+    kind: "sample",
     sessionId: "source-review-calibration-2026-08-25",
     sessionLabel: "Source Review Calibration — 25 Aug 2026",
     label: "Run 2",
@@ -174,7 +167,7 @@ const DEMO_META = [
   },
   {
     id: "run-3",
-    kind: "built-in",
+    kind: "sample",
     sessionId: "source-review-calibration-2026-08-25",
     sessionLabel: "Source Review Calibration — 25 Aug 2026",
     label: "Run 3",

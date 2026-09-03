@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import {
   ARTIFACT_FILES,
+  archiveWorkspaceDefinition,
   assembleRun,
   createWorkspaceDefinition,
   createSessionEvaluationPack,
@@ -112,15 +113,29 @@ test("folder import retains and normalizes a complete canonical run bundle", asy
   assert.equal(validateRunBundle(imported[0]).status, "ready");
 });
 
-test("new agent workspaces persist independently from the built-in Chaser example", () => {
+test("fresh installs start without a hardwired agent workspace", () => {
+  const storage = memoryStorage();
+  assert.deepEqual(loadWorkspaceDefinitions(storage), []);
+});
+
+test("new agent workspaces persist without an injected product workspace", () => {
   const storage = memoryStorage();
   const created = createWorkspaceDefinition("Support Agent QA", "Returns assistant", 1234);
   persistWorkspaceDefinitions([created], storage);
   const loaded = loadWorkspaceDefinitions(storage);
-  assert.equal(loaded[0].id, "chaser-agent");
-  assert.equal(loaded[1].id, "workspace-1234");
-  assert.equal(loaded[1].agentName, "Returns assistant");
+  assert.equal(loaded.length, 1);
+  assert.equal(loaded[0].id, "workspace-1234");
+  assert.equal(loaded[0].agentName, "Returns assistant");
   assert.throws(() => createWorkspaceDefinition("", "Agent", 1), /required/);
+});
+
+test("legacy built-in workspaces migrate into ordinary removable local workspaces", () => {
+  const storage = memoryStorage();
+  storage.setItem("agent-review-studio-workspaces-v2", JSON.stringify([{ id: "legacy-agent", name: "Personal agent", agentName: "Personal agent", kind: "built-in", archivedAt: null }]));
+  const [migrated] = loadWorkspaceDefinitions(storage);
+  assert.equal(migrated.kind, "local");
+  assert.equal(migrated.migratedFromBuiltIn, true);
+  assert.ok(archiveWorkspaceDefinition(migrated, 1).archivedAt);
 });
 
 test("workspace setup retains the harness purpose and primary evaluation goal", () => {
@@ -133,7 +148,7 @@ test("workspace setup retains the harness purpose and primary evaluation goal", 
   assert.equal(created.evaluationGoal, "evidence");
 });
 
-test("personal Chaser Agent instance ships four complete canonical review runs", async () => {
+test("the optional Chaser Agent case-study fixture contains four complete review runs", async () => {
   const runs = await Promise.all(["run-4", "run-1", "run-2", "run-3"].map((name) => loadDemoFixture(name)));
   const diagnostics = runs.map(validateRunBundle);
   assert.equal(runs.length, 4);

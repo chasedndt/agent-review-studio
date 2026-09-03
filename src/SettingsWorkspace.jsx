@@ -83,7 +83,7 @@ export function SettingsWorkspace({ workspace, reviewerName, onSaveWorkspace, on
 
         <section className="settings-card lifecycle-card" data-tour="workspace-lifecycle">
           <header><ArchiveIcon size={22} /><div><h2>Workspace lifecycle</h2><p>Take inactive work out of the main switcher without losing evidence.</p></div></header>
-          {workspace.kind === "built-in" ? <p>The built-in Chaser Agent calibration workspace is permanent so every new operator has a working example.</p> : <><p>Archive hides this workspace from the active stack. Runs, source files and review revisions stay intact and can be restored here. Rename, archive and guarded deletion are also available from the workspace's three-dot or right-click menu.</p><button type="button" className="secondary-button" onClick={onArchiveWorkspace}><ArchiveIcon size={17} /> Archive workspace</button></>}
+          <p>Archive hides this workspace from the active stack. Runs, source files and review revisions stay intact and can be restored here. Rename, archive and guarded deletion are also available from the workspace's three-dot or right-click menu.</p><button type="button" className="secondary-button" onClick={onArchiveWorkspace}><ArchiveIcon size={17} /> Archive workspace</button>
           <small>Archiving is reversible. Permanent deletion can start here or from the workspace menu and always requires the exact workspace name.</small>
         </section>
 

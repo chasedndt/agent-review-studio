@@ -1,6 +1,25 @@
-# Design QA — version 1.4.0 release candidate
+# Design QA — version 1.5.0 release candidate
 
 Date: 3 September 2026
+
+## Version 1.5 agent-agnostic first-run acceptance
+
+- A fresh isolated browser origin opened with **zero workspaces**, **Not selected** agent/harness identity and no session.
+- First launch opened the real workspace form and required the operator to provide a workspace name, agent/harness name and intended outcome before creation.
+- Creating **Support Agent QA** produced a normal empty workspace without Chaser Agent identity, datasets or runs.
+- Exact-name-confirmed deletion of that only workspace returned to the neutral **Create your first workspace** state instead of recreating a product default.
+- The existing personal Chaser Agent browser record migrated into an ordinary workspace and displayed the same visible **Delete** action as Website QA Harness.
+- Personal Chaser evaluation sessions remained available after migration; no source run or review was rewritten.
+- The optional localhost execution mode displayed the agent-neutral `local_bridge` identifier in code and **Local runner bridge** in the interface.
+- At 390 × 844, the empty state reflowed to one column with no horizontal overflow.
+
+Evidence is stored in `E:\Visual QA\Agent Review Studio Visual QA\Current Reviews\2026-09-03-agent-agnostic-first-run`.
+
+Automated acceptance after implementation:
+
+- `npm test` — 37 passed, 0 failed.
+- Production build and Sites bundle preparation — passed.
+- `git diff --check` — passed.
 
 ## Top-bar workspace deletion acceptance
 

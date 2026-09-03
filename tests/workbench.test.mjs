@@ -11,6 +11,7 @@ import {
   createTestCase,
   evaluateCiGate,
   extractRankedClaims,
+  RUNNER_MODES,
   runAutomatedEvaluators,
   runBrowserDeterministicCase,
 } from "../src/workbench.js";
@@ -18,6 +19,11 @@ import { recommendEvaluationPlan } from "../src/learning.js";
 import { clampSidebarWidth, DEFAULT_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH } from "../src/sidebar.js";
 
 const SOURCE = `# Source\n\n- URL: https://example.com/article\n- Status: research intake only\n\nThe article says agent harnesses need auditable evidence and explicit approval.\n\nA future runtime should preserve provenance before acting.\n\n- machine-readable policy;\n- bounded action gates;\n`;
+
+test("runner modes remain agent-neutral", () => {
+  assert.ok(RUNNER_MODES.some((mode) => mode.id === "local_bridge"));
+  assert.equal(RUNNER_MODES.some((mode) => mode.id === "chaser_bridge"), false);
+});
 
 function generatedRun(now = 1_700_000_000_000) {
   const dataset = createDatasetDefinition("Calibration", "Repeatable cases", now);
@@ -65,7 +71,7 @@ test("the browser runner creates a new immutable review-ready bundle with source
   assert.ok(run.runLog.trace_steps.length >= 5);
 });
 
-test("the built-in candidate rejects metadata leakage and preserves review lineage", async () => {
+test("the optional case-study candidate rejects metadata leakage and preserves review lineage", async () => {
   const fixture = async (name) => JSON.parse(await readFile(new URL(`../public/demo-runs/run-4/${name}`, import.meta.url), "utf8"));
   const [claims, evidence, actions, runLog] = await Promise.all([
     fixture("claims_table.json"),
