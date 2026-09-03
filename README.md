@@ -1,12 +1,14 @@
 # Agent Review Studio
 
-Agent Review Studio is a local-first evaluation workbench for AI agents and agent harnesses. It lets an operator define repeatable test cases, run a versioned harness, inspect the complete execution trace, label individual claim failures, compare a baseline with a candidate, and preserve every human judgment as evidence for future regression testing.
+Agent Review Studio is a local-first quality and evaluation workbench for AI agents and agent harnesses. It turns real workflows into repeatable tests, helps people separate strong agent behaviour from failures, records human corrections beside the evidence, and shows whether a new harness version is genuinely better than its baseline.
+
+Use it before or alongside agent training and fine-tuning: define evaluation cases, review complete execution traces, label claim and action failures, compare versions, and export trusted improvement data. Agent Review Studio prepares evidence and datasets that can guide prompt, retrieval, tool, workflow or later model-training work; it does not itself change model weights.
 
 Fresh installations contain no preloaded agent, workspace or evaluation runs. Each operator creates and names the agent, harness, workflow or service they want to evaluate. Chaser Agent exists only in the owner's personal browser data and as an optional importable case-study pack; it is not a product default.
 
 **Live application:** [agent-review-studio.chaseintech.chatgpt.site](https://agent-review-studio.chaseintech.chatgpt.site)
 
-Version 1.5.0 in this branch is a verified local release candidate. Publication to the live application and merge to the public main branch remain separate approval-gated actions.
+Version 1.5.0 is the current public repository release. The hosted application is a separate deployment surface, so its displayed version should be checked before treating it as equivalent to the repository release.
 
 ![Agent Review Studio evidence workspace](docs/media/agent-review-studio-light.png)
 
@@ -55,7 +57,7 @@ The complete beginner walkthrough is in [docs/OPERATOR_GUIDE.md](docs/OPERATOR_G
 
 ## Working capabilities
 
-- A prominent workspace switcher that lists every active workspace with a directly labelled Delete action for custom workspaces, protected-example status, archived-workspace access and guided creation.
+- A prominent workspace switcher that lists every active workspace with a directly labelled Delete action, archived-workspace access and guided creation.
 - Reversible archive and restore plus guarded permanent deletion that requires the exact workspace name.
 - An accordion-style multi-workspace stack where every workspace owns its **Pages** and **Runs** tree, remembers its view and collapses when another opens.
 - Visible three-dot and right-click workspace actions for rename, detail editing, archive and exact-name-confirmed deletion.
@@ -142,11 +144,11 @@ The test suite covers adapter aliases, JSON Lines recovery, nested run grouping,
 - Finishing a review creates a new review revision and exports JSON; it never rewrites the imported bundle.
 - Re-review links a new revision to its parent instead of overwriting the earlier judgement.
 - No provider call, external tool action, memory promotion, training job or deployment is authorized by a review.
-- Version 1.4.0 remains local-first. The localhost bridge is a bounded single-operator adapter, not a hosted multi-user execution service. Authentication, queues, rate limiting and network context transport remain a later governed HTTP/server phase.
+- Version 1.5.0 remains local-first. The localhost bridge is a bounded single-operator adapter, not a hosted multi-user execution service. Authentication, queues, rate limiting and network context transport remain a later governed HTTP/server phase.
 
 ## Open-source release
 
-Version 1.0 is licensed under Apache-2.0 and includes contribution and security policies. The source is public at [github.com/chasedndt/agent-review-studio](https://github.com/chasedndt/agent-review-studio), and the working application is deployed through OpenAI Sites. The package remains `private: true` to prevent accidental npm registry publication; that flag does not limit source-code use under the repository license.
+Version 1.5.0 is licensed under Apache-2.0 and includes contribution and security policies. The source is public at [github.com/chasedndt/agent-review-studio](https://github.com/chasedndt/agent-review-studio), and the working application is deployed through OpenAI Sites. The package remains `private: true` to prevent accidental npm registry publication; that flag does not limit source-code use under the repository license.
 
 ## Engineering map
 
