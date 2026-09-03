@@ -13,6 +13,7 @@ Version 1.3.1 displayed a workspace list and then repeated the selected workspac
 - The expanded row contains its own Pages/Runs switch, page routes, dated sessions and immutable run list.
 - Pages/Runs choice is remembered per workspace for the current browser session.
 - A three-dot menu and right-click expose the same rename, detail, archive and guarded-delete actions.
+- The top-bar Workspace control opens a full manager rather than a switch-only native select. Every custom workspace has a visible **Delete** action in this menu; the built-in example is clearly marked as protected.
 - Rename preserves the workspace ID and therefore keeps every dataset, run, review and imported artifact linked.
 - Permanent deletion remains blocked for the built-in example and requires exact-name confirmation for local workspaces.
 - The desktop sidebar width is browser-local state clamped from 248 to 390 pixels. Pointer drag, Arrow Left/Right and Home are supported; double-click resets to 320 pixels.

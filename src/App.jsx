@@ -253,6 +253,7 @@ export function App() {
   const [expandedWorkspaceId, setExpandedWorkspaceId] = useState(selectedProjectId);
   const [workspaceViews, setWorkspaceViews] = useState({});
   const [workspaceMenuId, setWorkspaceMenuId] = useState("");
+  const [workspaceSwitcherOpen, setWorkspaceSwitcherOpen] = useState(false);
   const [renameWorkspaceId, setRenameWorkspaceId] = useState("");
   const [deleteCandidateId, setDeleteCandidateId] = useState("");
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark");
@@ -317,6 +318,18 @@ export function App() {
     window.addEventListener("click", close);
     return () => window.removeEventListener("click", close);
   }, [workspaceMenuId]);
+
+  useEffect(() => {
+    if (!workspaceSwitcherOpen) return undefined;
+    const close = () => setWorkspaceSwitcherOpen(false);
+    const closeOnEscape = (event) => { if (event.key === "Escape") setWorkspaceSwitcherOpen(false); };
+    window.addEventListener("click", close);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [workspaceSwitcherOpen]);
 
   const workspace = workspaces.find((item) => item.id === selectedProjectId) || workspaces[0] || BUILT_IN_WORKSPACE;
   const runs = projectRuns[selectedProjectId] || [];
@@ -500,6 +513,7 @@ export function App() {
     setSelectedProjectId(workspaceId);
     setExpandedWorkspaceId(workspaceId);
     setWorkspaceMenuId("");
+    setWorkspaceSwitcherOpen(false);
     if (closeMobile) setMobileNavOpen(false);
   }
 
@@ -669,7 +683,28 @@ export function App() {
       <header className="topbar">
         <div className="brand"><span className="brand-mark"><img src="/assets/agent-review-studio-mark.png" alt="" /></span><strong><span>AGENT REVIEW STUDIO</span><small>REVIEW · LABEL · IMPROVE</small></strong></div>
         <div className="top-context">
-          <label className="workspace-switcher" data-tour="workspace-switcher"><span>Workspace</span><select aria-label="Switch evaluation workspace" value={selectedProjectId} onChange={(event) => selectWorkspace(event.target.value)}>{activeWorkspaces.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <div className="workspace-switcher" data-tour="workspace-switcher" onClick={(event) => event.stopPropagation()}>
+            <span>Workspace</span>
+            <button type="button" className="workspace-picker-trigger" aria-haspopup="menu" aria-expanded={workspaceSwitcherOpen} onClick={() => setWorkspaceSwitcherOpen((current) => !current)}>
+              <span>{workspace.name}</span><CaretDownIcon size={15} />
+            </button>
+            {workspaceSwitcherOpen && <div className="workspace-picker-menu" role="menu" aria-label="Switch or manage workspaces">
+              <header><strong>Workspaces</strong><button type="button" onClick={() => { setWorkspaceSwitcherOpen(false); setShowWorkspaceModal(true); }}><PlusIcon size={15} /> New</button></header>
+              <div className="workspace-picker-list">
+                {activeWorkspaces.map((item) => <div key={item.id} className={`workspace-picker-row ${item.id === selectedProjectId ? "selected" : ""}`}>
+                  <button type="button" role="menuitem" className="workspace-picker-select" aria-current={item.id === selectedProjectId ? "true" : undefined} onClick={() => selectWorkspace(item.id)}>
+                    <FolderIcon size={17} weight={item.id === selectedProjectId ? "fill" : "regular"} />
+                    <span><strong>{item.name}</strong><small>{item.agentName}</small></span>
+                    {item.id === selectedProjectId && <CheckIcon size={15} />}
+                  </button>
+                  {item.kind !== "built-in"
+                    ? <button type="button" role="menuitem" className="workspace-picker-delete" aria-label={`Delete ${item.name}`} title={`Delete ${item.name}`} onClick={() => { setWorkspaceSwitcherOpen(false); setDeleteCandidateId(item.id); }}><TrashIcon size={16} /><span>Delete</span></button>
+                    : <span className="workspace-picker-protected" title="Built-in example cannot be deleted"><LockIcon size={15} /><span>Built-in</span></span>}
+                </div>)}
+              </div>
+              {archivedWorkspaces.length > 0 && <button type="button" className="workspace-picker-archived" onClick={() => { setWorkspaceSwitcherOpen(false); setActivePage("settings"); }}><ArchiveIcon size={15} /> Manage {archivedWorkspaces.length} archived workspace{archivedWorkspaces.length === 1 ? "" : "s"}</button>}
+            </div>}
+          </div>
           <div><span>Agent / harness</span><strong>{workspace.agentName}</strong></div>
           <div><span>Session</span><strong>{run?.sessionLabel || "No session selected"}</strong></div>
           {run && <div className="run-progress"><span>Run {activeSessionRunIndex + 1} of {activeSessionRuns.length}</span><div>{activeSessionRuns.map((item, index) => <i key={item.id} className={index === activeSessionRunIndex ? "active" : ""} />)}</div></div>}

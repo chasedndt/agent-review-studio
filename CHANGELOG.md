@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Replaced the top-bar native selector with a complete workspace menu that exposes an obvious Delete action beside every custom workspace while keeping exact-name confirmation and built-in-example protection.
+
 ## 1.4.0 — 2026-09-03
 
 - Replaced the duplicated workspace list and selected-scope card with one accordion-style workspace stack.

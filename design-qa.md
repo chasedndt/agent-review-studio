@@ -2,6 +2,24 @@
 
 Date: 3 September 2026
 
+## Top-bar workspace deletion acceptance
+
+- Replaced the switch-only native Workspace select with a complete workspace manager.
+- The opened menu shows every active workspace, its agent/harness identity and a plainly labelled **Delete** action beside every custom workspace.
+- The built-in Chaser Agent example is labelled **Built-in** with a lock instead of presenting an action that cannot succeed.
+- Selecting **Delete** opened the existing exact-name confirmation. The permanent button stayed disabled for an empty or mismatched value and enabled only after the full workspace name was entered.
+- The example workspace was preserved after testing by choosing **Keep workspace**.
+- At 390 × 844, the menu remained inside the viewport at 370 pixels wide with no horizontal overflow and the Delete label remained visible.
+- The in-app browser console contained no errors or warnings; development-only Vite and React informational messages remained.
+
+Evidence is stored in `E:\Visual QA\Agent Review Studio Visual QA\Current Reviews\2026-09-03-workspace-delete-control`.
+
+Automated acceptance after implementation:
+
+- `npm test` — 34 passed, 0 failed.
+- Production build and Sites bundle preparation — passed.
+- `git diff --check` — passed.
+
 ## Version 1.4 workspace accordion and sidebar acceptance
 
 - Created a second real browser-local workspace, **Website QA Harness — Example**, alongside the built-in Chaser Agent workspace.

@@ -55,7 +55,7 @@ The complete beginner walkthrough is in [docs/OPERATOR_GUIDE.md](docs/OPERATOR_G
 
 ## Working capabilities
 
-- A prominent workspace switcher plus guided setup for workspace name, agent/harness name, intended outcome and primary evaluation goal.
+- A prominent workspace switcher that lists every active workspace with a directly labelled Delete action for custom workspaces, protected-example status, archived-workspace access and guided creation.
 - Reversible archive and restore plus guarded permanent deletion that requires the exact workspace name.
 - An accordion-style multi-workspace stack where every workspace owns its **Pages** and **Runs** tree, remembers its view and collapses when another opens.
 - Visible three-dot and right-click workspace actions for rename, detail editing, archive and exact-name-confirmed deletion.
